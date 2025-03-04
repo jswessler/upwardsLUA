@@ -362,11 +362,11 @@ function Player:update(dt)
     --silver heart calculation (later)
 
     --down collision detection
-    for i=1,8,1 do
-        self.xpos = self.xpos + self.xv*(dt*230/8)
-        self.ypos = self.ypos + self.yv*(dt*220/8)
+    for i=1,2,1 do
+        self.xpos = self.xpos + self.xv*(dt*230/2)
+        self.ypos = self.ypos + self.yv*(dt*220/2)
         self.colliderCount = 0
-        for i = -21, 29, 2 do
+        for i = -23, 31, 2 do
             if self.se:detect(i, self.col[1])[1] then
                 self.colliderCount = self.colliderCount + 1
             end
@@ -378,6 +378,16 @@ function Player:update(dt)
 
     --If you're on the ground
     if self.colliderCount > 0 then
+
+        --don't sink into the ground
+        for i=0,100,1 do
+            if self.se:detect(0, self.col[1]-1)[1] then
+                break
+            end
+            self.ypos = self.ypos - 0.001
+        end
+
+        --first frame on ground
         if self.onGround == false then
             self.ypos = self.ypos + (dt*140)
             self.energy = self.energy + (5*self.eRegen)+0.5
@@ -439,7 +449,7 @@ function Player:update(dt)
 
     --Right detection
     self.colliderCount = 0
-    for i = self.col[2]+10, 6, 2 do
+    for i = self.col[2]+10, 0, 2 do
         if self.se:detect(self.col[3],i)[1] then
             self.colliderCount = self.colliderCount + 1
         end
@@ -451,7 +461,7 @@ function Player:update(dt)
 
     --Left Detection
     self.colliderCount = 0
-    for i = self.col[2]+10, 6, 2 do
+    for i = self.col[2]+10, 0, 2 do
         if self.se:detect(self.col[4],i)[1] then
             self.colliderCount = self.colliderCount + 1
         end

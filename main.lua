@@ -16,6 +16,7 @@ function love.load()
     require "player"
     require "sensor"
     require "camera"
+    require "heart"
 
     --Set up window & display
     WindowWidth = 1280
@@ -73,8 +74,14 @@ end
 
 function love.draw(dt)
 
+    --Update WindowWidth & WindowHeight
+    WindowWidth, WindowHeight = love.graphics.getDimensions()
+    GameScale = WindowWidth/1280
+
+    simpleText("UpwardsLUA up-l.02-1 ",20,5,10)
     --debug text & sensor
     if love.keyboard.isDown('r') then
+        
         simpleText("Xpos - "..Pl.xpos,16,10,50)
         simpleText("Ypos - "..Pl.ypos,16,10,70)
         simpleText("Xv - "..Pl.xv,16,10,90)
@@ -89,7 +96,6 @@ function love.draw(dt)
         simpleText("Animation = "..Pl.animation,16,10,230)
         simpleText("NextAni = "..Pl.nextAni,16,10,250)
         simpleText("Max Speed = "..Pl.maxSpd,16,10,270)
-        simpleText("AniiTimer = "..Pl.aniiTimer,16,10,290)
         --draw sensors & player circle
         love.graphics.circle('fill',Pl.xpos-CameraX,Pl.ypos-CameraY,12)
         Pl.se:draw(true)

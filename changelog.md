@@ -1,5 +1,9 @@
 Release Log:
 
+up-l.02-1
+- Partially implemented resolution scaling
+- Partial fix for clipping into the ground
+
 up-l.01-1
 - Initial port to Love2d
 

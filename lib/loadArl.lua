@@ -35,7 +35,7 @@ function loadARL(filename,gamePath)
         end
         if counter > 64 then --level data
             --get positions
-            local x = (counter-64)%LevelWidth
+            local x = ((counter-64)%LevelWidth)
             local y = math.floor((counter-64)/LevelWidth)
             --if block = 0, then skip ahead RLE bytes
             if byte == 0 then
@@ -53,7 +53,6 @@ function loadARL(filename,gamePath)
                 cou = cou + 1
                 local byte2 = string.byte(contents,cou,cou)
                 LevelData[x.."-"..y] = byte.."-"..byte2
-                --print("Just Inputted "..x.."-"..y.." as "..byte.."-"..byte2)
             end
 
             if LevelData[x.."-"..y] == "5-0" then
@@ -64,21 +63,16 @@ function loadARL(filename,gamePath)
         cou = cou + 1
     end
     LevelData["0-0"] = "0-0"
-    print("Data = "..LevelData["0-0"])
 
     for i,v in pairs(LevelData) do
         local file = "Images/Tiles/"..v..".png"
-        --print(file)
         local f = io.open(file,'r')
         if f~= nil then
-            --print("Loading ".."Images/Tiles/"..v..".png into "..v)
             if LoadedTiles[v]~=nil then
-                --print(v.." Already loaded")
             else
                 LoadedTiles[v] = love.graphics.newImage("Images/Tiles/"..v..".png")
             end
         end
     end
-    --print(LoadedTiles["1-0"])
 
 end
