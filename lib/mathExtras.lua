@@ -20,6 +20,17 @@ function avg(list) --average of a list... python...
   return t/#list
 end
 
+function split(str,delimiter) --thanks google searchlabs!
+  local result = {}
+  if str == nil then
+    return {0,0}
+  end
+  for part in string.gmatch(str, "([^" .. delimiter .. "]+)") do
+    table.insert(result,part)
+  end
+  return result
+end
+
 function createList(size,value)
   local t = {}
   for i=1,size do

@@ -6,6 +6,11 @@ if arg[2] == "debug" then
 end
 
 function love.load()
+    
+    --Build Id
+    BuildId = "up-l.03"
+
+    --Imports
     Object = require "lib.classic"
     require "lib.simplestats"
     require "lib.mathExtras"
@@ -17,6 +22,7 @@ function love.load()
     require "sensor"
     require "camera"
     require "heart"
+    require "playerCollision"
 
     --Set up window & display
     WindowWidth = 1280
@@ -60,13 +66,27 @@ function love.load()
     --kunaiImg = love.graphics.newImage("")
     loadARL('lvl1.arl',Path)
 
+
 end
 
 function love.update(dt)
     MouseX, MouseY = love.mouse.getPosition()
     normalCamera(MouseX,MouseY,dt)
 
+
+    --Update player physics & animation
     Pl:update(dt)
+
+    --Update player internal collision detection (non-solid objects)
+    for i=Pl.col[2]+8,Pl.col[1]-8,8 do
+        for j=Pl.col[4]+8,Pl.col[3]-4,8 do
+            local ret = Pl.se:detect(j,i)
+            playerCollisionDetect(ret[2],ret[3],dt)
+        end
+    end
+
+    --Update tiles
+    tileProperties(dt)
 
 
 end
@@ -78,7 +98,7 @@ function love.draw(dt)
     WindowWidth, WindowHeight = love.graphics.getDimensions()
     GameScale = WindowWidth/1280
 
-    simpleText("UpwardsLUA up-l.02-1 ",20,5,10)
+    simpleText("Upwards "..BuildId,20,5,10)
     --debug text & sensor
     if love.keyboard.isDown('r') then
         
@@ -124,8 +144,15 @@ function love.draw(dt)
             x = x - (x%32)
             y = y - (y%32)
             local bl = LevelData[xt.."-"..yt]
+
+            --Draw tile
             if (LoadedTiles[bl]~=nil) then
                 love.graphics.draw(LoadedTiles[bl],(x-CameraX)*GameScale,(y-CameraY)*GameScale,0,1,1)
+            end
+
+            --Draw block text when pressing T
+            if love.keyboard.isDown("t") and bl~= '0-0' then
+                simpleText(bl,14,2+(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
             end
         end
     end

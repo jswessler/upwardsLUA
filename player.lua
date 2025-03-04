@@ -362,11 +362,11 @@ function Player:update(dt)
     --silver heart calculation (later)
 
     --down collision detection
-    for i=1,2,1 do
+    for j=1,2,1 do
         self.xpos = self.xpos + self.xv*(dt*230/2)
         self.ypos = self.ypos + self.yv*(dt*220/2)
         self.colliderCount = 0
-        for i = -23, 31, 2 do
+        for i = -19, 27, 2 do
             if self.se:detect(i, self.col[1])[1] then
                 self.colliderCount = self.colliderCount + 1
             end
@@ -380,11 +380,11 @@ function Player:update(dt)
     if self.colliderCount > 0 then
 
         --don't sink into the ground
-        for i=0,100,1 do
-            if self.se:detect(0, self.col[1]-1)[1] then
+        for i=0,15,1 do
+            if not self.se:detect(0, self.col[1]-2)[1] then
                 break
             end
-            self.ypos = self.ypos - 0.001
+            self.ypos = self.ypos - 0.01
         end
 
         --first frame on ground
@@ -415,7 +415,7 @@ function Player:update(dt)
         self.abilities[3] = 4 --double jump
         self.abilities[4] = 2 --dive
         self.abilities[5] = 2 --dive jump
-        self.energy = self.energy + (self.colliderCount/26)*(300*dt*(self.eRegen+0.001))
+        self.energy = self.energy + (275*dt*(self.eRegen+0.001))
     else
         --regen energy if you're falling quickly
         self.onGround = false
@@ -433,19 +433,20 @@ function Player:update(dt)
         --up detection
 
         self.colliderCount = 0
-        for i = -21, 29, 2 do
+        for i = -19, 27, 2 do
             if self.se:detect(i, self.col[2])[1] then
                 self.colliderCount = self.colliderCount + 1
             end
         end
         if self.colliderCount > 0 then
             self.yv = 0
-            self.ypos = self.ypos + (dt*100)
+            self.ypos = self.ypos + 1
             self.jCounter = 0
         end
     end
 
     self.onWall = 0
+    self.WJEnabled = 0
 
     --Right detection
     self.colliderCount = 0
@@ -457,6 +458,9 @@ function Player:update(dt)
     if self.colliderCount > 0 then
         self.onWall = 1
         self.xv = 0
+        if self.colliderCount > 30 then
+            self.WJEnabled = 1
+        end
     end
 
     --Left Detection
@@ -469,6 +473,9 @@ function Player:update(dt)
     if self.colliderCount > 0 then
         self.onWall = -1
         self.xv = 0
+        if self.colliderCount > 30 then
+            self.WJEnabled = -1
+        end
     end
 
     --keybinds & actions
@@ -481,7 +488,7 @@ function Player:update(dt)
             end
             self.abilities[1] = 0
             self.jCounter = 8
-            self.yv = self.yv - (1.25 + (self.slideBoost/50000) + (0.025*math.abs(self.xv)))
+            self.yv = self.yv - (0.8 + (self.slideBoost/50000) + (0.125*math.abs(self.xv)))
             if self.slideBoost ~= 0 then
                 self.energy = self.energy - (60*dt)
                 self.xv = self.xv * (1+self.slideBoost/250000)
@@ -492,7 +499,7 @@ function Player:update(dt)
 
         --jump extension
         if not self.onGround and self.abilities[1]<=0 and self.abilities[2]>0 and self.energy > 0.2 then
-            self.yv = self.yv - (dt*100) * 0.175
+            self.yv = self.yv - (dt*20)
             if self.abilities[2] < 12.5 then
                 self.energy = self.energy - (20*dt)
             end
@@ -598,7 +605,8 @@ function Player:update(dt)
             self.aniiTimer = 13
         end
 
-        if self.wallClimb and self.energy > 6 and ((love.keyboard.isDown("a") and self.onWall == 1) or (love.keyboard.isDown("d") and self.onWall == -1)) then
+        --Wall Jump
+        if self.wallClimb and self.energy > 6 and ((love.keyboard.isDown("a") and self.onWall == 1 and self.WJEnabled == 1) or (love.keyboard.isDown("d") and self.onWall == -1 and self.WJEnabled == -1)) then
             self.yv = self.yv * 0.25
             self.yv = -3.75
             self.jCounter = 10

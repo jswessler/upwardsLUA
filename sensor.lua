@@ -11,21 +11,20 @@ end
 function Sensor:detect(x,y)
     local xp = math.min(LevelWidth*32,math.max(0,self.owner.xpos+x+self.owner.xv))
     local yp = math.min(LevelHeight*32,math.max(0,self.owner.ypos+y+self.owner.yv))
-    --print(xp.."-"..yp)
-    local block = math.floor(xp/32).."-"..math.floor(yp/32)
-    local ret = LevelData[block]
+    local block = math.floor(xp/32).."-"..math.floor(yp/32) --location of block
+    local ret = LevelData[block] --actual block found
     if ret == nil or string.sub(ret,1,1) == "0" then
         ret = nil
         table.insert(self.locations,{false,false,xp,yp})
 
     else
-        --print("Sensor Found "..ret.." at "..block)
 
         if string.sub(ret,1,1) == "1" then
             table.insert(self.locations,{true,true,xp,yp})
             return {true,ret,block}
         else
             table.insert(self.locations,{true,false,xp,yp})
+            return {false,ret,block}
         end
     end
     return {false,false,ret,block}

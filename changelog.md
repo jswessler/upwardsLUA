@@ -1,5 +1,10 @@
 Release Log:
 
+up-l.03
+- Fix for clipping into the ground
+- Walljump only works when you're against a big wall
+- Non-solid collisions, tile updating
+
 up-l.02-1
 - Partially implemented resolution scaling
 - Partial fix for clipping into the ground
