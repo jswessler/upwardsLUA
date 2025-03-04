@@ -1,0 +1,21 @@
+0-0\Empty
+1-0\Basic Block
+4-0\Dash Crystal
+5-0\Spawn point
+5-1\Force Crash Tile
+6-0\Do Not Use
+7-0\Full Blue Heart
+7-1\Quarter Blue Heart
+7-2\Half Blue Heart
+7-3\3/4 Blue Heart
+7-4\Full Blue Heart
+8-1\Half Silver Heart
+8-2\Full Silver Heart
+9-0\Empty Red Heart
+9-1\Quarter Red Heart
+9-2\Half Red Heart
+9-3\3/4 Red Heart
+9-4\Full Red Heart
+10-1\Spent 1-Time Use Block
+10-1\Blood Heart
+11-1\Phone Call
