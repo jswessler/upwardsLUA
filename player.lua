@@ -301,7 +301,7 @@ function Player:animate(dt)
             elseif self.nextAni == 'fastfall' then
                 if self.aniTimer < 0 then
                     self.aniFrame = self.aniFrame + 1
-                    self.aniTimer = math.floor(20-(2*self.yv))
+                    self.aniTimer = math.floor(19-(1.5*self.yv))
                 end
                 if self.aniFrame > 4 then
                     self.aniFrame = 1
@@ -380,11 +380,11 @@ function Player:update(dt)
     if self.colliderCount > 0 then
 
         --don't sink into the ground
-        for i=0,15,1 do
+        for i=0,60,1 do
             if not self.se:detect(0, self.col[1]-2)[1] then
                 break
             end
-            self.ypos = self.ypos - 0.01
+            self.ypos = self.ypos - 0.02
         end
 
         --first frame on ground
@@ -395,10 +395,20 @@ function Player:update(dt)
                 self.animation = 'landed'
                 self.aniTimer = 1+math.floor(self.yv*2.5)
             elseif self.yv > 4.5 then
-                self.aniTimer = 20
+                self.aniTimer = 21
                 self.animation = 'hardlanded'
-                self.maxSpd = 1.8
-                --fall damage here
+                self.maxSpd = 1.5
+                local dmgAmt = 0
+                if self.yv > 7.75 then
+                    dmgAmt = 3
+                elseif self.yv > 6.75 then
+                    dmgAmt = 2
+                elseif self.yv > 5.75 then
+                    dmgAmt = 1
+                end
+                for i=#Health,1,-1 do
+                    dmgAmt = Health[i]:takeDmg(dmgAmt)
+                end
             end
         end
         self.onGround = true
@@ -488,7 +498,7 @@ function Player:update(dt)
             end
             self.abilities[1] = 0
             self.jCounter = 8
-            self.yv = self.yv - (0.8 + (self.slideBoost/50000) + (0.125*math.abs(self.xv)))
+            self.yv = self.yv - (0.6 + (self.slideBoost/50000) + (0.14*math.abs(self.xv)))
             if self.slideBoost ~= 0 then
                 self.energy = self.energy - (60*dt)
                 self.xv = self.xv * (1+self.slideBoost/250000)
@@ -499,7 +509,7 @@ function Player:update(dt)
 
         --jump extension
         if not self.onGround and self.abilities[1]<=0 and self.abilities[2]>0 and self.energy > 0.2 then
-            self.yv = self.yv - (dt*20)
+            self.yv = self.yv - (dt*22)
             if self.abilities[2] < 12.5 then
                 self.energy = self.energy - (20*dt)
             end
@@ -521,9 +531,9 @@ function Player:update(dt)
             if self.yv > 0.5 then
                 self.yv = 0.5
             end
-            self.yv = self.yv - (dt*90) * (0.9+0.0125*math.abs(self.xv))
+            self.yv = self.yv - dt*(64 + (6*math.abs(self.xv)))
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
-            self.xv = self.xv * (1.1^dt)
+            self.xv = self.xv * (7^dt)
             self.abilities[3] = self.abilities[3] - (60*dt)
             self.energy = self.energy - (200*dt)
             self.jCounter = 10

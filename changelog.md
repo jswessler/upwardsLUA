@@ -1,5 +1,12 @@
 Release Log:
 
+up-l.04
+- Implemented health, hearts, damage & healing
+- Background color
+- Collision detection works properly for subtypes
+- Animation fixes
+- Fixes for clipping into the floor
+
 up-l.03
 - Fix for clipping into the ground
 - Walljump only works when you're against a big wall

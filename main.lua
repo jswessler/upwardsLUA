@@ -8,7 +8,7 @@ end
 function love.load()
     
     --Build Id
-    BuildId = "up-l.03"
+    BuildId = "up-l.04"
 
     --Imports
     Object = require "lib.classic"
@@ -21,7 +21,7 @@ function love.load()
     require "player"
     require "sensor"
     require "camera"
-    require "heart"
+    local Heart = require "heart"
     require "playerCollision"
 
     --Set up window & display
@@ -51,6 +51,7 @@ function love.load()
     ThrownKunai = {}
     Particles = {}
     Buttons = {}
+    Health = {Heart(1,4),Heart(1,4)}
 
     --initial values
     Kunais = 5
@@ -93,6 +94,9 @@ end
 
 
 function love.draw(dt)
+    love.graphics.setColor(0.1,0.1,0.1,1)
+    love.graphics.rectangle("fill",0,0,WindowWidth,WindowHeight)
+    love.graphics.setColor(1,1,1,1)
 
     --Update WindowWidth & WindowHeight
     WindowWidth, WindowHeight = love.graphics.getDimensions()
@@ -117,7 +121,6 @@ function love.draw(dt)
         simpleText("NextAni = "..Pl.nextAni,16,10,250)
         simpleText("Max Speed = "..Pl.maxSpd,16,10,270)
         --draw sensors & player circle
-        love.graphics.circle('fill',Pl.xpos-CameraX,Pl.ypos-CameraY,12)
         Pl.se:draw(true)
 
     end
@@ -160,7 +163,21 @@ function love.draw(dt)
     --Draw HUD
 
     --Hex
-    love.graphics.draw(HexImg,10-(Pl.xv*5),WindowHeight-250-math.min(0,Pl.yv*6),0,0.3,0.3,0,0)
+    HudX = -Pl.xv*5
+    HudY = -(math.min(0,Pl.yv*6))
+    
+    love.graphics.draw(HexImg,0+HudX,WindowHeight-200+HudY,(-4.289/57.19),0.25,0.25,0,0)
+    --Hearts
+    for i,hp in ipairs(Health) do
+        if hp.amt <= 0 and hp.type ~= 1 then
+            table.remove(Health,i)
+        else
+            hp.img = "Images/Hearts/"..hp.fileExt..hp.amt..".png"
+            local img = love.graphics.newImage(hp.img)
+            love.graphics.draw(img,(120+(68*i))+HudX,WindowHeight-77-(i*5.1)+HudY,(-4.289/57.19),4,4)
+        end
+        
+    end
 
     --Energy bar (ported from 1 line python monstrosity)
     --pg.draw.aaline(HUD,(60,60,60) if 10*j+(i/2)>=pl.energy else (220-(pl.energy*6),40+(pl.energy*6),40) if pl.energy<30 else (40,300-pl.energy,-400+(pl.energy*6)) if pl.energy>80 else (40,220,40), (WID-20-i-(22*j)+int(energyFade),HEI-55-(j*1.666)-(i/13.333)+int(energyFade/12)+(1 if i==0 or i==19 else 0)),(WID-20-i-(22*j)+int(energyFade),HEI-20-(j*1.666)-(i/13.333)+int(energyFade/12)-(1 if i==0 or i==19 else 0)))
@@ -176,9 +193,9 @@ function love.draw(dt)
                 love.graphics.setColor(0.1,1,0.3,1)
             end
             if i == 1 or i == 20 then
-                love.graphics.line(WindowWidth-20-i-(22*j),WindowHeight-54-(j*1.66666)-(i/13.333333),WindowWidth-20-i-(22*j),WindowHeight-21-(j*1.66666)-(i/13.33333))
+                love.graphics.line(WindowWidth-20-i-(22*j)+HudX,WindowHeight-54-(j*1.66666)-(i/13.333333)+HudY,WindowWidth-20-i-(22*j)+HudX,WindowHeight-21-(j*1.66666)-(i/13.33333)+HudY)
             else
-                love.graphics.line(WindowWidth-20-i-(22*j),WindowHeight-55-(j*1.66666)-(i/13.333333),WindowWidth-20-i-(22*j),WindowHeight-20-(j*1.66666)-(i/13.33333))
+                love.graphics.line(WindowWidth-20-i-(22*j)+HudX,WindowHeight-55-(j*1.66666)-(i/13.333333)+HudY,WindowWidth-20-i-(22*j)+HudX,WindowHeight-20-(j*1.66666)-(i/13.33333)+HudY)
             end
             love.graphics.setColor(1,1,1,1)
         end

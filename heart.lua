@@ -21,10 +21,7 @@ function Heart:new(typ,amt)
         self.maxHp = 1
     end
     self.img = ''
-end
-
-function Heart:setImg(img)
-    self.img = img
+    print(self.amt)
 end
 
 function Heart:takeDmg(amt)
@@ -35,23 +32,25 @@ function Heart:takeDmg(amt)
         return temp
     else
         self.amt = self.amt - amt
-        return amt
+        return 0
     end
 end
 
 function Heart:heal(amt)
     if self.type == 1 or self.type == 2 then
         if self.amt == self.maxHp then
-            return 0
+            return amt
         elseif amt + self.amt > self.maxHp then
             amt = amt - self.maxHp - self.amt
             self.amt = self.maxHp
             return amt
         else
             self.amt = self.amt + amt
-            return amt
+            return 0
         end
     else
-        return 0
+        return amt
     end
 end
+
+return Heart

@@ -38,3 +38,10 @@ function createList(size,value)
   end
   return t
 end
+
+function reverseList(ls)
+	for i=1,math.floor(#ls/2),1 do
+		ls[i],ls[#ls-i+1] = ls[#ls-i+1],ls[i]
+	end
+	return ls
+end

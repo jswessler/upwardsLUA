@@ -27,7 +27,7 @@ function Sensor:detect(x,y)
             return {false,ret,block}
         end
     end
-    return {false,false,ret,block}
+    return {false,ret,block}
 end
 
 function Sensor:draw(qq)
