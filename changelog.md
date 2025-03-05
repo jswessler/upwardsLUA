@@ -1,11 +1,18 @@
 Release Log:
 
+up-l.05
+- Implemented sliding
+- Physics fixes
+- Added sliding under obstacles (keeps you in slide animation while you go under)
+- Fixed last frame of double jump animation
+- Fixes for some dive-related cheese techs
+
 up-l.04
 - Implemented health, hearts, damage & healing
 - Background color
 - Collision detection works properly for subtypes
 - Animation fixes
-- Fixes for clipping into the floor
+- Further fixes for clipping into the ground
 
 up-l.03
 - Fix for clipping into the ground

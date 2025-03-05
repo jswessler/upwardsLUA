@@ -8,7 +8,7 @@ end
 function love.load()
     
     --Build Id
-    BuildId = "up-l.04"
+    BuildId = "up-l.05"
 
     --Imports
     Object = require "lib.classic"
@@ -72,7 +72,7 @@ end
 
 function love.update(dt)
     MouseX, MouseY = love.mouse.getPosition()
-    normalCamera(MouseX,MouseY,dt)
+    normalCamera(MouseX,MouseY,dt,math.max(0,1.5*(Pl.yv-2.5)))
 
 
     --Update player physics & animation
@@ -118,7 +118,7 @@ function love.draw(dt)
         simpleText("Gravity = "..Pl.gravity,16,10,190)
         simpleText("JCounter = "..Pl.jCounter,16,10,210)
         simpleText("Animation = "..Pl.animation,16,10,230)
-        simpleText("NextAni = "..Pl.nextAni,16,10,250)
+        simpleText("Slide = "..Pl.slide,16,10,250)
         simpleText("Max Speed = "..Pl.maxSpd,16,10,270)
         --draw sensors & player circle
         Pl.se:draw(true)

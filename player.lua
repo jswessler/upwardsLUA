@@ -166,13 +166,13 @@ function Player:animate(dt)
                 self.aniFrame = 1
             end
             if self.energy > 30 then
-                if math.abs(self.xv) > 0.5 then
+                if math.abs(self.xv) < 0.5 then
                     self.img = love.graphics.newImage("Images/Aria/hovern"..self.aniFrame..".png")
                 else    
                     self.img = love.graphics.newImage("Images/Aria/hoverr"..self.aniFrame..".png")
                 end
             else
-                if math.abs(self.xv) > 0.5 then
+                if math.abs(self.xv) < 0.5 then
                     self.img = love.graphics.newImage("Images/Aria/hovernl"..self.aniFrame..".png")
                 else    
                     self.img = love.graphics.newImage("Images/Aria/hoverrl"..self.aniFrame..".png")
@@ -244,9 +244,9 @@ function Player:animate(dt)
                 self.animation = 'falling'
                 if self.aniTimer < 0 then
                     self.aniFrame = self.aniFrame + 1
-                    self.aniTimer = 3
+                    self.aniTimer = 3.5
                 end
-                if self.aniFrame > 4 then
+                if self.aniFrame > 5 then
                     self.nextAni = 'mid'
                     self.aniiTimer = 13
                 end
@@ -258,7 +258,7 @@ function Player:animate(dt)
             elseif self.animation == 'djumpup' then
                 if self.aniTimer < 0 then
                     self.aniFrame = self.aniFrame + 1
-                    self.aniTimer = 3
+                    self.aniTimer = 4
                 end
                 if self.aniFrame > 3 then
                     self.nextAni = 'djump'
@@ -271,7 +271,7 @@ function Player:animate(dt)
             elseif self.animation == 'djumpdown' then
                 if self.aniTimer < 0 then
                     self.aniFrame = self.aniFrame + 1
-                    self.aniTimer = 3
+                    self.aniTimer = 4
                 end
                 if self.aniFrame > 3 then
                     self.nextAni = 'djump'
@@ -345,7 +345,7 @@ function Player:update(dt)
 
     --prevent energy from going out of bounds
     if self.energy < 0 then
-        self.energy = self.energy + 4*dt
+        self.energy = self.energy + 240*dt
     end
     if self.energy > 100 then
         self.energy = self.energy - 2*dt
@@ -436,7 +436,7 @@ function Player:update(dt)
         if self.slide > 0 then
             self.slide = self.slide - math.min(5,self.slide)
             self.jCounter = 1
-            self.energy = self.energy - 0.1
+            self.energy = self.energy - (60*dt)
             self.nextAni = 'low'
         end
 
@@ -509,7 +509,7 @@ function Player:update(dt)
 
         --jump extension
         if not self.onGround and self.abilities[1]<=0 and self.abilities[2]>0 and self.energy > 0.2 then
-            self.yv = self.yv - (dt*22)
+            self.yv = self.yv - (dt*20)
             if self.abilities[2] < 12.5 then
                 self.energy = self.energy - (20*dt)
             end
@@ -531,7 +531,7 @@ function Player:update(dt)
             if self.yv > 0.5 then
                 self.yv = 0.5
             end
-            self.yv = self.yv - dt*(64 + (6*math.abs(self.xv)))
+            self.yv = self.yv - dt*(60 + (6*math.abs(self.xv)))
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
             self.xv = self.xv * (7^dt)
             self.abilities[3] = self.abilities[3] - (60*dt)
@@ -634,12 +634,27 @@ function Player:update(dt)
         if self.abilities[4] > 0 and self.abilities[1]<=0 and self.energy > 10 then
             self.xv = self.dFacing * 4.25
             self.yv = self.yv * 0.1^dt
-            self.yv = self.yv - 16*dt --probably *dt
+            self.yv = self.yv - 16*dt
             self.abilities[3] = 0
             self.abilities[4] = self.abilities[4] - (20*dt)
-            self.energy = self.energy - (120*dt)
             self.maxSpd = 3.75
+
+            --Fixes for dive cheeses
+            --Fix for pressing double jump then immediately dive
+            if self.animation == 'djumpup' or self.animation == 'djumpdown' then
+                self.energy = self.energy - (800*dt)
+                self.yv = self.yv + (300*dt)
+            end
+
+            --Fix for holding ctrl on ground then jumping
+            if self.se:detect(0,15)[1] and self.animation == 'jump' then
+                self.energy = self.energy - 20
+                self.yv = self.yv + (60*dt)
+            end
+
+            self.energy = self.energy - (120*dt)
             self.animation = 'jump' --change to dive later
+
         end
     end
 
@@ -669,19 +684,66 @@ function Player:update(dt)
             if self.maxSpd < 3 then
                 self.maxSpd = self.maxSpd + 1*dt
             end
+        end
+
+        --slide
+        if (self.slide > 0 and self.se:detect(0,-90)[1] and self.energy > 5) or ((love.keyboard.isDown("s") or love.keyboard.isDown("down")) and (self.xv > 1.25 or self.xv < -1.25) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
+            self.col = {12,-40,30,-25}
+            if self.timeOnGround < 15 and self.slideMult == 0 then
+                self.slideMult = 1.75
+                self.energy = self.energy + 5
+                self.maxSpd = 4
+            else
+                self.slideMult = 1
+                self.maxSpd = 3.5
+            end
+            if self.xv > 0 and self.xv < self.maxSpd then
+                self.xv = self.xv + 40*dt*self.slideMult
+            elseif self.xv < 0 and self.xv > -self.maxSpd then
+                self.xv = self.xv - 40*dt*self.slideMult
+            end
+            if self.slide <= 0 then
+                self.xv = self.xv * (1.5*self.slideMult)
+                self.slide = 280
+                self.energy = self.energy - 7.5
+            end
         else
-            if self.maxSpd > 2.1 then
-                self.maxSpd = self.maxSpd - (8*dt)
+            self.col = {12,-100,30,-25}
+        end
+        if self.slide > 0 then
+            self.slide = self.slide - (dt*240)
+            if self.slide < 225 then
+                if self.se:detect(0,-90)[1] and self.energy > 0 then
+                    self.slide = 255
+                    self.energy = self.energy + (40*dt)
+                else
+                    self.slideMult = 0
+                    self.animation = 'run'
+                end
+
+            else
+                self.energy = self.energy - (80*dt)
+                self.animation = 'slide'
             end
         end
 
+        --slide cancels when you're not moving
+        if self.slide > 0 and math.abs(self.xv) < 1 then
+            self.slide = self.slide - (1200*dt)
+        end
+
+        --Ground friction
         self.xv = self.xv * 0.0001^dt
+
+        --Reset max speed if not moving
         if self.facing == 0 or (self.facing / self.xv) < 0 then
             self.maxSpd = 2.1
         end
-    
+
+
     --in the air
     else
+        self.col = {12,-100,30,-25}
         if self.maxSpd > 2.75 then
             self.maxSpd = self.maxSpd - (0.5*dt)
         end
@@ -719,7 +781,7 @@ function Player:update(dt)
     --maybe do something with W key here
 
     --apply gravity
-    self.yv = self.yv + (self.gravity*dt*7)
+    self.yv = self.yv + (self.gravity*dt*7.25)
 
     --stop if you're very slow & change animation
     if math.abs(self.xv)<0.4 and self.onGround and self.animation~='landed' and self.animation~='hardlanded' then

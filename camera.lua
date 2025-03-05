@@ -1,7 +1,7 @@
 --!file: camera.lua
 --handles camera movement
 
-function normalCamera(mousex,mousey,dt)
+function normalCamera(mousex,mousey,dt,rxy)
     --don't move camera as much if mouse is in the middle of the screen
     if mousex>4/10*WindowWidth and mousex<6/10*WindowWidth then
         Camx = (WindowWidth/2+mousex)/2
@@ -19,8 +19,8 @@ function normalCamera(mousex,mousey,dt)
     local ty = -(WindowHeight/10) + Pl.ypos + (math.min(0,Pl.yv*24)) - (WindowHeight/2) + (Camy-(WindowHeight/2))/2.5
     local remcx = CameraX
     local remcy = CameraY
-    CameraX = CameraX + (tx-CameraX) * 5*dt + 0.1*(math.random()-0.5)
-    CameraY = CameraY + (ty-CameraY) * 8*dt + 0.1*(math.random()-0.5)
+    CameraX = CameraX + (tx-CameraX) * 5*dt + 0.2*(math.random()-0.5) + rxy*(math.random()-0.5)
+    CameraY = CameraY + (ty-CameraY) * 8*dt + 0.2*(math.random()-0.5) + rxy*(math.random()-0.5)
     DiffCX = CameraX-remcx
     DiffCY = CameraY-remcy
     return
