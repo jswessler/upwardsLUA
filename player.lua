@@ -371,8 +371,8 @@ function Player:update(dt)
 
     --down collision detection
     for j=1,2,1 do
-        self.xpos = self.xpos + self.xv*(dt*230/2)
-        self.ypos = self.ypos + self.yv*(dt*220/2)
+        self.xpos = self.xpos + self.xv*(dt*225/2)
+        self.ypos = self.ypos + self.yv*(dt*225/2)
         self.colliderCount = 0
         for i = -19, 27, 2 do
             if self.se:detect(i, self.col[1])[1] then
@@ -388,11 +388,10 @@ function Player:update(dt)
     if self.colliderCount > 0 then
 
         --don't sink into the ground
-        for i=0,200,1 do
-            if not self.se:detect(math.random(-19,27), self.col[1]-0.5)[1] then
-                break
+        for i=0,20,1 do
+            if self.se:detect(math.random(-19,27), self.col[1]-0.5)[1] then
+                self.ypos = self.ypos - 0.1
             end
-            self.ypos = self.ypos - 0.25
         end
 
         --first frame on ground
@@ -433,7 +432,7 @@ function Player:update(dt)
         self.abilities[3] = 4 --double jump
         self.abilities[4] = 2 --dive
         self.abilities[5] = 2 --dive jump
-        self.energy = self.energy + (275*dt*(self.eRegen+0.001))
+        self.energy = self.energy + (270*dt*(self.eRegen+0.001))
     else
         --regen energy if you're falling quickly
         self.onGround = false
@@ -444,7 +443,7 @@ function Player:update(dt)
         if self.slide > 0 then
             self.slide = self.slide - math.min(5,self.slide)
             self.jCounter = 1
-            self.energy = self.energy - (60*dt)
+            self.energy = self.energy - (2*dt)
             self.nextAni = 'low'
         end
 
@@ -508,7 +507,7 @@ function Player:update(dt)
             self.jCounter = 8
             self.yv = self.yv - (0.6 + (self.slideBoost/50000) + (0.14*math.abs(self.xv)))
             if self.slideBoost ~= 0 then
-                self.energy = self.energy - (60*dt)
+                self.energy = self.energy - (10*dt)
                 self.xv = self.xv * (1+self.slideBoost/250000)
             end
             self.animation = 'jump'
@@ -519,7 +518,7 @@ function Player:update(dt)
         if not self.onGround and self.abilities[1]<=0 and self.abilities[2]>0 and self.energy > 0.2 then
             self.yv = self.yv - (dt*20)
             if self.abilities[2] < 12.5 then
-                self.energy = self.energy - (20*dt)
+                self.energy = self.energy - (30*dt)
             end
             self.abilities[2] = self.abilities[2] - (120*dt)
         end
@@ -529,7 +528,7 @@ function Player:update(dt)
             self.yv = self.yv - 0.01
             self.yv = self.yv * 0.002^dt
             self.jCounter = 1
-            self.energy = self.energy - (0.07+(0.0125*math.abs(self.xv)))*(180*dt)
+            self.energy = self.energy - (0.07+(0.0125*math.abs(self.xv)))*(170*dt)
             self.animation = 'hover'
         end
 
@@ -543,7 +542,7 @@ function Player:update(dt)
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
             self.xv = self.xv * (7^dt)
             self.abilities[3] = self.abilities[3] - (60*dt)
-            self.energy = self.energy - (200*dt)
+            self.energy = self.energy - (260*dt)
             self.jCounter = 10
             self.aniFrame = 1
 
@@ -563,7 +562,7 @@ function Player:update(dt)
             self.xv = self.xv * 0.0000001^dt
             self.abilities[5] = self.abilities[5] - (60*dt)
             self.abilities[4] = 0
-            self.energy = self.energy - (240*dt)
+            self.energy = self.energy - (40*dt)
             self.jCounter = 4
 
             --animation
@@ -663,13 +662,13 @@ function Player:update(dt)
             --Fixes for dive cheeses
             --Fix for pressing double jump then immediately dive
             if self.animation == 'djumpup' or self.animation == 'djumpdown' then
-                self.energy = self.energy - (800*dt)
+                self.energy = self.energy - (80*dt)
                 self.yv = self.yv + (300*dt)
             end
 
             --Fix for holding ctrl on ground then jumping
             if self.se:detect(0,15)[1] and self.animation == 'jump' then
-                self.energy = self.energy - 20
+                self.energy = self.energy - 10
                 self.yv = self.yv + (60*dt)
             end
 
@@ -712,7 +711,6 @@ function Player:update(dt)
             self.col = {12,-40,30,-25}
             if self.timeOnGround < 15 and self.slideMult == 0 then
                 self.slideMult = 1.75
-                self.energy = self.energy + 5
                 self.maxSpd = 4
             else
                 self.slideMult = 1
@@ -726,7 +724,6 @@ function Player:update(dt)
             if self.slide <= 0 then
                 self.xv = self.xv * (1.5*self.slideMult)
                 self.slide = 280
-                self.energy = self.energy - 7.5
             end
         else
             self.col = {12,-100,30,-25}

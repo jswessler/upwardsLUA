@@ -1,5 +1,9 @@
 Release Log:
 
+l.05_03
+- Fixes for clipping prevention
+- Energy use changes (especially after slide)
+
 l.05_02
 - Updated player energy functions
 - Implemented silver hearts
