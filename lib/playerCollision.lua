@@ -41,7 +41,11 @@ function playerCollisionDetect(tile,pB,dt) --block formatted as "0-0, 1-0" etc.
 
     --Silver Heart
     if blM == 8 and blS <= 2 then
-        table.insert(Health,Heart(3,blS))
+        if blS == 0 then
+            table.insert(Health,Heart(3,2))
+        else
+            table.insert(Health,Heart(3,blS))
+        end
         LevelData[pB] = "0-0"
     end
 end
@@ -67,14 +71,12 @@ function tileProperties(dt)
 
             --Reset dash crystal
             if blM == "6" then
-                if math.floor(blS) > 0 then
+                if blS and math.floor(blS) > 0 then
                     LevelData[xt.."-"..yt] = "6-"..blS-dt
                 else
                     LevelData[xt.."-"..yt] = "4-0"
                 end
             end
-
         end
     end
-
 end

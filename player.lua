@@ -345,10 +345,10 @@ function Player:update(dt)
 
     --prevent energy from going out of bounds
     if self.energy < 0 then
-        self.energy = self.energy + 240*dt
+        self.energy = 0
     end
     if self.energy > 100 then
-        self.energy = self.energy - 2*dt
+        self.energy = 100
     end
 
     --energy calculations
@@ -357,9 +357,17 @@ function Player:update(dt)
     elseif self.energy < 75 then
         self.eRegen = 0.19
     else
-        self.eRegen = math.max(0.005,0.0075 + (100-self.energy)/250)
+        self.eRegen = math.max(0.01,0.0075 + (100-self.energy)/250)
     end
-    --silver heart calculation (later)
+    --silver heart calculation
+    local silverCap = 0
+    for i=1,#Health,1 do
+        if Health[i].type == 3 and silverCap <= 2 then
+            silverCap = silverCap + Health[i].amt
+            self.eRegen = self.eRegen * 1+(0.02*Health[i].amt)
+            self.energy = self.energy + (2*dt) * (100-self.energy)/100 * Health[i].amt
+        end
+    end
 
     --down collision detection
     for j=1,2,1 do
@@ -381,7 +389,7 @@ function Player:update(dt)
 
         --don't sink into the ground
         for i=0,60,1 do
-            if not self.se:detect(0, self.col[1]-2)[1] then
+            if not self.se:detect(math.random(-19,27), self.col[1]-0.5)[1] then
                 break
             end
             self.ypos = self.ypos - 0.02
@@ -597,14 +605,27 @@ function Player:update(dt)
         if not self.onGround and self.onWall~=0 and self.facing~=0 and self.energy > 1 then
             --limit fall speed
             self.yv = self.yv - 0.0025
-            if self.yv > 1 then
-                self.yv = self.yv * 0.03^dt
+            if love.keyboard.isDown("lctrl") then
+                self.energy = self.energy - (15*dt) - (self.energy/50*dt)
+                if self.yv > 0.5 then
+                    self.yv = self.yv * 0.0005^dt
+                end
+                if self.yv > 1 then
+                    self.yv = self.yv - (self.yv-3)/100
+                end
+            else
+                self.energy = self.energy - (10*dt)
+                if self.yv > 1.5 then
+                    self.yv = self.yv * 0.1^dt
+                end
+                if self.yv > 3 then
+                    self.yv = self.yv - (self.yv-3)/150
+                end
             end
 
             --adjust
             self.jCounter = 2
             self.wallClimb = true
-            self.energy = self.energy - (10*dt)
             self.animation = 'wallslide'
             self.nextAni = 'none'
             

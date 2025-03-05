@@ -8,7 +8,7 @@ end
 function love.load()
     
     --Build Id
-    BuildId = "up-l.05_01"
+    BuildId = "l.05_02"
 
     --Imports
     Object = require "lib.classic"
@@ -23,7 +23,7 @@ function love.load()
     require "camera"
     require "kunai"
     local Heart = require "heart"
-    require "playerCollision"
+    require "lib.playerCollision"
 
     --Set up window & display
     WindowWidth = 1280
@@ -110,7 +110,6 @@ function love.draw(dt)
     WindowWidth, WindowHeight = love.graphics.getDimensions()
     GameScale = WindowWidth/1280
 
-    simpleText("Upwards "..BuildId,20,5,10)
     --debug text & sensor
     if love.keyboard.isDown('r') then
         
@@ -169,7 +168,6 @@ function love.draw(dt)
     end
 
     --Draw HUD
-
     --Hex
     HudX = -Pl.xv*5
     HudY = -(math.min(0,Pl.yv*6))
@@ -208,6 +206,9 @@ function love.draw(dt)
             love.graphics.setColor(1,1,1,1)
         end
     end
+
+    --Draw BuildId
+    simpleText("Upwards "..BuildId,20,5,10)
 end
 
 

@@ -21,7 +21,7 @@ function getOnScreen()
 end
 
 function tanAngle(relx,rely)
-    local dir = math.atan(rely,relx)
+    local dir = math.atan(rely)
     local yf = math.sin(dir)
     local xf = math.cos(dir)
     return xf,yf,dir

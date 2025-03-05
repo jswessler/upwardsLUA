@@ -22,7 +22,7 @@ end
 
 function split(str,delimiter) --thanks google searchlabs!
   local result = {}
-  if str == nil then
+  if not str then
     return {0,0}
   end
   for part in string.gmatch(str, "([^" .. delimiter .. "]+)") do
@@ -40,8 +40,8 @@ function createList(size,value)
 end
 
 function reverseList(ls)
-	for i=1,math.floor(#ls/2),1 do
-		ls[i],ls[#ls-i+1] = ls[#ls-i+1],ls[i]
-	end
-	return ls
+  for i=1,math.floor(#ls/2),1 do
+    ls[i],ls[#ls-i+1] = ls[#ls-i+1],ls[i]
+  end
+  return ls
 end

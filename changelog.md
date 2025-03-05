@@ -1,5 +1,11 @@
 Release Log:
 
+l.05_02
+- Updated player energy functions
+- Implemented silver hearts
+- Code adjustments
+
+
 up-l.05_01
 - Added kunai code, throwing not implemented yet
 - Added tostring to all objects
