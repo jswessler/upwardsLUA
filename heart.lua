@@ -21,7 +21,6 @@ function Heart:new(typ,amt)
         self.maxHp = 1
     end
     self.img = ''
-    print(self.amt)
 end
 
 function Heart:takeDmg(amt)
@@ -51,6 +50,10 @@ function Heart:heal(amt)
     else
         return amt
     end
+end
+
+function Heart:tostring()
+    return self.fileExt.." Heart with "..self.amt.. " hits"
 end
 
 return Heart

@@ -86,7 +86,7 @@ def loadARL(filename):
             lv = [0] * (width*height)
             lv2 = [0] * (width*height)
         if counter>63: #Data
-            print(counter,byte)
+            #print(counter,byte)
             if byte==0:
                 cou+=1
                 byte = bites[cou]

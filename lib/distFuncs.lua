@@ -20,3 +20,14 @@ function getOnScreen()
     return xl,yl
 end
 
+function tanAngle(relx,rely)
+    local dir = math.atan(rely,relx)
+    local yf = math.sin(dir)
+    local xf = math.cos(dir)
+    return xf,yf,dir
+end
+
+function getDist(x1,y1,x2,y2)
+    return math.sqrt((x2-x1)^2 + (y2-y1)^2)
+end
+

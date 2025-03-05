@@ -1,5 +1,9 @@
 Release Log:
 
+up-l.05_01
+- Added kunai code, throwing not implemented yet
+- Added tostring to all objects
+
 up-l.05
 - Implemented sliding
 - Physics fixes

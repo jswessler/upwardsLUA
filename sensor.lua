@@ -48,3 +48,7 @@ function Sensor:draw(qq)
     end
     self.locations = {}
 end
+
+function Sensor:tostring()
+    return "Sensor, my owner is "..self.owner
+end

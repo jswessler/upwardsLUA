@@ -8,7 +8,7 @@ end
 function love.load()
     
     --Build Id
-    BuildId = "up-l.05"
+    BuildId = "up-l.05_01"
 
     --Imports
     Object = require "lib.classic"
@@ -21,6 +21,7 @@ function love.load()
     require "player"
     require "sensor"
     require "camera"
+    require "kunai"
     local Heart = require "heart"
     require "playerCollision"
 
@@ -88,6 +89,13 @@ function love.update(dt)
 
     --Update tiles
     tileProperties(dt)
+
+    --Update kunai
+    for i,v in ipairs(ThrownKunai) do
+        if v:update(dt) then
+            table.remove(ThrownKunai,i)
+        end
+    end
 
 
 end

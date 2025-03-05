@@ -823,10 +823,10 @@ function Player:update(dt)
 
     --updating xpos and ypos (maybe implement quartersteps later?)
     
-    p = self:animate(dt)
+    local p = self:animate(dt)
     return
+end
 
-
-
-
+function Player:tostring()
+    return "Player at x="..self.xpos.." y="..self.ypos
 end
