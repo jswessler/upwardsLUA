@@ -365,7 +365,7 @@ function Player:update(dt)
         if Health[i].type == 3 and silverCap <= 2 then
             silverCap = silverCap + Health[i].amt
             self.eRegen = self.eRegen * 1+(0.02*Health[i].amt)
-            self.energy = self.energy + (2*dt) * (100-self.energy)/100 * Health[i].amt
+            self.energy = self.energy + (4*dt) * (100-self.energy)/100 * Health[i].amt
         end
     end
 
@@ -538,9 +538,9 @@ function Player:update(dt)
             if self.yv > 0.5 then
                 self.yv = 0.5
             end
-            self.yv = self.yv - dt*(60 + (6*math.abs(self.xv)))
+            self.yv = self.yv - dt*(62 + (6*math.abs(self.xv)))
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
-            self.xv = self.xv * (7^dt)
+            self.xv = self.xv * (8^dt)
             self.abilities[3] = self.abilities[3] - (60*dt)
             self.energy = self.energy - (260*dt)
             self.jCounter = 10
@@ -558,8 +558,8 @@ function Player:update(dt)
 
         --jump out of dive
         if self.abilities[5] > 0 and not self.onGround and self.abilities[1] <= 0 and self.abilities[4] ~= 2 and self.energy > 5 then
-            self.yv = self.yv - 0.7
-            self.xv = self.xv * 0.0000001^dt
+            self.yv = self.yv - 0.725
+            self.xv = self.xv * 0.000001^dt
             self.abilities[5] = self.abilities[5] - (60*dt)
             self.abilities[4] = 0
             self.energy = self.energy - (40*dt)
@@ -663,13 +663,13 @@ function Player:update(dt)
             --Fix for pressing double jump then immediately dive
             if self.animation == 'djumpup' or self.animation == 'djumpdown' then
                 self.energy = self.energy - (80*dt)
-                self.yv = self.yv + (300*dt)
+                self.yv = self.yv + (60*dt)
             end
 
             --Fix for holding ctrl on ground then jumping
             if self.se:detect(0,15)[1] and self.animation == 'jump' then
                 self.energy = self.energy - 10
-                self.yv = self.yv + (60*dt)
+                self.yv = self.yv + (70*dt)
             end
 
             self.energy = self.energy - (120*dt)
@@ -717,9 +717,9 @@ function Player:update(dt)
                 self.maxSpd = 3.5
             end
             if self.xv > 0 and self.xv < self.maxSpd then
-                self.xv = self.xv + 40*dt*self.slideMult
+                self.xv = self.xv + 20*dt*self.slideMult
             elseif self.xv < 0 and self.xv > -self.maxSpd then
-                self.xv = self.xv - 40*dt*self.slideMult
+                self.xv = self.xv - 20*dt*self.slideMult
             end
             if self.slide <= 0 then
                 self.xv = self.xv * (1.5*self.slideMult)

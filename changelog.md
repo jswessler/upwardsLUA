@@ -1,5 +1,8 @@
 Release Log:
 
+l.05_04
+- Physics fixes
+
 l.05_03
 - Fixes for clipping prevention
 - Energy use changes (especially after slide)
