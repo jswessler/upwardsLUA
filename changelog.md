@@ -4,6 +4,7 @@ l.05_02
 - Updated player energy functions
 - Implemented silver hearts
 - Code adjustments
+- l.05_02a - Adjusted floor clip prevention
 
 
 up-l.05_01

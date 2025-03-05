@@ -388,11 +388,11 @@ function Player:update(dt)
     if self.colliderCount > 0 then
 
         --don't sink into the ground
-        for i=0,60,1 do
+        for i=0,200,1 do
             if not self.se:detect(math.random(-19,27), self.col[1]-0.5)[1] then
                 break
             end
-            self.ypos = self.ypos - 0.02
+            self.ypos = self.ypos - 0.25
         end
 
         --first frame on ground
