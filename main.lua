@@ -8,7 +8,7 @@ end
 function love.load()
     
     --Build Id
-    BuildId = "l.05_04"
+    BuildId = "l.05_04a"
 
     --Imports
     Object = require "lib.classic"
@@ -90,6 +90,19 @@ function love.update(dt)
     --Update tiles
     tileProperties(dt)
 
+    --Spawn Kunai
+    if Pl.kunaiAni > 37 and Pl.kunaiAni < 38 then
+        dx,dy,dir = tanAngle(MouseX-(Pl.xpos-CameraX),MouseY-(Pl.ypos-CameraY))
+        dx = dx + love.math.random(-0.05,0.05)
+        dy = dy + love.math.random(-0.05,0.05)
+        table.insert(ThrownKunai,Kunai(Pl.xpos,Pl.ypos-60,dx*30,dy*30,dir))
+        kuAni = 0
+        Pl.energy = Pl.energy - 10
+    end
+    if Pl.kunaiAni <= 1 and Pl.kunaiAni > 0 then
+        Kunais = Kunais - 1
+    end
+
     --Update kunai
     for i,v in ipairs(ThrownKunai) do
         if v:update(dt) then
@@ -124,8 +137,8 @@ function love.draw(dt)
         simpleText("Energy = "..Pl.energy,16,10,170)
         simpleText("Gravity = "..Pl.gravity,16,10,190)
         simpleText("JCounter = "..Pl.jCounter,16,10,210)
-        simpleText("Animation = "..Pl.animation,16,10,230)
-        simpleText("Slide = "..Pl.slide,16,10,250)
+        simpleText("KunaiAni = "..Pl.kunaiAni,16,10,230)
+        simpleText("Kunais = "..Kunais,16,10,250)
         simpleText("Max Speed = "..Pl.maxSpd,16,10,270)
         --draw sensors & player circle
         Pl.se:draw(true)

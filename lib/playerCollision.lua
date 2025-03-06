@@ -48,6 +48,20 @@ function playerCollisionDetect(tile,pB,dt) --block formatted as "0-0, 1-0" etc.
         end
         LevelData[pB] = "0-0"
     end
+
+    --Red Heart
+    if blM == 9 and blS <= 4 then
+        --Heal
+        local healAmt = blS
+        for i=1,#Health,1 do
+            healAmt = Health[i]:heal(healAmt)
+        end
+    end
+
+    --Blood Heart
+    if blM == 10 and blS == 1 then
+        table.insert(Health,Heart(4,1))
+    end
 end
 
 

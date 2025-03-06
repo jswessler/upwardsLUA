@@ -36,7 +36,7 @@ function Heart:takeDmg(amt)
 end
 
 function Heart:heal(amt)
-    if self.type == 1 or self.type == 2 then
+    if self.type == 1 or self.type == 3 then
         if self.amt == self.maxHp then
             return amt
         elseif amt + self.amt > self.maxHp then

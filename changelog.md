@@ -2,6 +2,7 @@ Release Log:
 
 l.05_04
 - Physics fixes
+- l.05_04a - Fix for blue hearts
 
 l.05_03
 - Fixes for clipping prevention
