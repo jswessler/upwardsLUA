@@ -1,5 +1,12 @@
 Release Log:
 
+l.06
+- Kunai HUD animation
+- Kunai throwing & pickup
+- Proper double-sized tiles
+- Fixed right edge of level loading routine
+- Scaling the game window works properly
+
 l.05_04
 - Physics fixes
 - l.05_04a - Fix for blue hearts

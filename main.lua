@@ -8,7 +8,7 @@ end
 function love.load()
     
     --Build Id
-    BuildId = "l.05_04a"
+    BuildId = "l.06"
 
     --Imports
     Object = require "lib.classic"
@@ -28,7 +28,7 @@ function love.load()
     --Set up window & display
     WindowWidth = 1280
     WindowHeight = 800
-    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=true,minwidth=800,minheight=600,msaa=4})
+    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=true,minwidth=1280,minheight=800,msaa=2})
 
     --Counters
     FrameCounter = 0
@@ -46,7 +46,7 @@ function love.load()
     State = 'game'
 
     --spawn initial entities
-    Pl = Player(300,100)
+    Pl = Player(3000,100)
 
     --lists
     ThrownKunai = {}
@@ -56,6 +56,7 @@ function love.load()
 
     --initial values
     Kunais = 5
+    DKunais = 5
     KuAni = -1
     CameraX = 0
     CameraY = 0
@@ -92,22 +93,29 @@ function love.update(dt)
 
     --Spawn Kunai
     if Pl.kunaiAni > 37 and Pl.kunaiAni < 38 then
-        dx,dy,dir = tanAngle(MouseX-(Pl.xpos-CameraX),MouseY-(Pl.ypos-CameraY))
-        dx = dx + love.math.random(-0.05,0.05)
-        dy = dy + love.math.random(-0.05,0.05)
-        table.insert(ThrownKunai,Kunai(Pl.xpos,Pl.ypos-60,dx*30,dy*30,dir))
-        kuAni = 0
+        local tan = tanAngle(MouseX-(Pl.xpos-CameraX),MouseY-(Pl.ypos-CameraY))
+        local dx = tan[1] + 0.1*love.math.random()-0.05
+        local dy = tan[2] + 0.1*love.math.random()-0.05
+        print(dx,dy)
+        table.insert(ThrownKunai,Kunai(Pl.xpos,Pl.ypos-60,dx*30,dy*30))
+        KuAni = 0
         Pl.energy = Pl.energy - 10
-    end
-    if Pl.kunaiAni <= 1 and Pl.kunaiAni > 0 then
-        Kunais = Kunais - 1
+        Pl.kunaiAni = 36
     end
 
     --Update kunai
     for i,v in ipairs(ThrownKunai) do
         if v:update(dt) then
+            DKunais = Kunais
             table.remove(ThrownKunai,i)
         end
+    end
+    if KuAni ~= -1 then
+        KuAni = KuAni + (dt*60)
+    end
+    if KuAni >= 40 then
+        KuAni = -1
+        DKunais = Kunais
     end
 
 
@@ -121,7 +129,7 @@ function love.draw(dt)
 
     --Update WindowWidth & WindowHeight
     WindowWidth, WindowHeight = love.graphics.getDimensions()
-    GameScale = WindowWidth/1280
+    GameScale = WindowHeight/800
 
     --debug text & sensor
     if love.keyboard.isDown('r') then
@@ -137,7 +145,7 @@ function love.draw(dt)
         simpleText("Energy = "..Pl.energy,16,10,170)
         simpleText("Gravity = "..Pl.gravity,16,10,190)
         simpleText("JCounter = "..Pl.jCounter,16,10,210)
-        simpleText("KunaiAni = "..Pl.kunaiAni,16,10,230)
+        simpleText("KunaiAni = "..KuAni,16,10,230)
         simpleText("Kunais = "..Kunais,16,10,250)
         simpleText("Max Speed = "..Pl.maxSpd,16,10,270)
         --draw sensors & player circle
@@ -148,13 +156,17 @@ function love.draw(dt)
 
 
 
+    --draw kunai
+    for i,v in ipairs(ThrownKunai) do
+        love.graphics.draw(v.baseImage,(v.xpos-CameraX)*GameScale,(v.ypos-CameraY)*GameScale,v.direction,2*GameScale,2*GameScale,0,0)
+    end
 
     --draw player
     if type(Pl.img) ~= "string" then
         if Pl.dFacing == -1 then
-            love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,-2,2,-Pl.imgPos[1],0)
+            love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
         else
-            love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,2,2,0,0)
+            love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
         end
     end
 
@@ -170,7 +182,12 @@ function love.draw(dt)
 
             --Draw tile
             if (LoadedTiles[bl]~=nil) then
-                love.graphics.draw(LoadedTiles[bl],(x-CameraX)*GameScale,(y-CameraY)*GameScale,0,1,1)
+                local t = split(LevelData[xt.."-"..yt],"-")
+                if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then
+                    love.graphics.draw(LoadedTiles[bl],(x-CameraX)*GameScale,(y-CameraY)*GameScale,0,2*GameScale,2*GameScale)
+                else
+                    love.graphics.draw(LoadedTiles[bl],(x-CameraX)*GameScale,(y-CameraY)*GameScale,0,1*GameScale,1*GameScale)
+                end
             end
 
             --Draw block text when pressing T
@@ -185,7 +202,7 @@ function love.draw(dt)
     HudX = -Pl.xv*5
     HudY = -(math.min(0,Pl.yv*6))
     
-    love.graphics.draw(HexImg,0+HudX,WindowHeight-200+HudY,(-4.289/57.19),0.25,0.25,0,0)
+    love.graphics.draw(HexImg,HudX,WindowHeight-(200*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
     --Hearts
     for i,hp in ipairs(Health) do
         if hp.amt <= 0 and hp.type ~= 1 then
@@ -193,9 +210,26 @@ function love.draw(dt)
         else
             hp.img = "Images/Hearts/"..hp.fileExt..hp.amt..".png"
             local img = love.graphics.newImage(hp.img)
-            love.graphics.draw(img,(120+(68*i))+HudX,WindowHeight-77-(i*5.1)+HudY,(-4.289/57.19),4,4)
+            love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(77*GameScale)-(i*5.1*GameScale)+HudY,(-4.289/57.19),4*GameScale,4*GameScale)
         end
         
+    end
+
+    --Rightside HUD Kunais
+    for i=0,DKunais-1,1 do
+        if i == 0 then
+            if KuAni >= 0 and KuAni <= 14 then
+                love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+KuAni+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)-(KuAni*KuAni+KuAni*GameScale)+HudY,0,0.15*GameScale,0.15*GameScale)
+            elseif KuAni >= 39 or KuAni <= -1 then
+                love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)+HudY,0,0.15*GameScale,0.15*GameScale)
+            end
+        else
+            if KuAni >= 24 and KuAni <= 40 then
+                love.graphics.draw(KunaiImg,WindowWidth-(152*GameScale)-(i*38*GameScale)+(KuAni*2.3)+HudX,WindowHeight-(154*GameScale)-(i*3*GameScale)+(KuAni/5*GameScale)+HudY,0,0.15*GameScale,0.15*GameScale)
+            else
+                love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)+HudY,0,0.15*GameScale,0.15*GameScale)
+            end
+        end
     end
 
     --Energy bar (ported from 1 line python monstrosity)
@@ -212,9 +246,9 @@ function love.draw(dt)
                 love.graphics.setColor(0.1,1,0.3,1)
             end
             if i == 1 or i == 20 then
-                love.graphics.line(WindowWidth-20-i-(22*j)+HudX,WindowHeight-54-(j*1.66666)-(i/13.333333)+HudY,WindowWidth-20-i-(22*j)+HudX,WindowHeight-21-(j*1.66666)-(i/13.33333)+HudY)
+                love.graphics.line(WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(54*GameScale)-(j*1.66666*GameScale)-(i/13.333333*GameScale)+HudY,WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(21*GameScale)-(j*1.66666*GameScale)-(i/13.33333*GameScale)+HudY)
             else
-                love.graphics.line(WindowWidth-20-i-(22*j)+HudX,WindowHeight-55-(j*1.66666)-(i/13.333333)+HudY,WindowWidth-20-i-(22*j)+HudX,WindowHeight-20-(j*1.66666)-(i/13.33333)+HudY)
+                love.graphics.line(WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(55*GameScale)-(j*1.66666*GameScale)-(i/13.333333*GameScale)+HudY,WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(20*GameScale)-(j*1.66666*GameScale)-(i/13.33333*GameScale)+HudY)
             end
             love.graphics.setColor(1,1,1,1)
         end

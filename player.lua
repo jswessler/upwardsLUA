@@ -682,6 +682,8 @@ function Player:update(dt)
     if self.kunaiAni < 18 and self.energy > 20 and Kunais > 0 and (love.keyboard.isDown("e") or love.mouse.isDown(1)) then
         self.kunaiAni = 40
         self.energy = self.energy - 12
+        Kunais = Kunais - 1
+        DKunais = Kunais
         --self.animation = 'none' --change to throwing animation later
     end
 

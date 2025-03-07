@@ -4,9 +4,9 @@
 
 function getOnScreen()
     local xs = math.max(0, math.floor(CameraX-24))
-    local xf = math.min(WindowWidth*32, math.floor(CameraX + WindowWidth + 24))
+    local xf = math.min(WindowWidth*32*GameScale, math.floor(CameraX + WindowWidth + 24))
     local ys = math.max(0, math.floor(CameraY-24))
-    local yf = math.min(WindowHeight * 32, math.floor(CameraY + WindowHeight + 24))
+    local yf = math.min(WindowHeight*32*GameScale, math.floor(CameraY + WindowHeight + 24))
     local xl = {}
     local yl = {}
     while xs < xf do
@@ -21,10 +21,10 @@ function getOnScreen()
 end
 
 function tanAngle(relx,rely)
-    local dir = math.atan(rely)
+    local dir = math.atan2(rely,relx)
     local yf = math.sin(dir)
     local xf = math.cos(dir)
-    return xf,yf,dir
+    return {xf,yf,dir}
 end
 
 function getDist(x1,y1,x2,y2)

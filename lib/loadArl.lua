@@ -35,8 +35,8 @@ function loadARL(filename,gamePath)
         end
         if counter > 64 then --level data
             --get positions
-            local x = ((counter-64)%LevelWidth)
-            local y = math.floor((counter-64)/LevelWidth)
+            local x = ((counter-65)%LevelWidth)
+            local y = math.floor((counter-65)/LevelWidth)
             --if block = 0, then skip ahead RLE bytes
             if byte == 0 then
                 cou = cou + 1

@@ -42,7 +42,7 @@ function Sensor:draw(qq)
             else
                 love.graphics.setColor(0.3,0.3,0.3,1)
             end
-            love.graphics.circle('fill',v[3]-CameraX,v[4]-CameraY,3)
+            love.graphics.circle('fill',(v[3]-CameraX)*GameScale,(v[4]-CameraY)*GameScale,3)
         end
         love.graphics.setColor(1,1,1,1)
     end

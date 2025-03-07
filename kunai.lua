@@ -23,7 +23,8 @@ end
 
 function Kunai:update(dt)
     self.timeAlive = self.timeAlive + dt
-    self.direction = tanAngle(self.xv,self.yv)[3]
+    local t = tanAngle(self.xv,self.yv)
+    self.direction = t[3]
     self.yv = self.yv + (self.gravity*dt*240)
 
     if not self.stuck then
@@ -63,6 +64,7 @@ function Kunai:update(dt)
         
         --Delete if right next to you
         if getDist(self.xpos,self.ypos,Pl.xpos,Pl.ypos) < 60 then
+            Kunais = Kunais + 1
             return true
         end
     else
