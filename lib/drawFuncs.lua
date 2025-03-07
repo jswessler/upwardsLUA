@@ -6,7 +6,7 @@ local cachedFontObject = nil
 
 function simpleText(text,textSize,x,y)
     if cachedFontSize ~= textSize then
-        cachedFontObject = love.graphics.newFont(textSize,"mono")
+        cachedFontObject = love.graphics.newFont("lib/Mikofont-Regular.ttf",textSize*1.5,'normal')
         cachedFontSize = textSize
     end
     local textObject = love.graphics.newText(cachedFontObject,text)

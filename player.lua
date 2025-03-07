@@ -640,7 +640,8 @@ function Player:update(dt)
             self.yv = self.yv * 0.25
             self.yv = -3.75
             self.jCounter = 10
-            self.xv = -self.facing * 3
+            self.xpos = self.xpos - self.dFacing*2
+            self.xv = -self.dFacing * 3
             self.energy = self.energy - 6
             self.wallClimb = false
             self.abilities[4] = 2

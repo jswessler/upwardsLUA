@@ -1,5 +1,10 @@
 Release Log:
 
+l.07
+- Completely new debug screen
+- Enabled screenshots & HUD hiding
+- New font
+
 l.06
 - Kunai HUD animation
 - Kunai throwing & pickup

@@ -85,6 +85,7 @@ function tileProperties(dt)
 
             --Reset dash crystal
             if blM == "6" then
+                TileUpdates = TileUpdates + 1
                 if blS and math.floor(blS) > 0 then
                     LevelData[xt.."-"..yt] = "6-"..blS-dt
                 else
