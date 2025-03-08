@@ -1,5 +1,10 @@
 Release Log:
 
+l.08
+- Added ground clip prevention on walls
+- Implemented phone calls
+- Implemented phone UI
+
 l.07
 - Completely new debug screen
 - Enabled screenshots & HUD hiding

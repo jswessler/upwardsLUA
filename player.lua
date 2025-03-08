@@ -371,8 +371,8 @@ function Player:update(dt)
 
     --down collision detection
     for j=1,2,1 do
-        self.xpos = self.xpos + self.xv*(dt*225/2)
-        self.ypos = self.ypos + self.yv*(dt*225/2)
+        self.xpos = self.xpos + self.xv*(dt*230/2)
+        self.ypos = self.ypos + self.yv*(dt*230/2)
         self.colliderCount = 0
         for i = -19, 27, 2 do
             if self.se:detect(i, self.col[1])[1] then
@@ -406,11 +406,11 @@ function Player:update(dt)
                 self.animation = 'hardlanded'
                 self.maxSpd = 1.5
                 local dmgAmt = 0
-                if self.yv > 7.75 then
+                if self.yv > 7.25 then
                     dmgAmt = 3
-                elseif self.yv > 6.75 then
+                elseif self.yv > 6.25 then
                     dmgAmt = 2
-                elseif self.yv > 5.75 then
+                elseif self.yv > 5.25 then
                     dmgAmt = 1
                 end
                 for i=#Health,1,-1 do
@@ -472,6 +472,9 @@ function Player:update(dt)
             self.colliderCount = self.colliderCount + 1
         end
     end
+    if self.se:detect(self.col[3]-0.5,math.random(-100,12))[1] then
+        self.xpos = self.xpos - 0.1
+    end
     if self.colliderCount > 0 then
         self.onWall = 1
         self.xv = 0
@@ -486,6 +489,9 @@ function Player:update(dt)
         if self.se:detect(self.col[4],i)[1] then
             self.colliderCount = self.colliderCount + 1
         end
+    end
+    if self.se:detect(self.col[4]+0.5,math.random(-100,12))[1] then
+        self.xpos = self.xpos + 0.1
     end
     if self.colliderCount > 0 then
         self.onWall = -1
@@ -645,7 +651,7 @@ function Player:update(dt)
             self.energy = self.energy - 6
             self.wallClimb = false
             self.abilities[4] = 2
-            self.abilities[5] = 1
+            self.abilities[5] = 2
             self.animation = 'jump' --change to walljump later
         end
     end
@@ -838,8 +844,14 @@ function Player:update(dt)
     end
 
     --cap on vertical speed
-    if self.yv < -3.5 or self.yv > 8.75 then
+    if self.yv < -4 then
         self.yv = self.yv * 0.1^dt
+    end
+    if self.yv > 4 then
+        self.yv = self.yv * 0.75^dt
+    end
+    if self.yv > 5 then
+        self.yv = self.yv * 0.7^dt
     end
 
     --updating xpos and ypos (maybe implement quartersteps later?)

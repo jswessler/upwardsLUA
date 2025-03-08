@@ -1,0 +1,3 @@
+Aria
+Hello?\. This is a test of the phone system!\tThis should be on a new line!\tAnd this!\n
+You should have to click to see this!\tThis\. text\. should\. go\. slowly!\tPress enter or z to exit text.

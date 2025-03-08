@@ -19,7 +19,7 @@ function Sensor:detect(x,y)
 
     else
 
-        if string.sub(ret,1,1) == "1" then
+        if split(ret,"-")[1] == "1" then
             table.insert(self.locations,{true,true,xp,yp})
             return {true,ret,block}
         else

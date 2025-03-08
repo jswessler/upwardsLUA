@@ -20,7 +20,7 @@ function normalCamera(mousex,mousey,dt,rxy)
     local remcx = CameraX
     local remcy = CameraY
     CameraX = CameraX + (tx-CameraX) * 5*dt + 0.2*GameScale*(math.random()-0.5) + rxy*GameScale*(math.random()-0.5)
-    CameraY = CameraY + (ty-CameraY) * 8*dt + 0.2*GameScale*(math.random()-0.5) + rxy*GameScale*(math.random()-0.5)
+    CameraY = CameraY + (ty-CameraY) * 7.5*dt + 0.2*GameScale*(math.random()-0.5) + rxy*GameScale*(math.random()-0.5)
     DiffCX = CameraX-remcx
     DiffCY = CameraY-remcy
     return

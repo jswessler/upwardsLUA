@@ -8,7 +8,7 @@ end
 function love.load()
     
     --Build Id
-    BuildId = "l.07"
+    BuildId = "l.08"
 
     --Imports
     Object = require "lib.classic"
@@ -22,6 +22,7 @@ function love.load()
     require "sensor"
     require "camera"
     require "kunai"
+    require "call"
     local Heart = require "heart"
     require "lib.playerCollision"
 
@@ -33,6 +34,7 @@ function love.load()
     --Counters
     FrameCounter = 0
     SecondsCounter = 0
+    UpdateCounter = 0
     
     --scaling
     GameScale = 1
@@ -46,7 +48,7 @@ function love.load()
     State = 'game'
 
     --spawn initial entities
-    Pl = Player(3000,100)
+    Pl = Player(300,100)
 
     --lists
     ThrownKunai = {}
@@ -67,6 +69,13 @@ function love.load()
     TileUpdates = 0
     ScreenshotText = -1
     HudEnabled = true
+    NextCall = 0
+    TBoxWidth = 0
+
+    --Phone variables
+    TriggerPhone = false
+    PhoneX = 0
+    PhoneY = 0
 
     Path = love.filesystem.getWorkingDirectory()
 
@@ -79,6 +88,11 @@ function love.load()
 end
 
 function love.update(dt)
+    --Update counters
+    FrameCounter = FrameCounter + dt
+    UpdateCounter = UpdateCounter + 1
+    SecondsCounter = round(FrameCounter)
+
     MouseX, MouseY = love.mouse.getPosition()
     normalCamera(MouseX,MouseY,dt,math.max(0,1.5*(Pl.yv-2.5)))
 
@@ -123,6 +137,39 @@ function love.update(dt)
     if KuAni >= 40 then
         KuAni = -1
         DKunais = Kunais
+    end
+
+    --Update Phone
+    if TriggerPhone then
+        PhoneCounter = PhoneCounter + dt
+
+        --Phone shakes
+        if UpdateCounter%2 == 0 then
+            PhoneImg = love.graphics.newImage("Images/Phone/phone"..round(1+(UpdateCounter%6)/2)..".png")
+        end
+
+        --Phone rings out at 6s
+        if PhoneCounter > 6 then
+            TriggerPhone = false
+
+        --Move phone back to corner at 5.5s
+        elseif PhoneCounter > 5.5 then
+            PhoneX = PhoneX + (WindowWidth-20-PhoneX)*(20*dt)
+            PhoneY = PhoneY + (30-PhoneY)*(20*dt)
+        
+        --Move phone to your head at 0.5s
+        elseif PhoneCounter > 0.5 then
+            PhoneX = PhoneX + ((Pl.xpos-CameraX-PhoneX-13)+love.math.random(-2,2))*(25*dt)
+            PhoneY = PhoneY + ((Pl.ypos-CameraY-PhoneY-170)+love.math.random(-2,2))*(25*dt)
+        
+        --Set phone to top right otherwise
+        else
+            PhoneX = WindowWidth-80
+            PhoneY = 15
+        end
+        PhoneRect = {x = PhoneX, y = PhoneY, w = 30*GameScale, h = 75*GameScale}
+
+        --If phoneRect.collidepoint inside mouse cursor:
     end
 
 
@@ -282,19 +329,21 @@ function love.draw(dt)
             end
         end
         simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10,40)
-        simpleText("PLv: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall,16,10,60)
+        simpleText("PLv: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10,60)
         simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10,80)
-        simpleText(round(love.timer.getFPS(),1).." fps U: "..round(TileUpdates),16,10,100)
-        simpleText("Viewing "..Xl[1].." - "..Xl[#Xl].." / "..Yl[1].." - "..Yl[#Yl].." B: "..round((Xl[#Xl]-Xl[1])/(32*GameScale)*(Yl[#Yl]-Yl[1])/(32*GameScale)),16,10,120)
+        simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2),16,10,100)
+        simpleText("Viewing "..Xl[1].." - "..Xl[#Xl].." / "..Yl[1].." - "..Yl[#Yl].." B: "..round((Xl[#Xl]-Xl[1])/(32*GameScale)*(Yl[#Yl]-Yl[1])/(32*GameScale)).." U: "..round(TileUpdates),16,10,120)
         simpleText("Sensor C: "..#Pl.se.locations.." H: "..SH,16,10,140)
-        simpleText("Display: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2),16,10,160)
-        simpleText("Level "..LevelLoad,16,10,180)
+        simpleText("Level "..LevelLoad,16,10,160)
         Pl.se:draw(true)
 
     end
     Pl.se:draw(false)
 
-
+    --Handle Phone Calls
+    if NextCall ~= 0 then
+        handlePhone(NextCall,0.01)
+    end
 
 end
 

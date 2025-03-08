@@ -62,6 +62,12 @@ function playerCollisionDetect(tile,pB,dt) --block formatted as "0-0, 1-0" etc.
     if blM == 10 and blS == 1 then
         table.insert(Health,Heart(4,1))
     end
+
+    --Phone Call
+    if blM == 11 then
+        NextCall = blS
+        LevelData[pB] = "2-"..blS
+    end
 end
 
 
