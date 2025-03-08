@@ -6,34 +6,21 @@ local txt = {}
 local waitCounter = 0
 local charCounter = 1
 local line = -1
-local textName = ''
-local currentText = {'','',''}
 local fullTextBox = false
 
 function handlePhone(num,dt)
-    state = 'phonecall'
-    local boxRect = {x = 50, y = WindowHeight-300, w = TBoxWidth, h = 250}
-    local nameRect = {x = 50, y = WindowHeight-400, w = math.min(150,TBoxWidth), h = 75}
-    
-    --exterior
-    love.graphics.setColor(1,1,1,1)
-    love.graphics.rectangle("fill", boxRect.x-5, boxRect.y-5, boxRect.w+10, boxRect.h+10, 30,30)
-    love.graphics.rectangle("fill", nameRect.x-5, nameRect.y-5, nameRect.w+10, nameRect.h+10, 30,30)
-    
-    --interior
-    love.graphics.setColor(0,0,0,1)
-    love.graphics.rectangle("fill", boxRect.x, boxRect.y, boxRect.w, boxRect.h, 25,25)
-    love.graphics.rectangle("fill", nameRect.x, nameRect.y, nameRect.w, nameRect.h, 25,25)
-    love.graphics.setColor(1,1,1,1)
+    State = 'phonecall'
 
-
-
-
+    --Text rectangle sizes
+    BoxRect = {x = 50, y = WindowHeight-300, w = TBoxWidth, h = 250}
+    NameRect = {x = 50, y = WindowHeight-400, w = math.min(150,TBoxWidth), h = 75}
 
     --Expand text box
     if TBoxWidth < WindowWidth-100 then
         if fullTextBox then
             TBoxWidth = WindowWidth-100
+
+        --Fix for resizing window with text box open
         else
             TBoxWidth = TBoxWidth + (1500*dt)
         end
@@ -50,24 +37,23 @@ function handlePhone(num,dt)
 
             --Reset waitCounter
             if love.keyboard.isDown('x') or love.keyboard.isDown('tab') then
-                waitCounter = 0.01
+                waitCounter = 0.004
             else
-                waitCounter = 0.04
+                waitCounter = 0.02
             end
 
             --Draw text
             if charCounter < #txt then
                 local i = txt[charCounter] --Important, apparently
                 if line == -1 then
-                    textName = textName..i
+                    TextName = TextName..i
                     if i == "\n" then
                         line = 0
                     end
                     charCounter = charCounter + 1
                 else
                     if i ~= "\\" then
-                        print(i)
-                        currentText[line+1] = currentText[line+1]..i
+                        CurrentText[line+1] = CurrentText[line+1]..i
                         charCounter = charCounter + 1
 
                     --escape codes
@@ -87,7 +73,7 @@ function handlePhone(num,dt)
                             charCounter = charCounter + 2
                         elseif j == 'n' then
                             if love.keyboard.isDown('return') or love.keyboard.isDown('z') then
-                                currentText = {'','',''}
+                                CurrentText = {'','',''}
                                 line = -1
                                 charCounter = charCounter + 2
                             end
@@ -98,24 +84,20 @@ function handlePhone(num,dt)
             --Finish up
             else                           
                 if love.keyboard.isDown('return') or love.keyboard.isDown('z') then
-                    currentText = {'','',''}
+                    CurrentText = {'','',''}
                     fullTextBox = false
                     txt = {}
+                    BoxRect = ''
+                    NameRect = ''
                     NextCall = 0
                     TBoxWidth = 0
-                    state = 'game'
+                    State = 'game'
                 end
             end
         --Wait
         else
             waitCounter = waitCounter - dt
         end
-    end
-
-    --Text
-    simpleText(textName,28*GameScale,90,WindowHeight-380*GameScale)
-    for i,v in ipairs(currentText) do
-        simpleText(v,32*GameScale,60,WindowHeight-330+(i*50))
     end
 
 end

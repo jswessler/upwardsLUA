@@ -1,5 +1,12 @@
 Release Log:
 
+l.09
+- Text is now framerate independent
+- Rewrote most text code for global use
+- Physics adjustments
+- Kunais display properly and are now mostly based from the player class instead of global
+- Added kunai innacuracy & targeting reticle
+
 l.08
 - Added ground clip prevention on walls
 - Implemented phone calls

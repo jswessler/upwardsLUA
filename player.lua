@@ -3,6 +3,7 @@
 
 Player = Object:extend()
 require "sensor"
+require "lib.distFuncs"
 
 function Player:new(x,y)
     --position
@@ -23,6 +24,7 @@ function Player:new(x,y)
     self.wallClimb = false
     self.timeOnGround = 0
     self.onGround = true
+    self.kunaiInnacuracy = 0
 
     --self counter
     self.counter = 0
@@ -46,7 +48,7 @@ function Player:new(x,y)
 
     --misc
     self.maxSpd = 2.5
-    self.kunaiAni = 0
+    self.kunaiAni = -1
 
     --sensor
     self.se = Sensor(self)
@@ -61,9 +63,6 @@ function Player:animate(dt)
         self.aniTimer = self.aniTimer - (60*dt)
     end
     self.aniiTimer = self.aniiTimer - (60*dt)
-    if self.kunaiAni > 0 then
-        self.kunaiAni = self.kunaiAni - (50*dt)
-    end
 
     --Tumble Landing
 
@@ -434,6 +433,10 @@ function Player:update(dt)
         self.abilities[5] = 2 --dive jump
         self.energy = self.energy + (270*dt*(self.eRegen+0.001))
     else
+
+        --Innacurate Knives
+        self.kunaiInnacuracy = math.max(self.kunaiInnacuracy,8)
+
         --regen energy if you're falling quickly
         self.onGround = false
         self.timeOnGround = 0
@@ -442,7 +445,7 @@ function Player:update(dt)
         --slide off an edge
         if self.slide > 0 then
             self.slide = self.slide - math.min(5,self.slide)
-            self.jCounter = 1
+            self.jCounter = 4
             self.energy = self.energy - (2*dt)
             self.nextAni = 'low'
         end
@@ -473,7 +476,7 @@ function Player:update(dt)
         end
     end
     if self.se:detect(self.col[3]-0.5,math.random(-100,12))[1] then
-        self.xpos = self.xpos - 0.1
+        self.xpos = self.xpos - 0.5
     end
     if self.colliderCount > 0 then
         self.onWall = 1
@@ -491,7 +494,7 @@ function Player:update(dt)
         end
     end
     if self.se:detect(self.col[4]+0.5,math.random(-100,12))[1] then
-        self.xpos = self.xpos + 0.1
+        self.xpos = self.xpos + 0.5
     end
     if self.colliderCount > 0 then
         self.onWall = -1
@@ -510,7 +513,7 @@ function Player:update(dt)
                 self.slideBoost = (90-self.slide-190)^2
             end
             self.abilities[1] = 0
-            self.jCounter = 8
+            self.jCounter = 7
             self.yv = self.yv - (0.6 + (self.slideBoost/50000) + (0.14*math.abs(self.xv)))
             if self.slideBoost ~= 0 then
                 self.energy = self.energy - (10*dt)
@@ -531,9 +534,9 @@ function Player:update(dt)
 
         --hover
         if self.yv > 0 and self.energy > 0.1 and self.animation~='djumpdown' then
-            self.yv = self.yv - 0.01
-            self.yv = self.yv * 0.002^dt
-            self.jCounter = 1
+            self.yv = self.yv - 0.015
+            self.yv = self.yv * 0.0004^dt
+            self.jCounter = 6
             self.energy = self.energy - (0.07+(0.0125*math.abs(self.xv)))*(170*dt)
             self.animation = 'hover'
         end
@@ -549,7 +552,7 @@ function Player:update(dt)
             self.xv = self.xv * (8^dt)
             self.abilities[3] = self.abilities[3] - (60*dt)
             self.energy = self.energy - (260*dt)
-            self.jCounter = 10
+            self.jCounter = 12
             self.aniFrame = 1
 
             --adjust animation
@@ -569,7 +572,7 @@ function Player:update(dt)
             self.abilities[5] = self.abilities[5] - (60*dt)
             self.abilities[4] = 0
             self.energy = self.energy - (40*dt)
-            self.jCounter = 4
+            self.jCounter = 8
 
             --animation
             self.animation = 'hover'
@@ -629,7 +632,7 @@ function Player:update(dt)
             end
 
             --adjust
-            self.jCounter = 2
+            self.jCounter = 3
             self.wallClimb = true
             self.animation = 'wallslide'
             self.nextAni = 'none'
@@ -646,7 +649,6 @@ function Player:update(dt)
             self.yv = self.yv * 0.25
             self.yv = -3.75
             self.jCounter = 10
-            self.xpos = self.xpos - self.dFacing*2
             self.xv = -self.dFacing * 3
             self.energy = self.energy - 6
             self.wallClimb = false
@@ -658,7 +660,7 @@ function Player:update(dt)
 
     --dive
     if love.keyboard.isDown("lctrl") then
-        if self.abilities[4] > 0 and self.abilities[1]<=0 and self.energy > 10 then
+        if self.abilities[4] > 0 and self.abilities[1]<=0 and self.energy > 10 and self.onWall == 0 then
             self.xv = self.dFacing * 4.25
             self.yv = self.yv * 0.1^dt
             self.yv = self.yv - 16*dt
@@ -685,13 +687,43 @@ function Player:update(dt)
         end
     end
 
-    --kunai spawning
-    if self.kunaiAni < 18 and self.energy > 20 and Kunais > 0 and (love.keyboard.isDown("e") or love.mouse.isDown(1)) then
-        self.kunaiAni = 40
+    --Decrease kunaiInnacuracy
+    if self.kunaiAni == -1 then
+        self.kunaiInnacuracy = math.max(0,self.kunaiInnacuracy - (dt*40))
+    else
+        self.kunaiInnacuracy = math.max(0,self.kunaiInnacuracy - dt*(self.kunaiAni))
+    end
+
+    --Initiate Kunai
+    if (self.kunaiAni == -1 or self.kunaiAni > 18) and self.energy > 20 and Kunais > 0 and (love.keyboard.isDown("e") or love.mouse.isDown(1)) then
+        
+        --Increase innacruacy
+        if self.kunaiAni == -1 then
+            self.kunaiInnacuracy = self.kunaiInnacuracy + 7
+        else
+            self.kunaiInnacuracy = self.kunaiInnacuracy + (7 + (40-self.kunaiAni)*0.7)
+        end
+
+        self.kunaiAni = 0 --equal to KuAni, initiate main loop, l.09
         self.energy = self.energy - 12
         Kunais = Kunais - 1
-        DKunais = Kunais
+        if self.kunaiAni < 18 then
+            DKunais = Kunais
+        end
+        local tan = tanAngle(MouseX-(self.xpos-CameraX)+(0.05*(self.kunaiInnacuracy+1))*(love.math.random()-0.5),MouseY-(self.ypos-CameraY)+(0.05*(self.kunaiInnacuracy+1))*(love.math.random()-0.5))
+        local dx = tan[1] + (0.05*(self.kunaiInnacuracy+1))*0.1*(love.math.random()-0.5)
+        local dy = tan[2] + (0.05*(self.kunaiInnacuracy+1))*0.1*(love.math.random()-0.5)
+        table.insert(ThrownKunai,Kunai(self.xpos,self.ypos-60,dx*30,dy*30))
         --self.animation = 'none' --change to throwing animation later
+    end
+
+    --Update kunaiAnimation
+    if self.kunaiAni ~= -1 then
+        self.kunaiAni = self.kunaiAni + (60*dt)
+    end
+    if self.kunaiAni >= 40 then
+        self.kunaiAni = -1
+        DKunais = Kunais
     end
 
     --directional inputs

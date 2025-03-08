@@ -1,14 +1,19 @@
 --!file: main.lua
 --Upwards!
 
+--l.09 Todo:
+-- Move some Kunai code to player
+-- Add kunai innacuracy with HUD
+
 if arg[2] == "debug" then
     require("lldebugger").start()
 end
 
 function love.load()
+
     
     --Build Id
-    BuildId = "l.08"
+    BuildId = "l.09"
 
     --Imports
     Object = require "lib.classic"
@@ -59,7 +64,6 @@ function love.load()
     --initial values
     Kunais = 5
     DKunais = 5
-    KuAni = -1
     CameraX = 0
     CameraY = 0
     DiffCX = 0
@@ -69,8 +73,15 @@ function love.load()
     TileUpdates = 0
     ScreenshotText = -1
     HudEnabled = true
+    KunaiReticle = false
+
+    --Phone Calls
     NextCall = 0
     TBoxWidth = 0
+    BoxRect = ''
+    NameRect = ''
+    TextName = ''
+    CurrentText = {'','',''}
 
     --Phone variables
     TriggerPhone = false
@@ -112,31 +123,12 @@ function love.update(dt)
     TileUpdates = 0
     tileProperties(dt)
 
-    --Spawn Kunai
-    if Pl.kunaiAni > 37 and Pl.kunaiAni < 38 then
-        local tan = tanAngle(MouseX-(Pl.xpos-CameraX),MouseY-(Pl.ypos-CameraY))
-        local dx = tan[1] + 0.1*love.math.random()-0.05
-        local dy = tan[2] + 0.1*love.math.random()-0.05
-        print(dx,dy)
-        table.insert(ThrownKunai,Kunai(Pl.xpos,Pl.ypos-60,dx*30,dy*30))
-        KuAni = 0
-        Pl.energy = Pl.energy - 10
-        Pl.kunaiAni = 36
-    end
-
     --Update kunai
     for i,v in ipairs(ThrownKunai) do
         if v:update(dt) then
             DKunais = Kunais
             table.remove(ThrownKunai,i)
         end
-    end
-    if KuAni ~= -1 then
-        KuAni = KuAni + (dt*60)
-    end
-    if KuAni >= 40 then
-        KuAni = -1
-        DKunais = Kunais
     end
 
     --Update Phone
@@ -173,10 +165,15 @@ function love.update(dt)
     end
 
 
+    --Handle Phone Calls
+    if NextCall ~= 0 then
+        handlePhone(NextCall,dt)
+    end
+
 end
 
 
-function love.draw(dt)
+function love.draw()
     love.graphics.setColor(0.1,0.1,0.1,1)
     love.graphics.rectangle("fill",0,0,WindowWidth,WindowHeight)
     love.graphics.setColor(1,1,1,1)
@@ -204,13 +201,30 @@ function love.draw(dt)
         DebugInfo = not DebugInfo
     end
 
-    if not love.keyboard.isDown("f1","f2","f3") then
+    --T: Toggle reticle
+    if love.keyboard.isDown("t") and not DebugPressed then
+        DebugPressed = true
+        KunaiReticle = not KunaiReticle
+    end
+
+    if not love.keyboard.isDown("f1","f2","f3","t") then
         DebugPressed = false
     end
 
     --draw kunai
     for i,v in ipairs(ThrownKunai) do
         love.graphics.draw(v.baseImage,(v.xpos-CameraX)*GameScale,(v.ypos-CameraY)*GameScale,v.direction,2*GameScale,2*GameScale,0,0)
+    end
+
+    --draw kunai reticle
+    if KunaiReticle then
+        love.graphics.setColor(1,1,1,0.5)
+        love.graphics.rectangle("fill",MouseX-15-Pl.kunaiInnacuracy,MouseY-1,10,2)
+        love.graphics.rectangle("fill",MouseX+5+Pl.kunaiInnacuracy,MouseY-1,10,2)
+        love.graphics.rectangle("fill",MouseX-1,MouseY-15-Pl.kunaiInnacuracy,2,10)
+        love.graphics.rectangle("fill",MouseX-1,MouseY+5+Pl.kunaiInnacuracy,2,10)
+
+        love.graphics.setColor(1,1,1,1)
     end
 
     --draw player
@@ -271,14 +285,14 @@ function love.draw(dt)
         --Rightside HUD Kunais
         for i=0,DKunais-1,1 do
             if i == 0 then
-                if KuAni >= 0 and KuAni <= 14 then
-                    love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+KuAni+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)-(KuAni*KuAni+KuAni*GameScale)+HudY,0,0.15*GameScale,0.15*GameScale)
-                elseif KuAni >= 39 or KuAni <= -1 then
+                if Pl.kunaiAni >= 0 and Pl.kunaiAni <= 14 then
+                    love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+Pl.kunaiAni+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)-(Pl.kunaiAni*Pl.kunaiAni+Pl.kunaiAni*GameScale)+HudY,0,0.15*GameScale,0.15*GameScale)
+                elseif Pl.kunaiAni >= 39 or Pl.kunaiAni <= -1 then
                     love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)+HudY,0,0.15*GameScale,0.15*GameScale)
                 end
             else
-                if KuAni >= 24 and KuAni <= 40 then
-                    love.graphics.draw(KunaiImg,WindowWidth-(152*GameScale)-(i*38*GameScale)+(KuAni*2.3)+HudX,WindowHeight-(154*GameScale)-(i*3*GameScale)+(KuAni/5*GameScale)+HudY,0,0.15*GameScale,0.15*GameScale)
+                if Pl.kunaiAni >= 24 and Pl.kunaiAni <= 40 then
+                    love.graphics.draw(KunaiImg,WindowWidth-(152*GameScale)-(i*38*GameScale)+(Pl.kunaiAni*2.3)+HudX,WindowHeight-(154*GameScale)-(i*3*GameScale)+(Pl.kunaiAni/5*GameScale)+HudY,0,0.15*GameScale,0.15*GameScale)
                 else
                     love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)+HudY,0,0.15*GameScale,0.15*GameScale)
                 end
@@ -340,10 +354,30 @@ function love.draw(dt)
     end
     Pl.se:draw(false)
 
-    --Handle Phone Calls
-    if NextCall ~= 0 then
-        handlePhone(NextCall,0.01)
+    --Text
+    if State == 'phonecall' then
+
+        --Rectangles
+        --exterior
+        love.graphics.setColor(1,1,1,1)
+        love.graphics.rectangle("fill", BoxRect.x-5, BoxRect.y-5, BoxRect.w+10, BoxRect.h+10, 30,30)
+        love.graphics.rectangle("fill", NameRect.x-5, NameRect.y-5, NameRect.w+10, NameRect.h+10, 30,30)
+        
+        --interior
+        love.graphics.setColor(0,0,0,1)
+        love.graphics.rectangle("fill", BoxRect.x, BoxRect.y, BoxRect.w, BoxRect.h, 25,25)
+        love.graphics.rectangle("fill", NameRect.x, NameRect.y, NameRect.w, NameRect.h, 25,25)
+        love.graphics.setColor(1,1,1,1)
+
+        --Text
+        simpleText(TextName,28*GameScale,90,WindowHeight-380*GameScale)
+        for i,v in ipairs(CurrentText) do
+            simpleText(v,32*GameScale,60,WindowHeight-330+(i*50))
+        end
     end
+
+
+    
 
 end
 
