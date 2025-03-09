@@ -9,7 +9,7 @@ function love.load()
 
     
     --Build Id
-    BuildId = "l.0x-01 (l.011)"
+    BuildId = "l.1 RC1 Anaconda"
 
     --Imports
     Object = require "lib.classic"
@@ -28,8 +28,7 @@ function love.load()
     --Set up window & display
     WindowWidth = 1280
     WindowHeight = 800
-    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=true,minwidth=1280,minheight=800,msaa=2})
-
+    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=0,minwidth=1280,minheight=800,msaa=2,highdpi=true,usedpiscale=true})
     --Counters
     FrameCounter = 0
     SecondsCounter = 0
@@ -88,7 +87,6 @@ function love.load()
     loadARL(LevelLoad,Path)
 
     --spawn initial entities
-    print(SpawnPoint[1],SpawnPoint[2])
     Pl = Player(SpawnPoint[1]*32,SpawnPoint[2]*32+32)
 
 
@@ -105,10 +103,6 @@ function love.update(dt)
     --Update Buttons
     for i,v in pairs(Buttons) do
         v:update(dt)
-    end
-
-    if State == 'resuming' then
-        Buttons = {}
     end
 
     if State == 'game' or State == 'phonecall' then
@@ -183,12 +177,9 @@ function love.update(dt)
             PhoneY = 15
 
             --Pause if clicked
-            if DebugPressed == false and(((pointCollideRect(PhoneRect,MouseX,MouseY) and love.mouse.isDown(1))) or love.keyboard.isDown('escape')) then
+            if DebugPressed == false and pointCollideRect(PhoneRect,MouseX,MouseY) and love.mouse.isDown(1) then
                 DebugPressed = true
-                if State ~= 'pause' then 
-                    State = 'pause' 
-                    Buttons['resumeButton'] = Button((WindowWidth/2)-(100*GameScale),300*GameScale,200*GameScale,50*GameScale,"Resume",function() State = 'resuming' ResumeTimer = SecondsCounter+0.25 end)
-                end
+                PauseGame()
             end
         end
 
@@ -197,6 +188,15 @@ function love.update(dt)
             handlePhone(NextCall,dt)
         end
     end
+
+    if love.keyboard.isDown('v') then
+        love.window.setVSync(1 - love.window.getVSync())
+    end
+
+    if love.keyboard.isDown('escape') then
+        DebugPressed = true
+        PauseGame()
+    end 
 
 end
 
@@ -246,7 +246,7 @@ function love.draw()
         KunaiReticle = not KunaiReticle
     end
 
-    if not love.keyboard.isDown("f1","f2","f3","t","escape") then
+    if not love.keyboard.isDown("f1","f2","f3","t","escape") and not love.mouse.isDown(1) then
         DebugPressed = false
     end
 
@@ -304,7 +304,6 @@ function love.draw()
 
     --Draw HUD
     if HudEnabled then
-        --Hex
         HudX = -Pl.xv*5
         HudY = -(math.min(0,Pl.yv*6))
 
@@ -315,7 +314,9 @@ function love.draw()
             love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*4,GameScale*4)
         end
         
-        love.graphics.draw(HexImg,HudX,WindowHeight-(200*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
+        --Hex
+        love.graphics.draw(HexImg,HudX,WindowHeight-(220*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
+        
         --Hearts
         for i,hp in ipairs(Health) do
             if hp.amt <= 0 and hp.type ~= 1 then
@@ -323,7 +324,7 @@ function love.draw()
             else
                 hp.img = "Images/Hearts/"..hp.fileExt..hp.amt..".png"
                 local img = love.graphics.newImage(hp.img)
-                love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(77*GameScale)-(i*5.1*GameScale)+HudY,(-4.289/57.19),4*GameScale,4*GameScale)
+                love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY,(-4.289/57.19),4*GameScale,4*GameScale)
             end
             
         end
@@ -380,7 +381,7 @@ function love.draw()
     end
 
     --Draw BuildId
-    simpleText("Upwards "..BuildId,20,10,10)
+    simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
 
     --Draw Buttons
     for i,v in pairs(Buttons) do
@@ -391,7 +392,7 @@ function love.draw()
     --Screenshot Text
     if ScreenshotText > 0 then
         love.graphics.setColor(1,1,1,math.min(1,ScreenshotText/60))
-        simpleText("Screenshot Saved",20,WindowWidth-200,10)
+        simpleText("Screenshot Saved",20,WindowWidth-(200*GameScale),WindowHeight-(100*GameScale))
         ScreenshotText = ScreenshotText - 1
     elseif ScreenshotText > -1 then
         ScreenshotText = -1
@@ -404,13 +405,13 @@ function love.draw()
                 SH = SH + 1
             end
         end
-        simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10,40)
-        simpleText("PLv: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10,60)
-        simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10,80)
-        simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2),16,10,100)
-        simpleText("Viewing "..Xl[1].." - "..Xl[#Xl].." / "..Yl[1].." - "..Yl[#Yl].." B: "..round((Xl[#Xl]-Xl[1])/(32*GameScale)*(Yl[#Yl]-Yl[1])/(32*GameScale)).." U: "..round(TileUpdates),16,10,120)
-        simpleText("Sensor C: "..#Pl.se.locations.." H: "..SH,16,10,140)
-        simpleText("Level "..LevelLoad,16,10,160)
+        simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
+        simpleText("PLv: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,60*GameScale)
+        simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,80*GameScale)
+        simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." V: "..love.window.getVSync(),16,10*GameScale,100*GameScale)
+        simpleText("Viewing "..Xl[1].." - "..Xl[#Xl].." / "..Yl[1].." - "..Yl[#Yl].." B: "..round((Xl[#Xl]-Xl[1])/(32*GameScale)*(Yl[#Yl]-Yl[1])/(32*GameScale)).." U: "..round(TileUpdates),16,10*GameScale,120*GameScale)
+        simpleText("Sensor C: "..#Pl.se.locations.." H: "..SH,16,10*GameScale,140*GameScale)
+        simpleText("Level "..LevelLoad,16,10*GameScale,160*GameScale)
         Pl.se:draw(true)
 
     end
@@ -455,3 +456,4 @@ function love.errorhandler(msg)
         return love_errorhandler(msg)
     end
 end
+

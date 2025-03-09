@@ -437,14 +437,14 @@ function Player:update(dt)
         --Innacurate Knives
         self.kunaiInnacuracy = math.max(self.kunaiInnacuracy,8)
 
-        --regen energy if you're falling quickly
+        --falling
         self.onGround = false
         self.timeOnGround = 0
         self.gravity = 1
 
         --slide off an edge
         if self.slide > 0 then
-            self.slide = self.slide - math.min(5,self.slide)
+            self.slide = 0
             self.jCounter = 4
             self.energy = self.energy - (2*dt)
             self.nextAni = 'low'
@@ -475,9 +475,15 @@ function Player:update(dt)
             self.colliderCount = self.colliderCount + 1
         end
     end
-    if self.se:detect(self.col[3]-0.5,math.random(-100,12))[1] then
-        self.xpos = self.xpos - 0.5
+
+    --Push out of walls
+    for i=1,4,1 do
+        if self.se:detect(self.col[3]-0.5,math.random(-90,2))[1] then
+            self.xpos = self.xpos - 0.5
+        end
     end
+
+    --Collide right
     if self.colliderCount > 0 then
         self.onWall = 1
         self.xv = 0
@@ -493,9 +499,15 @@ function Player:update(dt)
             self.colliderCount = self.colliderCount + 1
         end
     end
-    if self.se:detect(self.col[4]+0.5,math.random(-100,12))[1] then
-        self.xpos = self.xpos + 0.5
+
+    --Push out of walls
+    for i=1,4,1 do
+        if self.se:detect(self.col[4]+0.5,math.random(-90,2))[1] then
+            self.xpos = self.xpos + 0.5
+        end
     end
+
+    --Collide left
     if self.colliderCount > 0 then
         self.onWall = -1
         self.xv = 0
@@ -514,7 +526,7 @@ function Player:update(dt)
             end
             self.abilities[1] = 0
             self.jCounter = 7
-            self.yv = self.yv - (0.6 + (self.slideBoost/50000) + (0.14*math.abs(self.xv)))
+            self.yv = self.yv - 0.6
             if self.slideBoost ~= 0 then
                 self.energy = self.energy - (10*dt)
                 self.xv = self.xv * (1+self.slideBoost/250000)
@@ -525,7 +537,7 @@ function Player:update(dt)
 
         --jump extension
         if not self.onGround and self.abilities[1]<=0 and self.abilities[2]>0 and self.energy > 0.2 then
-            self.yv = self.yv - (dt*20)
+            self.yv = self.yv - (dt*18) - dt*math.abs(self.xv)
             if self.abilities[2] < 12.5 then
                 self.energy = self.energy - (30*dt)
             end
@@ -547,7 +559,7 @@ function Player:update(dt)
             if self.yv > 0.5 then
                 self.yv = 0.5
             end
-            self.yv = self.yv - dt*(62 + (6*math.abs(self.xv)))
+            self.yv = self.yv - (dt*64) - 2*dt*math.abs(self.xv)
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
             self.xv = self.xv * (8^dt)
             self.abilities[3] = self.abilities[3] - (60*dt)
@@ -751,10 +763,10 @@ function Player:update(dt)
         if (self.slide > 0 and self.se:detect(0,-90)[1] and self.energy > 5) or ((love.keyboard.isDown("s") or love.keyboard.isDown("down")) and (self.xv > 1.25 or self.xv < -1.25) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
             self.col = {12,-40,30,-25}
             if self.timeOnGround < 15 and self.slideMult == 0 then
-                self.slideMult = 1.75
+                self.slideMult = 1.5
                 self.maxSpd = 4
             else
-                self.slideMult = 1
+                self.slideMult = 1.25
                 self.maxSpd = 3.5
             end
             if self.xv > 0 and self.xv < self.maxSpd then

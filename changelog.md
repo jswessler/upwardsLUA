@@ -1,5 +1,12 @@
 Release Log:
 
+l.1 RC1
+- Feature parity with Python
+- Added menu options
+- Physics fixes
+- Camera adjustments, now works properly when resizing
+- HighDPI support (for mac)
+
 l.0x_01
 - Added button class that can run functions when clicked.
 - Added spawn points
