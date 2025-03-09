@@ -53,10 +53,9 @@ function loadARL(filename,gamePath)
                 cou = cou + 1
                 local byte2 = string.byte(contents,cou,cou)
                 LevelData[x.."-"..y] = byte.."-"..byte2
-            end
-
-            if LevelData[x.."-"..y] == "5-0" then
-                SpawnPoint = counter - 64
+                if byte == 5 and byte2 == 0 then
+                    SpawnPoint = {x,y}
+                end
             end
         end
         counter = counter + 1

@@ -1,5 +1,9 @@
 Release Log:
 
+l.0x_01
+- Added button class that can run functions when clicked.
+- Added spawn points
+
 l.010
 - Adjusted HUD, added background & lines
 - Added phone UI

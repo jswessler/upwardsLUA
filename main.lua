@@ -1,10 +1,6 @@
 --!file: main.lua
 --Upwards!
 
---l.09 Todo:
--- Move some Kunai code to player
--- Add kunai innacuracy with HUD
-
 if arg[2] == "debug" then
     require("lldebugger").start()
 end
@@ -13,7 +9,7 @@ function love.load()
 
     
     --Build Id
-    BuildId = "l.010"
+    BuildId = "l.0x-01 (l.011)"
 
     --Imports
     Object = require "lib.classic"
@@ -24,6 +20,7 @@ function love.load()
     require "sensor"
     require "camera"
     require "kunai"
+    require "button"
     require "call"
     local Heart = require "heart"
     require "lib.playerCollision"
@@ -48,9 +45,6 @@ function love.load()
 
     --state
     State = 'game'
-
-    --spawn initial entities
-    Pl = Player(300,100)
 
     --lists
     ThrownKunai = {}
@@ -93,6 +87,10 @@ function love.load()
     LevelLoad = 'lvl1.arl'
     loadARL(LevelLoad,Path)
 
+    --spawn initial entities
+    print(SpawnPoint[1],SpawnPoint[2])
+    Pl = Player(SpawnPoint[1]*32,SpawnPoint[2]*32+32)
+
 
 end
 
@@ -104,6 +102,14 @@ function love.update(dt)
 
     MouseX, MouseY = love.mouse.getPosition()
 
+    --Update Buttons
+    for i,v in pairs(Buttons) do
+        v:update(dt)
+    end
+
+    if State == 'resuming' then
+        Buttons = {}
+    end
 
     if State == 'game' or State == 'phonecall' then
 
@@ -179,7 +185,10 @@ function love.update(dt)
             --Pause if clicked
             if DebugPressed == false and(((pointCollideRect(PhoneRect,MouseX,MouseY) and love.mouse.isDown(1))) or love.keyboard.isDown('escape')) then
                 DebugPressed = true
-                if State ~= 'pause' then State = 'pause' else State = 'resuming' ResumeTimer = SecondsCounter+0.25 end
+                if State ~= 'pause' then 
+                    State = 'pause' 
+                    Buttons['resumeButton'] = Button((WindowWidth/2)-(100*GameScale),300*GameScale,200*GameScale,50*GameScale,"Resume",function() State = 'resuming' ResumeTimer = SecondsCounter+0.25 end)
+                end
             end
         end
 
@@ -372,6 +381,11 @@ function love.draw()
 
     --Draw BuildId
     simpleText("Upwards "..BuildId,20,10,10)
+
+    --Draw Buttons
+    for i,v in pairs(Buttons) do
+        v:draw()
+    end
 
 
     --Screenshot Text
