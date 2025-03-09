@@ -1,5 +1,10 @@
 Release Log:
 
+l.010
+- Adjusted HUD, added background & lines
+- Added phone UI
+- Added pausing, resuming, and gamestates
+
 l.09_01
 - Function file refactor
 - Level loading cuts off on the right/bottom edges

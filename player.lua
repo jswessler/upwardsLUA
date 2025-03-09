@@ -645,7 +645,7 @@ function Player:update(dt)
         end
 
         --Wall Jump
-        if self.wallClimb and self.energy > 6 and ((love.keyboard.isDown("a") and self.onWall == 1 and self.WJEnabled == 1) or (love.keyboard.isDown("d") and self.onWall == -1 and self.WJEnabled == -1)) then
+        if self.wallClimb and self.energy > 6 and (((love.keyboard.isDown("a") or love.keyboard.isDown('left')) and self.onWall == 1 and self.WJEnabled == 1) or ((love.keyboard.isDown("d") or love.keyboard.isDown('right')) and self.onWall == -1 and self.WJEnabled == -1)) then
             self.yv = self.yv * 0.25
             self.yv = -3.75
             self.jCounter = 10
@@ -695,7 +695,7 @@ function Player:update(dt)
     end
 
     --Initiate Kunai
-    if (self.kunaiAni == -1 or self.kunaiAni > 18) and self.energy > 20 and Kunais > 0 and (love.keyboard.isDown("e") or love.mouse.isDown(1)) then
+    if (self.kunaiAni == -1 or self.kunaiAni > 18) and self.energy > 20 and Kunais > 0 and love.keyboard.isDown("e") then
         
         --Increase innacruacy
         if self.kunaiAni == -1 then

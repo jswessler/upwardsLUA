@@ -15,7 +15,7 @@ function normalCamera(mousex,mousey,dt,rxy)
     end
 
     --adjust cam parameters
-    local tx = Pl.xpos + (Pl.xv*120) + (Pl.dFacing*120) - (WindowWidth/2) + (Camx-(WindowWidth/2))/2.5
+    local tx = Pl.xpos + (Pl.xv*130) + (Pl.dFacing*100) - (WindowWidth/2) + (Camx-(WindowWidth/2))/2.5
     local ty = -(WindowHeight/10) + Pl.ypos + (math.min(0,Pl.yv*30*GameScale)) - (WindowHeight/2) + (Camy-(WindowHeight/2))/2.5
     local remcx = CameraX
     local remcy = CameraY

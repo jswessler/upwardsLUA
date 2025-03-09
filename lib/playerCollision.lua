@@ -3,7 +3,7 @@
 
 require "lib.extraFunc"
 
-function playerCollisionDetect(tile,pB,dt) --block formatted as "0-0, 1-0" etc.
+function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
     local blF = split(tile,"-")
     local blM = tonumber(blF[1])
     local blS = tonumber(blF[2])
@@ -64,7 +64,8 @@ function playerCollisionDetect(tile,pB,dt) --block formatted as "0-0, 1-0" etc.
 
     --Phone Call
     if blM == 11 then
-        NextCall = blS
+        NextCall = 0-blS
+        TriggerPhone = true
         LevelData[pB] = "2-"..blS
     end
 end

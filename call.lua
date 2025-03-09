@@ -17,12 +17,14 @@ function handlePhone(num,dt)
 
     --Expand text box
     if TBoxWidth < WindowWidth-100 then
+
+        --Fix for resizing window with text box open
         if fullTextBox then
             TBoxWidth = WindowWidth-100
 
-        --Fix for resizing window with text box open
+        --Otherwise expand textbox slowly
         else
-            TBoxWidth = TBoxWidth + (1500*dt)
+            TBoxWidth = TBoxWidth + (4000*dt)
         end
     else
         fullTextBox = true
