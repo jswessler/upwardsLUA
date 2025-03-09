@@ -1,5 +1,10 @@
 Release Log:
 
+l.09_01
+- Function file refactor
+- Level loading cuts off on the right/bottom edges
+- Centered text functions
+
 l.09
 - Text is now framerate independent
 - Rewrote most text code for global use

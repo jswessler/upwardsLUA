@@ -1,8 +1,7 @@
 --!file: playerCollision.lua
 --Checks for non-solid collision and does various actions
 
-require "lib.distFuncs"
-require "lib.mathExtras"
+require "lib.extraFunc"
 
 function playerCollisionDetect(tile,pB,dt) --block formatted as "0-0, 1-0" etc.
     local blF = split(tile,"-")

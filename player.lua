@@ -3,7 +3,7 @@
 
 Player = Object:extend()
 require "sensor"
-require "lib.distFuncs"
+require "lib.extraFunc"
 
 function Player:new(x,y)
     --position
@@ -699,9 +699,9 @@ function Player:update(dt)
         
         --Increase innacruacy
         if self.kunaiAni == -1 then
-            self.kunaiInnacuracy = self.kunaiInnacuracy + 7
+            self.kunaiInnacuracy = self.kunaiInnacuracy + 6
         else
-            self.kunaiInnacuracy = self.kunaiInnacuracy + (7 + (40-self.kunaiAni)*0.7)
+            self.kunaiInnacuracy = self.kunaiInnacuracy + (1-(self.kunaiInnacuracy/80))*(6 + (40-self.kunaiAni)*0.7)
         end
 
         self.kunaiAni = 0 --equal to KuAni, initiate main loop, l.09

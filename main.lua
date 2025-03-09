@@ -13,15 +13,12 @@ function love.load()
 
     
     --Build Id
-    BuildId = "l.09"
+    BuildId = "l.09-01"
 
     --Imports
     Object = require "lib.classic"
-    require "lib.simplestats"
-    require "lib.mathExtras"
     require "lib.loadArl"
-    require "lib.distFuncs"
-    require "lib.drawFuncs"
+    require "lib.extraFunc"
 
     require "player"
     require "sensor"
@@ -258,7 +255,7 @@ function love.draw()
 
             --Draw block text when pressing T
             if love.keyboard.isDown("t") and bl~= '0-0' then
-                simpleText(bl,14,2+(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
+                simpleText(bl,14,16+(x-CameraX)*GameScale,16+(y-CameraY)*GameScale,'center')
             end
         end
     end

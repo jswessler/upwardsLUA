@@ -3,7 +3,7 @@
 
 Kunai = Object:extend()
 require "sensor"
-require "lib.distFuncs"
+require "lib.extraFunc"
 
 function Kunai:new(xpos,ypos,xv,yv)
     self.xpos = xpos

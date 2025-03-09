@@ -1,7 +1,7 @@
 --!file: loadArl.lua
 --loads ARL files (level files)
 
-require "lib.mathExtras"
+require "lib.extraFunc"
 
 
 function loadARL(filename,gamePath)
