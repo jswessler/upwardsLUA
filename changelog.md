@@ -1,5 +1,12 @@
 Release Log:
 
+l.1 Gold
+- Slide continuation colliders cover your entire top area
+- buttons slide in from the left
+- quit brings up an "are you sure?" prompt
+- phone call text fixes
+- fix double jump height
+
 l.1 RC1
 - Feature parity with Python
 - Added menu options

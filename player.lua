@@ -555,11 +555,14 @@ function Player:update(dt)
 
         --double jump
         if (self.abilities[3] > 0 and self.abilities[3] < 4) and not self.onGround and not self.wallClimb and self.abilities[1]<=0 and self.abilities[4]==2 and self.energy > 1 then
-            --cancel out some downwards momentum if going down
-            if self.yv > 0.5 then
-                self.yv = 0.5
+            --cancel out some momentum to normalize double jump height
+            if self.yv > 0 then
+                self.yv = self.yv - 80*dt
             end
-            self.yv = self.yv - (dt*64) - 2*dt*math.abs(self.xv)
+            if self.yv < -3 then
+                self.yv = self.yv + 10*dt
+            end
+            self.yv = self.yv - (dt*58) - 1.25*dt*math.abs(self.xv)
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
             self.xv = self.xv * (8^dt)
             self.abilities[3] = self.abilities[3] - (60*dt)
@@ -760,7 +763,7 @@ function Player:update(dt)
         end
 
         --slide
-        if (self.slide > 0 and self.se:detect(0,-90)[1] and self.energy > 5) or ((love.keyboard.isDown("s") or love.keyboard.isDown("down")) and (self.xv > 1.25 or self.xv < -1.25) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
+        if (self.slide > 0 and (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.energy > 5) or ((love.keyboard.isDown("s") or love.keyboard.isDown("down")) and (self.xv > 1.25 or self.xv < -1.25) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
             self.col = {12,-40,30,-25}
             if self.timeOnGround < 15 and self.slideMult == 0 then
                 self.slideMult = 1.5

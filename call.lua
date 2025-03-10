@@ -12,8 +12,8 @@ function handlePhone(num,dt)
     State = 'phonecall'
 
     --Text rectangle sizes
-    BoxRect = {x = 50, y = WindowHeight-300, w = TBoxWidth, h = 250}
-    NameRect = {x = 50, y = WindowHeight-400, w = math.min(150,TBoxWidth), h = 75}
+    BoxRect = {x = 50*GameScale, y = WindowHeight-(300*GameScale), w = TBoxWidth, h = (250*GameScale)}
+    NameRect = {x = 50*GameScale, y = WindowHeight-(400*GameScale), w = math.min(150*GameScale,TBoxWidth*GameScale), h = (75*GameScale)}
 
     --Expand text box
     if TBoxWidth < WindowWidth-100 then

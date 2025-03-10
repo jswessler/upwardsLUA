@@ -8,18 +8,27 @@ function PauseGame()
     if State ~= 'pause' then 
         Buttons = {}
         State = 'pause'
-        Buttons['resume'] = Button(20*GameScale,50*GameScale,200*GameScale,50*GameScale,"Resume",ResumeGame)
-        Buttons['options'] = Button(20*GameScale,120*GameScale,200*GameScale,50*GameScale,"Options",OptionsMenu)
-        Buttons['quit'] = Button(20*GameScale,190*GameScale,200*GameScale,50*GameScale,"Quit",love.event.quit)
+        Buttons['resume'] = Button(20,50,200,50,"Resume",ResumeGame,0)
+        Buttons['options'] = Button(20,120,200,50,"Options",OptionsMenu,0.15)
+        Buttons['quit'] = Button(20,190,200,50,"Quit",SureQuit,0.3)
     end
 end
 
 function ResumeGame()
-    if State == 'pause' then 
+    if State == 'pause' then
         Buttons = {}
-        State = 'resuming' 
-        ResumeTimer = SecondsCounter+0.25
+        State = 'resuming'
+        ResumeTimer = SecondsCounter + 0.25
 
+    end
+end
+
+function SureQuit()
+    if State == 'pause' then
+        Buttons = {}
+        State = 'surequit'
+        Buttons['back'] = Button(20, 50, 200, 50, "Back", PauseGame, 0)
+        Buttons['quit'] = Button(20, 120, 200, 50, "Quit", love.event.quit, 0.2)
     end
 end
 
@@ -27,18 +36,19 @@ function OptionsMenu()
     if State == 'pause' then 
         Buttons = {}
         State = 'options' 
-        Buttons['back'] = Button(20*GameScale,190*GameScale,200*GameScale,50*GameScale,"Back",PauseGame)
-        Buttons['vsync'] = Button(20*GameScale,120*GameScale,200*GameScale,50*GameScale, function() return "Vsync: "..love.window.getVSync() end, function() love.window.setVSync(1-love.window.getVSync()) end)
-        Buttons['fullscreen'] = Button(20*GameScale,50*GameScale,200*GameScale,50*GameScale,function() return "Fullscreen: "..tostring(love.window.getFullscreen()) end, function() love.window.setFullscreen(not love.window.getFullscreen()) end)
+        Buttons['fullscreen'] = Button(20, 50, 200, 50, function() return "Fullscreen: " .. tostring(love.window.getFullscreen()) end, function() love.window.setFullscreen(not love.window.getFullscreen()) end, 0)
+        Buttons['vsync'] = Button(20, 120, 200, 50, function() return "Vsync: " .. love.window.getVSync() end, function() love.window.setVSync(1 - love.window.getVSync()) end, 0.15)
+        Buttons['back'] = Button(20, 190, 200, 50, "Back", PauseGame, 0.3)
+
     end
 end
 
 
-function Button:new(x,y,width,height,text,action)
-    self.xT = x
-    self.yT = y
-    self.widthT = width
-    self.heightT = height
+function Button:new(x, y, width, height, text, action, delay)
+    self.xT = x*GameScale
+    self.yT = y*GameScale
+    self.widthT = width*GameScale
+    self.heightT = height*GameScale
     self.text = text
     self.action = action
     self.hover = false
@@ -46,10 +56,21 @@ function Button:new(x,y,width,height,text,action)
     self.y = 0
     self.width = 0
     self.height = 0
+
+    self.timeAlive = -delay or 0
 end
 
 function Button:update(dt)
+    self.timeAlive = self.timeAlive + dt
     self.x = self.xT * GameScale
+
+    --slide in from left
+    
+    local slideInDistance = 1600 * GameScale
+    if self.timeAlive < 0.5 then
+        self.x = self.x - slideInDistance * (0.5 - math.max(0,self.timeAlive))^2 -- slide in effect
+    end
+
     self.y = self.yT * GameScale
     self.width = self.widthT * GameScale
     self.height = self.heightT * GameScale

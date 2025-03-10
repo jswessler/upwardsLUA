@@ -1,6 +1,17 @@
 --!file: main.lua
 --Upwards!
 
+--[[
+for l.1:
+- Slide continuation colliders cover your entire top area DONE
+- buttons slide in from the left
+- quit brings up an "are you sure?"
+- phone call text fixes
+- fix double jump height
+
+
+]]
+
 if arg[2] == "debug" then
     require("lldebugger").start()
 end
@@ -9,7 +20,7 @@ function love.load()
 
     
     --Build Id
-    BuildId = "l.1 RC2 Anaconda"
+    BuildId = "l.1 Gold"
 
     --Imports
     Object = require "lib.classic"
@@ -73,6 +84,7 @@ function love.load()
     TextName = ''
     CurrentText = {'','',''}
     PhoneCounter = 0
+    PhoneScale = 4
 
     --Phone variables
     TriggerPhone = false
@@ -137,8 +149,9 @@ function love.update(dt)
         end
 
         --Update Phone
-        PhoneRect = {x = PhoneX, y = PhoneY, w = 30*GameScale, h = 75*GameScale}
+        PhoneRect = {x = PhoneX, y = PhoneY, w = 15*GameScale*PhoneScale, h = 40*GameScale*PhoneScale}
         if TriggerPhone then
+            PhoneScale = 2
             PhoneCounter = PhoneCounter + dt
 
             --Phone shakes
@@ -162,8 +175,8 @@ function love.update(dt)
             
             --Set phone to top right otherwise
             else
-                PhoneX = WindowWidth-80
-                PhoneY = 15
+                PhoneX = WindowWidth-(80*GameScale)
+                PhoneY = (10*GameScale)
             end
 
             --Collide
@@ -172,12 +185,13 @@ function love.update(dt)
                 NextCall = 0-NextCall
             end
         else
+            PhoneScale = 4
             PhoneImg = love.graphics.newImage("Images/Phone/normal1.png")
-            PhoneX = WindowWidth-80
-            PhoneY = 15
+            PhoneX = WindowWidth-(80*GameScale)
+            PhoneY = (10*GameScale)
 
             --Pause if clicked
-            if DebugPressed == false and pointCollideRect(PhoneRect,MouseX,MouseY) and love.mouse.isDown(1) then
+            if DebugPressed == false and NextCall == 0 and pointCollideRect(PhoneRect,MouseX,MouseY) and love.mouse.isDown(1) then
                 DebugPressed = true
                 PauseGame()
             end
@@ -308,11 +322,7 @@ function love.draw()
         HudY = -(math.min(0,Pl.yv*6))
 
         --Draw Phone
-        if TriggerPhone then
-            love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*2,GameScale*2)
-        else
-            love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*4,GameScale*4)
-        end
+        love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*PhoneScale,GameScale*PhoneScale)
         
         --Hex
         love.graphics.draw(HexImg,HudX,WindowHeight-(220*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
@@ -397,6 +407,7 @@ function love.draw()
     elseif ScreenshotText > -1 then
         ScreenshotText = -1
     end
+
     --debug text & sensor
     if DebugInfo then
         local SH = 0
@@ -433,9 +444,9 @@ function love.draw()
         love.graphics.setColor(1,1,1,1)
 
         --Text
-        simpleText(TextName,28*GameScale,90,WindowHeight-380*GameScale)
+        simpleText(TextName,28,90*GameScale,WindowHeight-(380*GameScale))
         for i,v in ipairs(CurrentText) do
-            simpleText(v,32*GameScale,60,WindowHeight-330+(i*50))
+            simpleText(v,32,60*GameScale,WindowHeight-(330*GameScale)+(i*GameScale*50))
         end
     end
 
