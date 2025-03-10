@@ -9,7 +9,7 @@ function love.load()
 
     
     --Build Id
-    BuildId = "l.1 RC1 Anaconda"
+    BuildId = "l.1 RC2 Anaconda"
 
     --Imports
     Object = require "lib.classic"

@@ -579,7 +579,7 @@ function Player:update(dt)
 
         --jump out of dive
         if self.abilities[5] > 0 and not self.onGround and self.abilities[1] <= 0 and self.abilities[4] ~= 2 and self.energy > 5 then
-            self.yv = self.yv - 0.6
+            self.yv = self.yv - 80*dt
             self.xv = self.xv * 0.000001^dt
             self.abilities[5] = self.abilities[5] - (60*dt)
             self.abilities[4] = 0
