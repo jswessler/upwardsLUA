@@ -3,11 +3,7 @@
 
 --[[
 for l.1:
-- Slide continuation colliders cover your entire top area DONE
-- buttons slide in from the left
-- quit brings up an "are you sure?"
-- phone call text fixes
-- fix double jump height
+- Phone stays above your head on different scales
 
 
 ]]
@@ -20,7 +16,7 @@ function love.load()
 
     
     --Build Id
-    BuildId = "l.1 Gold"
+    BuildId = "l.1"
 
     --Imports
     Object = require "lib.classic"
@@ -121,6 +117,7 @@ function love.update(dt)
 
         --Update Camera
         normalCamera(MouseX,MouseY,dt,math.max(0,1.5*(Pl.yv-2.5)))
+        --basicCam(MouseX,MouseY)
 
         --Update player physics & animation
         Pl:update(dt)
@@ -165,13 +162,13 @@ function love.update(dt)
 
             --Move phone back to corner at 6.5s
             elseif PhoneCounter > 6.5 then
-                PhoneX = PhoneX + (WindowWidth-20-PhoneX)*(20*dt)
-                PhoneY = PhoneY + (30-PhoneY)*(20*dt)
+                PhoneX = PhoneX + (WindowWidth-(80*GameScale)-PhoneX)*(20*dt)
+                PhoneY = PhoneY + ((10*GameScale)-PhoneY)*(20*dt)
             
             --Move phone to your head at 0.5s
             elseif PhoneCounter > 0.5 then
-                PhoneX = PhoneX + ((Pl.xpos-CameraX-PhoneX-16)+love.math.random(-2,2))*(8*dt)
-                PhoneY = PhoneY + ((Pl.ypos-CameraY-PhoneY-175)+love.math.random(-2,2))*(8*dt)
+                PhoneX = PhoneX + ((Pl.xpos*GameScale-CameraX-PhoneX-16)+love.math.random(-2,2))*(8*dt)
+                PhoneY = PhoneY + ((Pl.ypos*GameScale-CameraY-PhoneY-175)+love.math.random(-2,2))*(8*dt)
             
             --Set phone to top right otherwise
             else
@@ -309,8 +306,8 @@ function love.draw()
                 end
             end
 
-            --Draw block text when pressing T
-            if love.keyboard.isDown("t") and bl~= '0-0' then
+            --Draw block text when pressing P
+            if love.keyboard.isDown("p") and bl~= '0-0' then
                 simpleText(bl,14,16+(x-CameraX)*GameScale,16+(y-CameraY)*GameScale,'center')
             end
         end
@@ -318,7 +315,7 @@ function love.draw()
 
     --Draw HUD
     if HudEnabled then
-        HudX = -Pl.xv*5
+        HudX = -Pl.xv*3
         HudY = -(math.min(0,Pl.yv*6))
 
         --Draw Phone
@@ -408,26 +405,6 @@ function love.draw()
         ScreenshotText = -1
     end
 
-    --debug text & sensor
-    if DebugInfo then
-        local SH = 0
-        for i,v in ipairs(Pl.se.locations) do
-            if v[1] then
-                SH = SH + 1
-            end
-        end
-        simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
-        simpleText("PLv: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,60*GameScale)
-        simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,80*GameScale)
-        simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." V: "..love.window.getVSync(),16,10*GameScale,100*GameScale)
-        simpleText("Viewing "..Xl[1].." - "..Xl[#Xl].." / "..Yl[1].." - "..Yl[#Yl].." B: "..round((Xl[#Xl]-Xl[1])/(32*GameScale)*(Yl[#Yl]-Yl[1])/(32*GameScale)).." U: "..round(TileUpdates),16,10*GameScale,120*GameScale)
-        simpleText("Sensor C: "..#Pl.se.locations.." H: "..SH,16,10*GameScale,140*GameScale)
-        simpleText("Level "..LevelLoad,16,10*GameScale,160*GameScale)
-        Pl.se:draw(true)
-
-    end
-    Pl.se:draw(false)
-
     --Text
     if State == 'phonecall' then
 
@@ -451,7 +428,27 @@ function love.draw()
     end
 
 
-    
+    --debug text & sensor
+    local stats = love.graphics.getStats()
+    if DebugInfo then
+        local SH = 0
+        for i,v in ipairs(Pl.se.locations) do
+            if v[1] then
+                SH = SH + 1
+            end
+        end
+        simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
+        simpleText("PLv: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,60*GameScale)
+        simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,80*GameScale)
+        simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." V: "..love.window.getVSync(),16,10*GameScale,100*GameScale)
+        simpleText("Viewing "..Xl[1].." - "..Xl[#Xl].." / "..Yl[1].." - "..Yl[#Yl].." B: "..round((Xl[#Xl]-Xl[1])/(32*GameScale)*(Yl[#Yl]-Yl[1])/(32*GameScale)).." U: "..round(TileUpdates),16,10*GameScale,120*GameScale)
+        simpleText("Sensor C: "..#Pl.se.locations.." H: "..SH,16,10*GameScale,140*GameScale)
+        simpleText("LGs - Dc: "..round(stats.drawcalls,1).." Tm: "..round(stats.texturememory/1024,0).."K I: "..round(stats.images,0),16,10*GameScale,160*GameScale)
+        simpleText("Level "..LevelLoad,16,10*GameScale,180*GameScale)
+        Pl.se:draw(true)
+
+    end
+    Pl.se:draw(false)
 
 end
 

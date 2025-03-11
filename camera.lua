@@ -19,3 +19,24 @@ function normalCamera(mousex,mousey,dt,rxy)
 
 
 end
+
+function basicCam(mousex,mousey)
+    --basicCam simply follows the Pl object
+
+    local Cx = CameraX + (Pl.xpos-CameraX)/40
+    local Cy = CameraY + (Pl.ypos-CameraY)/40
+    Cx = Cx + Pl.xv
+
+    --move based on player direction (STOLEN FROM PAPER MARIO THOUSAND YEAR DOOR)
+    if Pl.lastDir[1] == 'left' then
+        Cx = Cx + math.max(-6,Pl.lastDir[2]/6)
+    elseif Pl.lastDir[1] == 'right' then
+        Cx = Cx + math.min(6,Pl.lastDir[2]/6)
+    end
+
+    --move based on mouse
+    Cx = Cx + (mousex-(WindowWidth/2))/200
+    Cy = Cy + (mousey-(WindowHeight/2))/200
+
+    return Cx,Cy
+end

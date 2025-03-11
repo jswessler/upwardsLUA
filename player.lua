@@ -546,8 +546,8 @@ function Player:update(dt)
 
         --hover
         if self.yv > 0 and self.energy > 0.1 and self.animation~='djumpdown' then
-            self.yv = self.yv - 0.015
-            self.yv = self.yv * 0.0004^dt
+            self.yv = self.yv - 0.0125
+            self.yv = self.yv * 0.001^dt
             self.jCounter = 6
             self.energy = self.energy - (0.07+(0.0125*math.abs(self.xv)))*(170*dt)
             self.animation = 'hover'
@@ -629,12 +629,9 @@ function Player:update(dt)
             --limit fall speed
             self.yv = self.yv - 0.0025
             if love.keyboard.isDown("lctrl") then
-                self.energy = self.energy - (15*dt) - (self.energy/50*dt)
+                self.energy = self.energy - (10*dt) - (self.energy/7*dt)
                 if self.yv > 0.5 then
                     self.yv = self.yv * 0.0005^dt
-                end
-                if self.yv > 1 then
-                    self.yv = self.yv - (self.yv-3)/100
                 end
             else
                 self.energy = self.energy - (10*dt)
@@ -760,6 +757,7 @@ function Player:update(dt)
             if self.maxSpd < 3 then
                 self.maxSpd = self.maxSpd + 1*dt
             end
+            
         end
 
         --slide

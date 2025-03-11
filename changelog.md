@@ -1,5 +1,10 @@
 Release Log:
 
+l.1
+- Bug Fixes
+- Red tile changes
+- Ctrl wallsliding & Hover changes
+
 l.1 Gold
 - Slide continuation colliders cover your entire top area
 - buttons slide in from the left
