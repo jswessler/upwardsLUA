@@ -3,8 +3,7 @@
 
 require "lib.extraFunc"
 
-
-function loadARL(filename,gamePath)
+function loadARL(filename)
     local contents, size = love.filesystem.read("/Levels/"..filename)
     LoadedTiles = {}
     local counter = 1

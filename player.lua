@@ -36,7 +36,7 @@ function Player:new(x,y)
 
     --image
     self.img = ''
-    self.imgPos = {0,0}
+    self.imgPos = {'',0}
 
     --display characteristics
     self.dFacing = 1
@@ -49,6 +49,7 @@ function Player:new(x,y)
     --misc
     self.maxSpd = 2.5
     self.kunaiAni = -1
+    self.lastDir = {0,0}
 
     --sensor
     self.se = Sensor(self)
@@ -110,7 +111,7 @@ function Player:animate(dt)
             else
                 if self.slide > 210 then
                     self.img = love.graphics.newImage("Images/Aria/slideout1.png")
-                else
+                elseif self.slide > 200 then
                     self.img = love.graphics.newImage("Images/Aria/slideout2.png")
                 end
                 self.imgPos = {-36,-86}
@@ -537,7 +538,7 @@ function Player:update(dt)
 
         --jump extension
         if not self.onGround and self.abilities[1]<=0 and self.abilities[2]>0 and self.energy > 0.2 then
-            self.yv = self.yv - (dt*18) - dt*math.abs(self.xv)
+            self.yv = self.yv - (dt*19) - dt*math.abs(self.xv)
             if self.abilities[2] < 12.5 then
                 self.energy = self.energy - (30*dt)
             end
@@ -562,7 +563,7 @@ function Player:update(dt)
             if self.yv < -3 then
                 self.yv = self.yv + 10*dt
             end
-            self.yv = self.yv - (dt*58) - 1.25*dt*math.abs(self.xv)
+            self.yv = self.yv - (dt*60) - 1.25*dt*math.abs(self.xv)
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
             self.xv = self.xv * (8^dt)
             self.abilities[3] = self.abilities[3] - (60*dt)
@@ -631,12 +632,12 @@ function Player:update(dt)
             if love.keyboard.isDown("lctrl") then
                 self.energy = self.energy - (10*dt) - (self.energy/7*dt)
                 if self.yv > 0.5 then
-                    self.yv = self.yv * 0.0005^dt
+                    self.yv = self.yv * 0.001^dt
                 end
             else
                 self.energy = self.energy - (10*dt)
                 if self.yv > 1.5 then
-                    self.yv = self.yv * 0.1^dt
+                    self.yv = self.yv * 0.1125^dt
                 end
                 if self.yv > 3 then
                     self.yv = self.yv - (self.yv-3)/150
@@ -750,6 +751,8 @@ function Player:update(dt)
             if self.maxSpd < 3 then
                 self.maxSpd = self.maxSpd + 1*dt
             end
+            self.lastDir[1] = 'left'
+            self.lastDir[2] = math.max(-0.8,self.lastDir[2] - dt)
         elseif (love.keyboard.isDown("d" or love.keyboard.isDown("right"))) and self.onWall~=1 then
             self.xv = self.xv + 30*dt
             self.facing = 1
@@ -757,6 +760,8 @@ function Player:update(dt)
             if self.maxSpd < 3 then
                 self.maxSpd = self.maxSpd + 1*dt
             end
+            self.lastDir[1] = 'right'
+            self.lastDir[2] = math.min(0.8,self.lastDir[2] + dt)
             
         end
 
@@ -788,9 +793,9 @@ function Player:update(dt)
                 if self.se:detect(0,-90)[1] and self.energy > 0 then
                     self.slide = 255
                     self.energy = self.energy + (40*dt)
-                else
+                elseif self.slide > 200 then
                     self.slideMult = 0
-                    self.animation = 'run'
+                    self.animation = 'slide'
                 end
 
             else
@@ -827,10 +832,13 @@ function Player:update(dt)
         if (love.keyboard.isDown("a" or love.keyboard.isDown("left"))) then
             self.xv = self.xv - 4.5*dt
             self.facing = -1
-
+            self.lastDir[1] = 'left'
+            self.lastDir[2] = math.max(-0.8,self.lastDir[2] - dt)
         elseif (love.keyboard.isDown("d" or love.keyboard.isDown("right"))) then
             self.xv = self.xv + 4.5*dt
             self.facing = 1
+            self.lastDir[1] = 'right'
+            self.lastDir[2] = math.min(0.8,self.lastDir[2] + dt)
         end
         self.xv = self.xv * 0.25^dt 
     end
@@ -853,7 +861,7 @@ function Player:update(dt)
     --maybe do something with W key here
 
     --apply gravity
-    self.yv = self.yv + (self.gravity*dt*7.25)
+    self.yv = self.yv + (self.gravity*dt*7.5)
 
     --stop if you're very slow & change animation
     if math.abs(self.xv)<0.4 and self.onGround and self.animation~='landed' and self.animation~='hardlanded' then

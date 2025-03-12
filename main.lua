@@ -16,7 +16,7 @@ function love.load()
 
     
     --Build Id
-    BuildId = "l.1"
+    BuildId = "l.1.1"
 
     --Imports
     Object = require "lib.classic"
@@ -36,6 +36,9 @@ function love.load()
     WindowWidth = 1280
     WindowHeight = 800
     love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=0,minwidth=1280,minheight=800,msaa=2,highdpi=true,usedpiscale=true})
+    love.window.setTitle("Upwards "..BuildId)
+
+
     --Counters
     FrameCounter = 0
     SecondsCounter = 0
@@ -92,7 +95,7 @@ function love.load()
     --load & scale images
     --kunaiImg = love.graphics.newImage("")
     LevelLoad = 'lvl1.arl'
-    loadARL(LevelLoad,Path)
+    loadARL(LevelLoad)
 
     --spawn initial entities
     Pl = Player(SpawnPoint[1]*32,SpawnPoint[2]*32+32)
@@ -446,6 +449,9 @@ function love.draw()
         simpleText("LGs - Dc: "..round(stats.drawcalls,1).." Tm: "..round(stats.texturememory/1024,0).."K I: "..round(stats.images,0),16,10*GameScale,160*GameScale)
         simpleText("Level "..LevelLoad,16,10*GameScale,180*GameScale)
         Pl.se:draw(true)
+        for i,v in pairs(ThrownKunai) do
+            v.kSe:draw(true)
+        end
 
     end
     Pl.se:draw(false)

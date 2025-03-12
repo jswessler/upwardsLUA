@@ -1,5 +1,10 @@
 Release Log:
 
+l.1.1
+- Camera adjustments
+- Slide animation fixes
+
+
 l.1
 - Bug Fixes
 - Red tile changes
