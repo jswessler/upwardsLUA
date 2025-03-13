@@ -46,6 +46,8 @@ function Player:new(x,y)
     self.aniTimer = 0
     self.aniiTimer = 0
 
+    self.speedMult = 1
+
     --misc
     self.maxSpd = 2.5
     self.kunaiAni = -1
@@ -688,31 +690,28 @@ function Player:update(dt)
     end
 
     --dive
-    if love.keyboard.isDown("lctrl") then
-        if self.abilities[4] > 0 and self.abilities[1]<=0 and self.energy > 10 and self.onWall == 0 then
-            self.xv = self.dFacing * 4.25
-            self.yv = self.yv * 0.1^dt
-            self.yv = self.yv - 16*dt
+    if love.keyboard.isDown("lctrl") and self.onWall == 0 then
+        if self.abilities[4] > 0 and self.abilities[1] <= 0 and self.energy > 1 and self.onWall == 0 then
+            if self.abilities[4] == 2 then
+                self.energy = self.energy - 5
+                self.yv = self.yv - 0.8
+                self.diveDir = self.dFacing
+            end
+            self.xv = self.diveDir * 4
+            self.dFacing = self.diveDir
+            self.yv = self.yv * 0.5^dt
+            self.yv = self.yv - 5*dt
             self.abilities[3] = 0
-            self.abilities[4] = self.abilities[4] - (20*dt)
-            self.maxSpd = 3.75
-
-            --Fixes for dive cheeses
-            --Fix for pressing double jump then immediately dive
-            if self.animation == 'djumpup' or self.animation == 'djumpdown' then
-                self.energy = self.energy - (80*dt)
-                self.yv = self.yv + (60*dt)
-            end
-
-            --Fix for holding ctrl on ground then jumping
-            if self.se:detect(0,15)[1] and self.animation == 'jump' then
-                self.energy = self.energy - 10
-                self.yv = self.yv + (70*dt)
-            end
-
-            self.energy = self.energy - (120*dt)
+            self.abilities[4] = 1
+            self.maxSpd = 4.1
+            self.energy = self.energy - (30*dt)
             self.animation = 'jump' --change to dive later
-
+            self.aniiTimer = 6
+            self.aniTimer = 6
+        end
+    else
+        if self.abilities[4] == 1 then
+            self.abilities[4] = 0
         end
     end
 
@@ -760,26 +759,32 @@ function Player:update(dt)
 
     --high traction on the ground
     if self.onGround then
-        if (love.keyboard.isDown("a" or love.keyboard.isDown("left"))) and self.onWall~=-1 then
-            self.xv = self.xv - 30*dt
-            self.facing = -1
-            self.animation = 'run'
-            if self.maxSpd < 3 then
-                self.maxSpd = self.maxSpd + 1*dt
-            end
-            self.lastDir[1] = 'left'
-            self.lastDir[2] = math.max(-0.5,self.lastDir[2] - dt)
-        elseif (love.keyboard.isDown("d" or love.keyboard.isDown("right"))) and self.onWall~=1 then
-            self.xv = self.xv + 30*dt
-            self.facing = 1
-            self.animation = 'run'
-            if self.maxSpd < 3 then
-                self.maxSpd = self.maxSpd + 1*dt
-            end
-            self.lastDir[1] = 'right'
-            self.lastDir[2] = math.min(0.5,self.lastDir[2] + dt)
-            
+        if love.keyboard.isDown('lshift') then
+            self.speedMult = 1.4
+            self.energy = self.energy - (20*dt)
+        else
+            self.speedMult = 1
         end
+            if (love.keyboard.isDown("a" or love.keyboard.isDown("left"))) and self.onWall~=-1 then
+                self.xv = self.xv - 30*dt*self.speedMult
+                self.facing = -1
+                self.animation = 'run'
+                if self.maxSpd < 2.2*self.speedMult then
+                    self.maxSpd = self.maxSpd + 1*dt*self.speedMult
+                end
+                self.lastDir[1] = 'left'
+                self.lastDir[2] = math.max(-0.5,self.lastDir[2] - dt)
+            elseif (love.keyboard.isDown("d" or love.keyboard.isDown("right"))) and self.onWall~=1 then
+                self.xv = self.xv + 30*dt*self.speedMult
+                self.facing = 1
+                self.animation = 'run'
+                if self.maxSpd < 2.2*self.speedMult then
+                    self.maxSpd = self.maxSpd + 1*dt*self.speedMult
+                end
+                self.lastDir[1] = 'right'
+                self.lastDir[2] = math.min(0.5,self.lastDir[2] + dt)
+                
+            end
 
         --slide
         if (self.slide > 0 and (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.energy > 5) or ((love.keyboard.isDown("s") or love.keyboard.isDown("down")) and (self.xv > 1.25 or self.xv < -1.25) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
@@ -866,7 +871,7 @@ function Player:update(dt)
     if self.xv < - self.maxSpd then
         self.xv = self.xv + 8*dt
     end
-    if self.maxSpd > 3.05 then
+    if self.maxSpd > 2.2*self.speedMult then
         self.maxSpd = self.maxSpd - (0.25*dt)
     end
 

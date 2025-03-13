@@ -2,8 +2,8 @@
 --Upwards!
 
 --[[
-for l.1:
-- Phone stays above your head on different scales
+for l.3:
+- Graphics & Controls seperate menus
 
 
 ]]
@@ -16,7 +16,7 @@ function love.load()
 
     
     --Build Id
-    BuildId = "l.2"
+    BuildId = "l.3 RC1 Mortar"
 
     --Imports
     Object = require "lib.classic"
@@ -37,7 +37,7 @@ function love.load()
     --Set up window & display
     WindowWidth = 1280
     WindowHeight = 800
-    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=0,minwidth=1280,minheight=800,msaa=2,highdpi=true,usedpiscale=true})
+    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=800,msaa=2,highdpi=true,usedpiscale=true})
     love.window.setTitle("Upwards "..BuildId)
 
 

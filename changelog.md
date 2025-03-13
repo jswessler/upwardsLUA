@@ -1,5 +1,9 @@
 Release Log:
 
+l.3 RC1
+- Added sprinting
+- Changed diving to be continuous and give you lots of momentum
+
 l.2
 - Added creative flight mode
 - Improved button code

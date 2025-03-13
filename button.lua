@@ -43,7 +43,13 @@ function OptionsMenu()
         Buttons['graphics'] = Button(10, 260, 300, 50, function() local x = 'Fast' if HighGraphics then x = 'Fancy' end return "Graphics: "..x end, function() HighGraphics = not HighGraphics end, 0.3)
         Buttons['creative'] = Button(10, 330, 300, 50, function() local x = 'Off' if CreativeMode then x = 'On' end return "Creative: "..x end, function() CreativeMode = not CreativeMode end, 0.4)
         Buttons['back'] = Button(10, 400, 300, 50, "Back", PauseGame, 0.5)
+    end
+end
 
+function GraphicsMenu()
+    if State == 'options' then
+        Buttons = {}
+        State = 'graphicsmenu'
     end
 end
 
