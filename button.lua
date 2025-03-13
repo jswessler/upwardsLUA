@@ -37,9 +37,12 @@ function OptionsMenu()
     if State == 'pause' then 
         Buttons = {}
         State = 'options' 
-        Buttons['fullscreen'] = Button(10, 50, 200, 50, function() local x = 'Off' if love.window.getFullscreen() then x = 'On' end return "Fullscreen: "..x end, function() love.window.setFullscreen(not love.window.getFullscreen()) end, 0)
-        Buttons['vsync'] = Button(10, 120, 200, 50, function() local x = 'Off' if love.window.getVSync()==1 then x = 'On' end return "Vsync: "..x end, function() love.window.setVSync(1 - love.window.getVSync()) end, 0.15)
-        Buttons['back'] = Button(10, 190, 200, 50, "Back", PauseGame, 0.3)
+        Buttons['fullscreen'] = Button(10, 50, 300, 50, function() local x = 'Off' if love.window.getFullscreen() then x = 'On' end return "Fullscreen: "..x end, function() love.window.setFullscreen(not love.window.getFullscreen()) end, 0)
+        Buttons['vsync'] = Button(10, 120, 300, 50, function() local x = 'Off' if love.window.getVSync()==1 then x = 'On' end return "Vsync: "..x end, function() love.window.setVSync(1 - love.window.getVSync()) end, 0.1)
+        Buttons['renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Update' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.2)
+        Buttons['graphics'] = Button(10, 260, 300, 50, function() local x = 'Fast' if HighGraphics then x = 'Fancy' end return "Graphics: "..x end, function() HighGraphics = not HighGraphics end, 0.3)
+        Buttons['creative'] = Button(10, 330, 300, 50, function() local x = 'Off' if CreativeMode then x = 'On' end return "Creative: "..x end, function() CreativeMode = not CreativeMode end, 0.4)
+        Buttons['back'] = Button(10, 400, 300, 50, "Back", PauseGame, 0.5)
 
     end
 end
@@ -67,9 +70,9 @@ function Button:update(dt)
 
     --slide in from left
     
-    local slideInDistance = 1600 * GameScale
+    local slideInDistance = 16 * self.width * GameScale
     if self.timeAlive < 0.5 then
-        self.x = self.x - slideInDistance * (0.5 - math.max(0,self.timeAlive))^2 -- slide in effect
+        self.x = self.x - slideInDistance * (0.5 - math.max(0,self.timeAlive))^3 -- slide in effect
     end
 
     self.y = self.yT * GameScale

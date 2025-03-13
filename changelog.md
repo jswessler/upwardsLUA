@@ -1,5 +1,10 @@
 Release Log:
 
+l.2
+- Added creative flight mode
+- Improved button code
+- Cleaned up code
+
 l.2 RC1
 - Major rendering changes
 - Roughly doubled FPS

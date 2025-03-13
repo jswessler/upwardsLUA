@@ -63,7 +63,9 @@ function Player:animate(dt)
     if self.aniTimer > 0 then
         self.aniTimer = self.aniTimer - (60*dt)
     end
-    self.aniiTimer = self.aniiTimer - (60*dt)
+    if self.aniiTimer > 0 then
+        self.aniiTimer = self.aniiTimer - (60*dt)
+    end
 
     --Tumble Landing
 
@@ -546,13 +548,27 @@ function Player:update(dt)
         end
 
         --hover
-        if self.yv > 0 and self.energy > 0.1 and self.animation~='djumpdown' then
-            self.yv = self.yv - 0.0125
-            self.yv = self.yv * 0.001^dt
-            self.jCounter = 6
-            self.energy = self.energy - (0.07+(0.0125*math.abs(self.xv)))*(170*dt)
-            self.animation = 'hover'
+        if CreativeMode then
+            if self.energy > 0.1 and self.animation~= 'djumpdown' then
+                self.yv = self.yv - 0.08
+                self.yv = self.yv * 0.001^dt
+                self.xv = self.xv * 4^dt
+                self.maxSpd = 5
+                self.jCounter = 2
+                self.energy = self.energy + (100-self.energy)*(dt*2)
+                self.animation = 'jump'
+            end
+                
+        else
+            if self.yv > 0 and self.energy > 0.1 and self.animation~='djumpdown' then
+                self.yv = self.yv - 0.0125
+                self.yv = self.yv * 0.001^dt
+                self.jCounter = 6
+                self.energy = self.energy - (0.07+(0.0125*math.abs(self.xv)))*(170*dt)
+                self.animation = 'hover'
+            end
         end
+
 
         --double jump
         if (self.abilities[3] > 0 and self.abilities[3] < 4) and not self.onGround and not self.wallClimb and self.abilities[1]<=0 and self.abilities[4]==2 and self.energy > 1 then
@@ -908,7 +924,6 @@ function Player:update(dt)
     end
 
     --updating xpos and ypos (maybe implement quartersteps later?)
-    
     local p = self:animate(dt)
     return
 end

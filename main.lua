@@ -16,12 +16,14 @@ function love.load()
 
     
     --Build Id
-    BuildId = "l.2 Presto"
+    BuildId = "l.2"
 
     --Imports
     Object = require "lib.classic"
     require "lib.loadArl"
     require "lib.extraFunc"
+    
+    require "shader.gaussianblur"
 
     require "player"
     require "sensor"
@@ -74,6 +76,9 @@ function love.load()
     ScreenshotText = -1
     HudEnabled = true
     KunaiReticle = false
+    NewRenderer = true
+    HighGraphics = true
+    CreativeMode = false
 
     --Phone Calls
     NextCall = 0
@@ -230,7 +235,6 @@ function love.update(dt)
         DebugPressed = true
         PauseGame()
     end
-    --print(round((love.timer.getTime() - t)*1000000,1) .. " Microseconds")
 
 end
 
@@ -308,8 +312,13 @@ function love.draw()
             love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
         end
     end
-    
-    local dirties = RenderTwo()
+    local dirties = 0
+    if NewRenderer then
+        dirties = RenderTwo()
+    else
+        dirties = 0
+        RenderOne()
+    end
 
 
     --Draw HUD
@@ -359,8 +368,8 @@ function love.draw()
         --Background rect
         love.graphics.setColor(0.8,0.8,0.8,0.6)
         love.graphics.draw(BgRectCanvas,HudX,HudY)
-        for j=0, 9, 1 do 
-            for i=1, 20, 2 do
+        for j=0, 9, 1 do
+            for i=1, 20, HighGraphics and 1 or 2 do
                 --Color math
                 if 10*j+(i/2) >= Pl.energy then
                     love.graphics.setColor(0.3,0.3,0.3,1)
@@ -372,7 +381,7 @@ function love.draw()
                     love.graphics.setColor(0.1,1,0.3,1)
                 end
                 --Colored rects
-                if i == 1 or i == 19 then
+                if i == 1 or HighGraphics and i == 20 or i == 19 then
                     love.graphics.rectangle('fill',WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(54*GameScale)-(j*1.66666*GameScale)-(i/13.333333*GameScale)+HudY,2*GameScale,33*GameScale)
                 else
                     love.graphics.rectangle('fill',WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(55*GameScale)-(j*1.66666*GameScale)-(i/13.333333*GameScale)+HudY,2*GameScale,35*GameScale)
@@ -380,24 +389,6 @@ function love.draw()
                 love.graphics.setColor(1,1,1,1)
             end
         end
-    end
-
-    --Draw BuildId
-    simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
-
-    --Draw Buttons
-    for i,v in pairs(Buttons) do
-        v:draw()
-    end
-
-
-    --Screenshot Text
-    if ScreenshotText > 0 then
-        love.graphics.setColor(1,1,1,math.min(1,ScreenshotText/60))
-        simpleText("Screenshot Saved",20,WindowWidth-(200*GameScale),WindowHeight-(100*GameScale))
-        ScreenshotText = ScreenshotText - 1
-    elseif ScreenshotText > -1 then
-        ScreenshotText = -1
     end
 
     --Text
@@ -420,6 +411,28 @@ function love.draw()
         for i,v in ipairs(CurrentText) do
             simpleText(v,32,60*GameScale,WindowHeight-(330*GameScale)+(i*GameScale*50))
         end
+    end
+
+    --EVERYTHING ABOVE GETS SHADERS
+    -- love.graphics.setShader(blurShader)
+    -- blurShader:send("radius",3)
+
+    --Draw BuildId
+    simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
+
+    --Draw Buttons
+    for i,v in pairs(Buttons) do
+        v:draw()
+    end
+
+
+    --Screenshot Text
+    if ScreenshotText > 0 then
+        love.graphics.setColor(1,1,1,math.min(1,ScreenshotText/60))
+        simpleText("Screenshot Saved",20,WindowWidth-(200*GameScale),WindowHeight-(100*GameScale))
+        ScreenshotText = ScreenshotText - 1
+    elseif ScreenshotText > -1 then
+        ScreenshotText = -1
     end
 
 
