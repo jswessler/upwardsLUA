@@ -1,9 +1,12 @@
 Release Log:
 
+l.2 RC1
+- Major rendering changes
+- Roughly doubled FPS
+
 l.1.1
 - Camera adjustments
 - Slide animation fixes
-
 
 l.1
 - Bug Fixes

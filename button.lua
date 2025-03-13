@@ -6,11 +6,12 @@ require "lib.extraFunc"
 
 function PauseGame()
     if State ~= 'pause' then 
+        DebugInfo = false
         Buttons = {}
         State = 'pause'
-        Buttons['resume'] = Button(20,50,200,50,"Resume",ResumeGame,0)
-        Buttons['options'] = Button(20,120,200,50,"Options",OptionsMenu,0.15)
-        Buttons['quit'] = Button(20,190,200,50,"Quit",SureQuit,0.3)
+        Buttons['resume'] = Button(10,50,200,50,"Resume",ResumeGame,0)
+        Buttons['options'] = Button(10,120,200,50,"Options",OptionsMenu,0.15)
+        Buttons['quit'] = Button(10,190,200,50,"Quit",SureQuit,0.3)
     end
 end
 
@@ -27,8 +28,8 @@ function SureQuit()
     if State == 'pause' then
         Buttons = {}
         State = 'surequit'
-        Buttons['back'] = Button(20, 50, 200, 50, "Back", PauseGame, 0)
-        Buttons['quit'] = Button(20, 120, 200, 50, "Quit", love.event.quit, 0.2)
+        Buttons['back'] = Button(10, 50, 200, 50, "Back", PauseGame, 0)
+        Buttons['quit'] = Button(10, 120, 200, 50, "Quit", love.event.quit, 0.2)
     end
 end
 
@@ -36,9 +37,9 @@ function OptionsMenu()
     if State == 'pause' then 
         Buttons = {}
         State = 'options' 
-        Buttons['fullscreen'] = Button(20, 50, 200, 50, function() return "Fullscreen: " .. tostring(love.window.getFullscreen()) end, function() love.window.setFullscreen(not love.window.getFullscreen()) end, 0)
-        Buttons['vsync'] = Button(20, 120, 200, 50, function() return "Vsync: " .. love.window.getVSync() end, function() love.window.setVSync(1 - love.window.getVSync()) end, 0.15)
-        Buttons['back'] = Button(20, 190, 200, 50, "Back", PauseGame, 0.3)
+        Buttons['fullscreen'] = Button(10, 50, 200, 50, function() local x = 'Off' if love.window.getFullscreen() then x = 'On' end return "Fullscreen: "..x end, function() love.window.setFullscreen(not love.window.getFullscreen()) end, 0)
+        Buttons['vsync'] = Button(10, 120, 200, 50, function() local x = 'Off' if love.window.getVSync()==1 then x = 'On' end return "Vsync: "..x end, function() love.window.setVSync(1 - love.window.getVSync()) end, 0.15)
+        Buttons['back'] = Button(10, 190, 200, 50, "Back", PauseGame, 0.3)
 
     end
 end

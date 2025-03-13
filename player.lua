@@ -49,7 +49,7 @@ function Player:new(x,y)
     --misc
     self.maxSpd = 2.5
     self.kunaiAni = -1
-    self.lastDir = {0,0}
+    self.lastDir = {'',0}
 
     --sensor
     self.se = Sensor(self)
@@ -374,7 +374,7 @@ function Player:update(dt)
         self.xpos = self.xpos + self.xv*(dt*230/2)
         self.ypos = self.ypos + self.yv*(dt*230/2)
         self.colliderCount = 0
-        for i = -19, 27, 2 do
+        for i = -19, 27, 4 do
             if self.se:detect(i, self.col[1])[1] then
                 self.colliderCount = self.colliderCount + 1
             end
@@ -388,9 +388,9 @@ function Player:update(dt)
     if self.colliderCount > 0 then
 
         --don't sink into the ground
-        for i=0,20,1 do
+        for i=0,20,2 do
             if self.se:detect(math.random(-19,27), self.col[1]-0.5)[1] then
-                self.ypos = self.ypos - 0.1
+                self.ypos = self.ypos - 0.25
             end
         end
 
@@ -454,7 +454,7 @@ function Player:update(dt)
         --up detection
 
         self.colliderCount = 0
-        for i = -19, 27, 2 do
+        for i = -19, 27, 23 do
             if self.se:detect(i, self.col[2])[1] then
                 self.colliderCount = self.colliderCount + 1
             end
@@ -471,7 +471,7 @@ function Player:update(dt)
 
     --Right detection
     self.colliderCount = 0
-    for i = self.col[2]+10, 0, 2 do
+    for i = self.col[2]+10, 0, 8 do
         if self.se:detect(self.col[3],i)[1] then
             self.colliderCount = self.colliderCount + 1
         end
@@ -488,14 +488,14 @@ function Player:update(dt)
     if self.colliderCount > 0 then
         self.onWall = 1
         self.xv = 0
-        if self.colliderCount > 30 then
+        if self.colliderCount > 8 then
             self.WJEnabled = 1
         end
     end
 
     --Left Detection
     self.colliderCount = 0
-    for i = self.col[2]+10, 0, 2 do
+    for i = self.col[2]+10, 0, 8  do
         if self.se:detect(self.col[4],i)[1] then
             self.colliderCount = self.colliderCount + 1
         end
@@ -512,7 +512,7 @@ function Player:update(dt)
     if self.colliderCount > 0 then
         self.onWall = -1
         self.xv = 0
-        if self.colliderCount > 30 then
+        if self.colliderCount > 8 then
             self.WJEnabled = -1
         end
     end
@@ -752,7 +752,7 @@ function Player:update(dt)
                 self.maxSpd = self.maxSpd + 1*dt
             end
             self.lastDir[1] = 'left'
-            self.lastDir[2] = math.max(-0.8,self.lastDir[2] - dt)
+            self.lastDir[2] = math.max(-0.5,self.lastDir[2] - dt)
         elseif (love.keyboard.isDown("d" or love.keyboard.isDown("right"))) and self.onWall~=1 then
             self.xv = self.xv + 30*dt
             self.facing = 1
@@ -761,7 +761,7 @@ function Player:update(dt)
                 self.maxSpd = self.maxSpd + 1*dt
             end
             self.lastDir[1] = 'right'
-            self.lastDir[2] = math.min(0.8,self.lastDir[2] + dt)
+            self.lastDir[2] = math.min(0.5,self.lastDir[2] + dt)
             
         end
 
@@ -833,12 +833,12 @@ function Player:update(dt)
             self.xv = self.xv - 4.5*dt
             self.facing = -1
             self.lastDir[1] = 'left'
-            self.lastDir[2] = math.max(-0.8,self.lastDir[2] - dt)
+            self.lastDir[2] = math.max(-0.5,self.lastDir[2] - dt)
         elseif (love.keyboard.isDown("d" or love.keyboard.isDown("right"))) then
             self.xv = self.xv + 4.5*dt
             self.facing = 1
             self.lastDir[1] = 'right'
-            self.lastDir[2] = math.min(0.8,self.lastDir[2] + dt)
+            self.lastDir[2] = math.min(0.5,self.lastDir[2] + dt)
         end
         self.xv = self.xv * 0.25^dt 
     end
