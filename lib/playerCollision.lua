@@ -83,8 +83,7 @@ end
 --Update on-screen tiles
 function tileProperties(dt)
     local Xl,Yl = getOnScreen()
-    local updatedBlocks = 0
-    for i=1,4,1 do
+    for i=1,6,1 do
 
         --pick 1 block
         local x = love.math.random(Xl[1],Xl[#Xl])
@@ -94,17 +93,17 @@ function tileProperties(dt)
         x = x - (x%32)
         y = y - (y%32)
         local bl = LevelData[xt.."-"..yt]
-        local blF = split(bl,"-")
-        local blM = blF[1]
-        local blS = tonumber(blF[2])
+        local blFull = split(bl,"-")
+        local blMain = blFull[1]
+        local blSub = tonumber(blFull[2])
 
         --Properties
 
         --Reset dash crystal
-        if blM == "6" then
+        if blMain == "6" then
             TileUpdates = TileUpdates + 1
-            if blS and math.floor(blS) > 0 then
-                LevelData[xt.."-"..yt] = "6-"..blS-(dt*2000)
+            if blSub and math.floor(blSub) > 0 then
+                LevelData[xt.."-"..yt] = "6-"..blSub-(dt*6000)
             else
                 LevelData[xt.."-"..yt] = "4-0"
                 DirtyTiles[xt.."-"..yt] = true

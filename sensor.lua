@@ -30,8 +30,8 @@ function Sensor:detect(x,y)
     return {false,ret,block}
 end
 
-function Sensor:draw(qq)
-    if qq then 
+function Sensor:draw(reset)
+    if reset then 
         for i,v in ipairs(self.locations) do
             if v[1] then
                 if v[2] then
@@ -45,8 +45,9 @@ function Sensor:draw(qq)
             love.graphics.circle('fill',(v[3]-CameraX)*GameScale,(v[4]-CameraY)*GameScale,3)
         end
         love.graphics.setColor(1,1,1,1)
+    else
+        self.locations = {}
     end
-    self.locations = {}
 end
 
 function Sensor:tostring()

@@ -1,9 +1,14 @@
 Release Log:
 
+l.3.1
+- Code cleanup
+- All debug text works again
+- Updated tile updating function
+
 l.3
 - Changed dive & sprint physics
 - Added camera zooming & zoom control blocks
-- 
+- Added pause menu graphic to phone
 
 l.3 RC1
 - Added sprinting

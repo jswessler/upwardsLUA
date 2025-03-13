@@ -2,7 +2,7 @@
 --Upwards!
 
 --[[
-for l.3:
+for l.4:
 - Graphics & Controls seperate menus
 
 
@@ -13,15 +13,14 @@ if arg[2] == "debug" then
 end
 
 function love.load()
-
-    
     --Build Id
-    BuildId = "l.3"
+    BuildId = "l.3.1"
 
     --Imports
     Object = require "lib.classic"
     require "lib.loadArl"
     require "lib.extraFunc"
+    require "lib.playerCollision"
     
     require "shader.gaussianblur"
 
@@ -32,7 +31,6 @@ function love.load()
     require "button"
     require "call"
     local Heart = require "heart"
-    require "lib.playerCollision"
 
     --Set up window & display
     WindowWidth = 1280
@@ -40,30 +38,45 @@ function love.load()
     love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=800,msaa=2,highdpi=true,usedpiscale=true})
     love.window.setTitle("Upwards "..BuildId)
 
-
     --Counters
     FrameCounter = 0
     SecondsCounter = 0
     UpdateCounter = 0
     
-    --scaling
+    --Scaling
     GameScale = 1
+    Zoom = 1
+    ZoomBase = 1
     love.graphics.setDefaultFilter("linear","nearest",4)
 
-    --Load images
+    --Load Images
     HexImg = love.graphics.newImage("Images/UI/hex.png")
     KunaiImg = love.graphics.newImage("Images/UI/kunai.png")
+    HpImages = {
+        ['red0'] = love.graphics.newImage("/Images/Hearts/red0.png"),
+        ['red1'] = love.graphics.newImage("/Images/Hearts/red1.png"),
+        ['red2'] = love.graphics.newImage("/Images/Hearts/red2.png"),
+        ['red3'] = love.graphics.newImage("/Images/Hearts/red3.png"),
+        ['red4'] = love.graphics.newImage("/Images/Hearts/red4.png"),
+        ['blue1'] = love.graphics.newImage("/Images/Hearts/blue1.png"),
+        ['blue2'] = love.graphics.newImage("/Images/Hearts/blue2.png"),
+        ['blue3'] = love.graphics.newImage("/Images/Hearts/blue3.png"),
+        ['blue4'] = love.graphics.newImage("/Images/Hearts/blue4.png"),
+        ['silver1'] = love.graphics.newImage("/Images/Hearts/silver1.png"),
+        ['silver2'] = love.graphics.newImage("/Images/Hearts/silver2.png"),
+        ['blood'] = love.graphics.newImage("/Images/Hearts/blood.png")
+    }
 
-    --state
+    --State Variable
     State = 'game'
 
-    --lists
+    --Setup Lists
     ThrownKunai = {}
     Particles = {}
     Buttons = {}
     Health = {Heart(1,4),Heart(1,4)}
 
-    --initial values
+    --Initial Variable Values
     Kunais = 5
     DKunais = 5
     CameraX = 0
@@ -91,10 +104,6 @@ function love.load()
     PhoneCounter = 0
     PhoneScale = 4
 
-    --Screen Zooming Parameters
-    Zoom = 1
-    ZoomBase = 1
-
     --Phone variables
     TriggerPhone = false
     PhoneX = 0
@@ -104,35 +113,14 @@ function love.load()
     LevelLoad = 'lvl1.arl'
     loadARL(LevelLoad)
 
-    --Initialize Images
-    HpImages = {
-        ['red0'] = love.graphics.newImage("/Images/Hearts/red0.png"),
-        ['red1'] = love.graphics.newImage("/Images/Hearts/red1.png"),
-        ['red2'] = love.graphics.newImage("/Images/Hearts/red2.png"),
-        ['red3'] = love.graphics.newImage("/Images/Hearts/red3.png"),
-        ['red4'] = love.graphics.newImage("/Images/Hearts/red4.png"),
-        ['blue1'] = love.graphics.newImage("/Images/Hearts/blue1.png"),
-        ['blue2'] = love.graphics.newImage("/Images/Hearts/blue2.png"),
-        ['blue3'] = love.graphics.newImage("/Images/Hearts/blue3.png"),
-        ['blue4'] = love.graphics.newImage("/Images/Hearts/blue4.png"),
-        ['silver1'] = love.graphics.newImage("/Images/Hearts/silver1.png"),
-        ['silver2'] = love.graphics.newImage("/Images/Hearts/silver2.png"),
-        ['blood'] = love.graphics.newImage("/Images/Hearts/blood.png")
-    }
-
-
     --Initialize BG Objects
     love.resize()
 
-    --spawn initial entities
+    --Spawn Player
     Pl = Player(SpawnPoint[1]*32,SpawnPoint[2]*32+32)
-
-
 end
 
 function love.update(dt)
-    local t = love.timer.getTime()
-
     --Update counters
     FrameCounter = FrameCounter + dt
     UpdateCounter = UpdateCounter + 1
@@ -160,12 +148,12 @@ function love.update(dt)
         end
     end
 
-    --Gamemodes to update the level
+    --Gamemodes where level is updated
     if State == 'game' or State == 'phonecall' then
+
         --Update Tiles
         TileUpdates = 0
         tileProperties(dt)
-
 
         --Update Kunai
         for i,v in ipairs(ThrownKunai) do
@@ -181,7 +169,7 @@ function love.update(dt)
             PhoneScale = 2
             PhoneCounter = PhoneCounter + dt
 
-            --Phone shakes
+            --Phone shakes (image)
             if UpdateCounter%2 == 0 then
                 PhoneImg = love.graphics.newImage("Images/Phone/phone"..round(1+(UpdateCounter%6)/2)..".png")
             end
@@ -212,13 +200,14 @@ function love.update(dt)
                 NextCall = 0-NextCall
             end
         else
+
             --Set phone to the top right corner
             PhoneScale = 4
             PhoneImg = love.graphics.newImage("Images/Phone/normal1.png")
             PhoneX = WindowWidth-(80*GameScale)
             PhoneY = (10*GameScale)
 
-            --Pause if clicked
+            --If hovering over the phone when not active
             if pointCollideRect(PhoneRect,MouseX,MouseY) then
                 
                 --Switch phone image
@@ -238,13 +227,23 @@ function love.update(dt)
         end
     end
 
-    --Pause Menu
-
-    if love.keyboard.isDown('escape') then
+    --Do things when ESC pressed
+    if love.keyboard.isDown('escape') and not DebugPressed then
         DebugPressed = true
-        PauseGame()
-    end
 
+        --States where ESC sends you to pause menu
+        if State == 'options' or State == 'game' or State == 'surequit' or State == 'phonecall' then
+            PauseGame()
+        
+        --States where ESC sends you to options menu
+        elseif State == 'graphicsmenu' then
+            OptionsMenu()
+            
+        --States where ESC puts you back in the game
+        elseif State == 'pause' then
+            ResumeGame()
+        end
+    end
 end
 
 
@@ -264,7 +263,7 @@ function love.draw()
     if math.abs(Pl.xv) > 2 then
         tz = tz + ((5 - math.abs(Pl.xv))/15)-0.2
     end
-    Zoom = Zoom + (tz-Zoom)/60
+    Zoom = Zoom + (tz-Zoom)/30
     GameScale = GameScale * Zoom
 
     --Update Camera
@@ -324,7 +323,13 @@ function love.draw()
     end
 
     --Draw sensors
+    local SH = 0
     if DebugInfo then
+        for i,v in ipairs(Pl.se.locations) do
+            if v[1] then
+                SH = SH + 1
+            end
+        end
         Pl.se:draw(true)
         for i,v in pairs(ThrownKunai) do
             v.kSe:draw(true)
@@ -461,14 +466,9 @@ function love.draw()
     --debug text & sensor
     if DebugInfo then
         local stats = love.graphics.getStats()
-        local SH = 0
-        for i,v in ipairs(Pl.se.locations) do
-            if v[1] then
-                SH = SH + 1
-            end
-        end
+        
         simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
-        simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." V: "..love.window.getVSync(),16,10*GameScale,60*GameScale)
+        simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2).." V: "..love.window.getVSync(),16,10*GameScale,60*GameScale)
         simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
         simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
         simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
