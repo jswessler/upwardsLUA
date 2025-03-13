@@ -5,11 +5,11 @@ require "lib.extraFunc"
 
 function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
     local blF = split(tile,"-")
-    local blM = tonumber(blF[1])
-    local blS = tonumber(blF[2])
+    local blMain = tonumber(blF[1])
+    local blSub = tonumber(blF[2])
 
     --dash crystal
-    if blM == 4 and blS < 3 then
+    if blMain == 4 and blSub < 3 then
         Pl.abilities[3] = 4
         Pl.abilities[4] = 2
         Pl.abilities[5] = 2
@@ -25,52 +25,57 @@ function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
     end
 
     --Force Crash
-    if blM == 5 and blS == 1 then
+    if blMain == 5 and blSub == 1 then
         error("Forced Crash via 5-1 Tile")
     end
 
     --Blue Heart
-    if blM == 7 and blS <= 4 then
-        if blS == 0 then
+    if blMain == 7 and blSub <= 4 then
+        if blSub == 0 then
             table.insert(Health,Heart(2,4))
         else
-            table.insert(Health,Heart(2,blS))
+            table.insert(Health,Heart(2,blSub))
         end
         LevelData[pB] = "0-0"
         DirtyTiles[pB] = true
     end
 
     --Silver Heart
-    if blM == 8 and blS <= 2 then
-        if blS == 0 then
+    if blMain == 8 and blSub <= 2 then
+        if blSub == 0 then
             table.insert(Health,Heart(3,2))
         else
-            table.insert(Health,Heart(3,blS))
+            table.insert(Health,Heart(3,blSub))
         end
         LevelData[pB] = "0-0"
         DirtyTiles[pB] = true
     end
 
     --Red Heart
-    if blM == 9 and blS <= 4 then
+    if blMain == 9 and blSub <= 4 then
         --Heal
-        local healAmt = blS
+        local healAmt = blSub
         for i=1,#Health,1 do
             healAmt = Health[i]:heal(healAmt)
         end
     end
 
     --Blood Heart
-    if blM == 10 and blS == 1 then
+    if blMain == 10 and blSub == 1 then
         table.insert(Health,Heart(4,1))
     end
 
     --Phone Call
-    if blM == 11 then
-        NextCall = 0-blS
+    if blMain == 11 then
+        NextCall = 0-blSub
         TriggerPhone = true
-        LevelData[pB] = "2-"..blS
+        LevelData[pB] = "2-"..blSub
         DirtyTiles[pB] = true
+    end
+
+    --Camera Control
+    if blMain == 13 then
+        ZoomBase = (blSub/510)+0.5
     end
 end
 

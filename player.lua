@@ -410,7 +410,7 @@ function Player:update(dt)
                 self.animation = 'hardlanded'
                 self.maxSpd = 1.5
                 local dmgAmt = 0
-                if self.yv > 7.25 then
+                if self.yv > 7 then
                     dmgAmt = 3
                 elseif self.yv > 6.25 then
                     dmgAmt = 2
@@ -564,9 +564,9 @@ function Player:update(dt)
         else
             if self.yv > 0 and self.energy > 0.1 and self.animation~='djumpdown' then
                 self.yv = self.yv - 0.0125
-                self.yv = self.yv * 0.001^dt
+                self.yv = self.yv * 0.0001^dt
                 self.jCounter = 6
-                self.energy = self.energy - (0.07+(0.0125*math.abs(self.xv)))*(170*dt)
+                self.energy = self.energy - (0.06+(0.0125*math.abs(self.xv)))*(170*dt)
                 self.animation = 'hover'
             end
         end
@@ -690,13 +690,14 @@ function Player:update(dt)
     end
 
     --dive
-    if love.keyboard.isDown("lctrl") and self.onWall == 0 then
+    if love.keyboard.isDown("lctrl") and self.onWall == 0 and self.energy > 5 then
         if self.abilities[4] > 0 and self.abilities[1] <= 0 and self.energy > 1 and self.onWall == 0 then
             if self.abilities[4] == 2 then
                 self.energy = self.energy - 5
-                self.yv = self.yv - 0.8
+                self.yv = -0.8 + (self.yv*0.1)
                 self.diveDir = self.dFacing
             end
+            --Adjust stats
             self.xv = self.diveDir * 4
             self.dFacing = self.diveDir
             self.yv = self.yv * 0.5^dt
@@ -760,10 +761,10 @@ function Player:update(dt)
     --high traction on the ground
     if self.onGround then
         if love.keyboard.isDown('lshift') then
-            self.speedMult = 1.4
+            self.speedMult = 1.35
             self.energy = self.energy - (20*dt)
         else
-            self.speedMult = 1
+            self.speedMult = 1.15
         end
             if (love.keyboard.isDown("a" or love.keyboard.isDown("left"))) and self.onWall~=-1 then
                 self.xv = self.xv - 30*dt*self.speedMult
@@ -773,7 +774,7 @@ function Player:update(dt)
                     self.maxSpd = self.maxSpd + 1*dt*self.speedMult
                 end
                 self.lastDir[1] = 'left'
-                self.lastDir[2] = math.max(-0.5,self.lastDir[2] - dt)
+                self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
             elseif (love.keyboard.isDown("d" or love.keyboard.isDown("right"))) and self.onWall~=1 then
                 self.xv = self.xv + 30*dt*self.speedMult
                 self.facing = 1
@@ -782,7 +783,7 @@ function Player:update(dt)
                     self.maxSpd = self.maxSpd + 1*dt*self.speedMult
                 end
                 self.lastDir[1] = 'right'
-                self.lastDir[2] = math.min(0.5,self.lastDir[2] + dt)
+                self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
                 
             end
 
@@ -854,12 +855,12 @@ function Player:update(dt)
             self.xv = self.xv - 4.5*dt
             self.facing = -1
             self.lastDir[1] = 'left'
-            self.lastDir[2] = math.max(-0.5,self.lastDir[2] - dt)
+            self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
         elseif (love.keyboard.isDown("d" or love.keyboard.isDown("right"))) then
             self.xv = self.xv + 4.5*dt
             self.facing = 1
             self.lastDir[1] = 'right'
-            self.lastDir[2] = math.min(0.5,self.lastDir[2] + dt)
+            self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
         end
         self.xv = self.xv * 0.25^dt 
     end

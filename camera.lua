@@ -10,9 +10,9 @@ function normalCamera(mousex,mousey,dt,rxy)
     local tx = Pl.xpos + (Pl.xv*60) + (Pl.dFacing*0) - (WindowWidth/(2*GameScale)) + (Camx-(WindowWidth/2))/(3*GameScale)
     local ty = -(WindowHeight/10) + Pl.ypos + (Pl.yv*10*GameScale) - (WindowHeight/(2*GameScale)) + (Camy-(WindowHeight/2))/(3*GameScale)
     if Pl.lastDir[1] == 'left' then
-        tx = tx + math.min(200,math.max(-200,Pl.lastDir[2]*400))
+        tx = tx + math.min(200,math.max(-160,Pl.lastDir[2]*640))
     elseif Pl.lastDir[1] == 'right' then
-        tx = tx + math.max(-200,math.min(200,Pl.lastDir[2]*400))
+        tx = tx + math.max(-200,math.min(160,Pl.lastDir[2]*640))
     end
     
     local remcx = CameraX

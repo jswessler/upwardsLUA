@@ -1,5 +1,10 @@
 Release Log:
 
+l.3
+- Changed dive & sprint physics
+- Added camera zooming & zoom control blocks
+- 
+
 l.3 RC1
 - Added sprinting
 - Changed diving to be continuous and give you lots of momentum

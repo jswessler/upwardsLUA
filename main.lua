@@ -16,7 +16,7 @@ function love.load()
 
     
     --Build Id
-    BuildId = "l.3 RC1 Mortar"
+    BuildId = "l.3"
 
     --Imports
     Object = require "lib.classic"
@@ -79,6 +79,7 @@ function love.load()
     NewRenderer = true
     HighGraphics = true
     CreativeMode = false
+    DrawDT = 0
 
     --Phone Calls
     NextCall = 0
@@ -89,6 +90,10 @@ function love.load()
     CurrentText = {'','',''}
     PhoneCounter = 0
     PhoneScale = 4
+
+    --Screen Zooming Parameters
+    Zoom = 1
+    ZoomBase = 1
 
     --Phone variables
     TriggerPhone = false
@@ -128,12 +133,12 @@ end
 function love.update(dt)
     local t = love.timer.getTime()
 
-
     --Update counters
     FrameCounter = FrameCounter + dt
     UpdateCounter = UpdateCounter + 1
     SecondsCounter = round(FrameCounter)
 
+    --Update mouse position
     MouseX, MouseY = love.mouse.getPosition()
 
     --Update Buttons
@@ -141,11 +146,8 @@ function love.update(dt)
         v:update(dt)
     end
 
+    --Gamemodes where physics is enabled
     if State == 'game' or State == 'phonecall' then
-
-        --Update Camera
-        normalCamera(MouseX,MouseY,dt,math.max(0,1.5*(Pl.yv-2.5)))
-
         --Update player physics & animation
         Pl:update(dt)
 
@@ -156,17 +158,16 @@ function love.update(dt)
                 playerCollisionDetect(ret[2],ret[3],dt)
             end
         end
-
     end
 
-    --Draw level & do non-physics updating
+    --Gamemodes to update the level
     if State == 'game' or State == 'phonecall' then
-        --Update tiles
+        --Update Tiles
         TileUpdates = 0
         tileProperties(dt)
 
 
-        --Update kunai
+        --Update Kunai
         for i,v in ipairs(ThrownKunai) do
             if v:update(dt) then
                 DKunais = Kunais
@@ -185,19 +186,19 @@ function love.update(dt)
                 PhoneImg = love.graphics.newImage("Images/Phone/phone"..round(1+(UpdateCounter%6)/2)..".png")
             end
 
-            --Phone rings out at 7s
-            if PhoneCounter > 7 then
+            --Phone rings out at 8s
+            if PhoneCounter > 8 then
                 TriggerPhone = false
 
-            --Move phone back to corner at 6.5s
-            elseif PhoneCounter > 6.5 then
+            --Move phone back to corner at 7.5s
+            elseif PhoneCounter > 7.5 then
                 PhoneX = PhoneX + (WindowWidth-(80*GameScale)-PhoneX)*(20*dt)
                 PhoneY = PhoneY + ((10*GameScale)-PhoneY)*(20*dt)
             
             --Move phone to your head at 0.5s
             elseif PhoneCounter > 0.5 then
-                PhoneX = PhoneX + ((Pl.xpos*GameScale-CameraX-PhoneX-16)+love.math.random(-2,2))*(8*dt)
-                PhoneY = PhoneY + ((Pl.ypos*GameScale-CameraY-PhoneY-175)+love.math.random(-2,2))*(8*dt)
+                PhoneX = PhoneX + (((Pl.xpos-CameraX)*(GameScale*Zoom)-PhoneX-(16*GameScale*Zoom))+love.math.random(-12,12))*(8*dt)
+                PhoneY = PhoneY + (((Pl.ypos-CameraY)*(GameScale*Zoom)-PhoneY-(175*GameScale*Zoom))+love.math.random(-12,12))*(8*dt)
             
             --Set phone to top right otherwise
             else
@@ -211,15 +212,23 @@ function love.update(dt)
                 NextCall = 0-NextCall
             end
         else
+            --Set phone to the top right corner
             PhoneScale = 4
             PhoneImg = love.graphics.newImage("Images/Phone/normal1.png")
             PhoneX = WindowWidth-(80*GameScale)
             PhoneY = (10*GameScale)
 
             --Pause if clicked
-            if DebugPressed == false and NextCall == 0 and pointCollideRect(PhoneRect,MouseX,MouseY) and love.mouse.isDown(1) then
-                DebugPressed = true
-                PauseGame()
+            if pointCollideRect(PhoneRect,MouseX,MouseY) then
+                
+                --Switch phone image
+                PhoneImg = love.graphics.newImage("Images/Phone/pause.png")
+
+                --Pause if phone is clicked on the top right corner
+                if DebugPressed == false and NextCall == 0 and love.mouse.isDown(1) then
+                    DebugPressed = true
+                    PauseGame()
+                end
             end
         end
 
@@ -240,6 +249,8 @@ end
 
 
 function love.draw()
+
+    --Background color
     love.graphics.setColor(0.1,0.1,0.1,1)
     love.graphics.rectangle("fill",0,0,WindowWidth,WindowHeight)
     love.graphics.setColor(1,1,1,1)
@@ -248,16 +259,16 @@ function love.draw()
     WindowWidth, WindowHeight = love.graphics.getDimensions()
     GameScale = WindowHeight/800
 
-    --Resume game
-    if State == 'resuming' then
-        love.graphics.setColor(1,0,0,0.75)
-        love.graphics.line(Pl.xpos-CameraX,Pl.ypos-CameraY,Pl.xpos-CameraX+Pl.xv*40*GameScale,Pl.ypos-CameraY+Pl.yv*40*GameScale)
-        love.graphics.setColor(1,1,1,1)
-        if SecondsCounter > ResumeTimer then
-            State = 'game'
-        end
-
+    --Update Zoom
+    local tz = ZoomBase
+    if math.abs(Pl.xv) > 2 then
+        tz = tz + ((5 - math.abs(Pl.xv))/15)-0.2
     end
+    Zoom = Zoom + (tz-Zoom)/60
+    GameScale = GameScale * Zoom
+
+    --Update Camera
+    normalCamera(MouseX,MouseY,math.min(0.2,1/love.timer.getFPS()),math.max(0,1.5*(Pl.yv-2.5)))
 
     --F1: Toggle HUD
     if love.keyboard.isDown("f1") and not DebugPressed then
@@ -284,14 +295,44 @@ function love.draw()
         KunaiReticle = not KunaiReticle
     end
 
+    --Reset keys pressed (so you can't spam keys)
     if not love.keyboard.isDown("f1","f2","f3","t","escape") and not love.mouse.isDown(1) then
         DebugPressed = false
     end
 
-    --draw kunai
+    --Draw Kunai
     for i,v in ipairs(ThrownKunai) do
         love.graphics.draw(v.baseImage,(v.xpos-CameraX)*GameScale,(v.ypos-CameraY)*GameScale,v.direction,2*GameScale,2*GameScale,0,0)
     end
+
+    --Draw Player
+    if type(Pl.img) ~= "string" then
+        if Pl.dFacing == -1 then
+            love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
+        else
+            love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
+        end
+    end
+
+    --Draw Blocks
+    local dirties = 0
+    if NewRenderer then
+        dirties = RenderTwo()
+    else
+        dirties = 0
+        RenderOne()
+    end
+
+    --Draw sensors
+    if DebugInfo then
+        Pl.se:draw(true)
+        for i,v in pairs(ThrownKunai) do
+            v.kSe:draw(true)
+        end
+    end
+
+    --HUD Below this (Nonscaled elements)
+    GameScale = GameScale / Zoom
 
     --draw kunai reticle
     if KunaiReticle then
@@ -303,23 +344,6 @@ function love.draw()
 
         love.graphics.setColor(1,1,1,1)
     end
-
-    --draw player
-    if type(Pl.img) ~= "string" then
-        if Pl.dFacing == -1 then
-            love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
-        else
-            love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
-        end
-    end
-    local dirties = 0
-    if NewRenderer then
-        dirties = RenderTwo()
-    else
-        dirties = 0
-        RenderOne()
-    end
-
 
     --Draw HUD
     if HudEnabled then
@@ -394,13 +418,12 @@ function love.draw()
     --Text
     if State == 'phonecall' then
 
-        --Rectangles
-        --exterior
+        --Border rectangle (white)
         love.graphics.setColor(1,1,1,1)
         love.graphics.rectangle("fill", BoxRect.x-5, BoxRect.y-5, BoxRect.w+10, BoxRect.h+10, 30,30)
         love.graphics.rectangle("fill", NameRect.x-5, NameRect.y-5, NameRect.w+10, NameRect.h+10, 30,30)
         
-        --interior
+        --Interior rectangle (black)
         love.graphics.setColor(0,0,0,1)
         love.graphics.rectangle("fill", BoxRect.x, BoxRect.y, BoxRect.w, BoxRect.h, 25,25)
         love.graphics.rectangle("fill", NameRect.x, NameRect.y, NameRect.w, NameRect.h, 25,25)
@@ -424,7 +447,6 @@ function love.draw()
     for i,v in pairs(Buttons) do
         v:draw()
     end
-
 
     --Screenshot Text
     if ScreenshotText > 0 then
@@ -452,13 +474,6 @@ function love.draw()
         simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
         simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/1024/1024,1).."MB Im: "..round(stats.images).." Di: "..round(dirties),16,10*GameScale,140*GameScale)
         simpleText("L: "..LevelLoad,16,10*GameScale,160*GameScale)
-
-        --Draw sensors
-        Pl.se:draw(true)
-        for i,v in pairs(ThrownKunai) do
-            v.kSe:draw(true)
-        end
-
     end
     Pl.se:draw(false)
 end
@@ -527,7 +542,7 @@ function RenderTwo()
         else
             love.graphics.setBlendMode('replace')
             love.graphics.setColor(0,0,0,0)
-            love.graphics.rectangle('fill',x*32,y*32,32*GameScale,32*GameScale)
+            love.graphics.rectangle('fill',x*32,y*32,math.max(32,32*GameScale/Zoom),math.max(32,32*GameScale/Zoom))
             love.graphics.setColor(1,1,1,1)
             love.graphics.setBlendMode('alpha')
         end
