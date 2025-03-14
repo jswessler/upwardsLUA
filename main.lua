@@ -2,20 +2,16 @@
 --Upwards!
 
 --[[
-for l.4:
-- Graphics & Controls seperate menus
-
-
 ]]
+
+--Build Id
+BuildId = "l.4-1 Wavelet"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
 end
 
 function love.load()
-    --Build Id
-    BuildId = "l.3.2"
-
     --Imports
     Object = require "lib.classic"
     require "lib.loadArl"
@@ -30,94 +26,13 @@ function love.load()
     require "kunai"
     require "button"
     require "call"
-    local Heart = require "heart"
+    require "startup"
+    require "heart"
 
-    --Set up window & display
-    WindowWidth = 1280
-    WindowHeight = 800
-    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=800,msaa=2,highdpi=true,usedpiscale=true})
-    love.window.setTitle("Upwards "..BuildId)
+    InitialLoad()
 
-    --Counters
-    FrameCounter = 0
-    SecondsCounter = 0
-    UpdateCounter = 0
-    
-    --Scaling
-    GameScale = 1
-    Zoom = 1
-    ZoomBase = 1
-    love.graphics.setDefaultFilter("linear","nearest",4)
+    --LoadLevel("lvl1")
 
-    --Load Images
-    HexImg = love.graphics.newImage("Images/UI/hex.png")
-    KunaiImg = love.graphics.newImage("Images/UI/kunai.png")
-    HpImages = {
-        ['red0'] = love.graphics.newImage("/Images/Hearts/red0.png"),
-        ['red1'] = love.graphics.newImage("/Images/Hearts/red1.png"),
-        ['red2'] = love.graphics.newImage("/Images/Hearts/red2.png"),
-        ['red3'] = love.graphics.newImage("/Images/Hearts/red3.png"),
-        ['red4'] = love.graphics.newImage("/Images/Hearts/red4.png"),
-        ['blue1'] = love.graphics.newImage("/Images/Hearts/blue1.png"),
-        ['blue2'] = love.graphics.newImage("/Images/Hearts/blue2.png"),
-        ['blue3'] = love.graphics.newImage("/Images/Hearts/blue3.png"),
-        ['blue4'] = love.graphics.newImage("/Images/Hearts/blue4.png"),
-        ['silver1'] = love.graphics.newImage("/Images/Hearts/silver1.png"),
-        ['silver2'] = love.graphics.newImage("/Images/Hearts/silver2.png"),
-        ['blood'] = love.graphics.newImage("/Images/Hearts/blood.png")
-    }
-
-    --State Variable
-    State = 'game'
-
-    --Setup Lists
-    ThrownKunai = {}
-    Particles = {}
-    Buttons = {}
-    Health = {Heart(1,4),Heart(1,4)}
-
-    --Initial Variable Values
-    Kunais = 5
-    DKunais = 5
-    CameraX = 0
-    CameraY = 0
-    DiffCX = 0
-    DiffCY = 0
-    DebugPressed = false
-    DebugInfo = false
-    TileUpdates = 0
-    ScreenshotText = -1
-    HudEnabled = true
-    KunaiReticle = false
-    NewRenderer = true
-    HighGraphics = true
-    CreativeMode = false
-    DrawDT = 0
-
-    --Phone Calls
-    NextCall = 0
-    TBoxWidth = 0
-    BoxRect = ''
-    NameRect = ''
-    TextName = ''
-    CurrentText = {'','',''}
-    PhoneCounter = 0
-    PhoneScale = 4
-
-    --Phone variables
-    TriggerPhone = false
-    PhoneX = 0
-    PhoneY = 0
-
-    --Load Level
-    LevelLoad = 'lvl1.arl'
-    loadARL(LevelLoad)
-
-    --Initialize BG Objects
-    love.resize()
-
-    --Spawn Player
-    Pl = Player(SpawnPoint[1]*32,SpawnPoint[2]*32+32)
 end
 
 function love.update(dt)
@@ -196,7 +111,7 @@ function love.update(dt)
             end
 
             --Collide
-            if pointCollideRect(PhoneRect,MouseX,MouseY) and (love.mouse.isDown(1) or love.keyboard.isDown('q')) then
+            if (pointCollideRect(PhoneRect,MouseX,MouseY) and (love.mouse.isDown(1)) or love.keyboard.isDown(KeyBinds['Call'])) then
                 TriggerPhone = false
                 NextCall = 0-NextCall
             end
@@ -229,7 +144,7 @@ function love.update(dt)
     end
 
     --Do things when ESC pressed
-    if love.keyboard.isDown('escape') and not DebugPressed then
+    if love.keyboard.isDown(KeyBinds['Pause']) and not DebugPressed then
         DebugPressed = true
 
         --States where ESC sends you to pause menu
@@ -237,12 +152,16 @@ function love.update(dt)
             PauseGame()
         
         --States where ESC sends you to options menu
-        elseif State == 'graphicsmenu' then
+        elseif State == 'graphicsmenu' or State == 'controlsmenu' then
             OptionsMenu()
             
         --States where ESC puts you back in the game
         elseif State == 'pause' then
             ResumeGame()
+
+        --States where ESC quits the game
+        elseif State == 'menu' then
+            love.event.quit()
         end
     end
 end
@@ -259,193 +178,220 @@ function love.draw()
     WindowWidth, WindowHeight = love.graphics.getDimensions()
     GameScale = WindowHeight/800
 
-    --Update Zoom
-    local tz = ZoomBase
-    if math.abs(Pl.xv) + math.abs(Pl.yv/2) >= 2 then
-        tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/15)-0.2
-    end
-    Zoom = Zoom + (tz-Zoom)/30
-    GameScale = GameScale * Zoom
+    --Things to draw when the game is running
 
-    --Update Camera
-    normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,1.5*(Pl.yv-2.5)))
+    if State ~= 'menu' then
 
-    --F1: Toggle HUD
-    if love.keyboard.isDown("f1") and not DebugPressed then
-        DebugPressed = true
-        HudEnabled = not HudEnabled
-    end
+        --Update Zoom
+        local tz = ZoomBase
+        if math.abs(Pl.xv) + math.abs(Pl.yv/2) >= 2 then
+            tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/15)-0.2
+        end
+        Zoom = Zoom + (tz-Zoom)/(0.5/love.timer.getDelta())
+        GameScale = GameScale * Zoom
 
-    --F2: Take Screenshot
-    if love.keyboard.isDown("f2") and not DebugPressed then
-        DebugPressed = true
-        love.graphics.captureScreenshot("Upwards-"..os.time()..".png")
-        ScreenshotText = 150
-    end
+        --Update Camera
+        normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,1.5*(Pl.yv-2.5)))
 
-    --F3: Debug Info
-    if love.keyboard.isDown("f3") and not DebugPressed then
-        DebugPressed = true
-        DebugInfo = not DebugInfo
-    end
+        --F1: Toggle HUD
+        if love.keyboard.isDown("f1") and not DebugPressed then
+            DebugPressed = true
+            HudEnabled = not HudEnabled
+        end
 
-    --T: Toggle reticle
-    if love.keyboard.isDown("t") and not DebugPressed then
-        DebugPressed = true
-        KunaiReticle = not KunaiReticle
-    end
+        --F2: Take Screenshot
+        if love.keyboard.isDown("f2") and not DebugPressed then
+            DebugPressed = true
+            love.graphics.captureScreenshot("Upwards-"..os.time()..".png")
+            ScreenshotText = 150
+        end
 
-    --Reset keys pressed (so you can't spam keys)
-    if not love.keyboard.isDown("f1","f2","f3","t","escape") and not love.mouse.isDown(1) then
-        DebugPressed = false
-    end
+        --F3: Debug Info
+        if love.keyboard.isDown("f3") and not DebugPressed then
+            DebugPressed = true
+            DebugInfo = not DebugInfo
+        end
 
-    --Draw Kunai
-    for i,v in ipairs(ThrownKunai) do
-        love.graphics.draw(v.baseImage,(v.xpos-CameraX)*GameScale,(v.ypos-CameraY)*GameScale,v.direction,2*GameScale,2*GameScale,0,0)
-    end
+        --T: Toggle reticle
+        if love.keyboard.isDown("t") and not DebugPressed then
+            DebugPressed = true
+            KunaiReticle = not KunaiReticle
+        end
 
-    --Draw Player
-    if type(Pl.img) ~= "string" then
-        if Pl.dFacing == -1 then
-            love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
+        --Reset keys pressed (so you can't spam keys)
+        if not love.keyboard.isDown("f1","f2","f3","t","escape") and not love.mouse.isDown(1) then
+            DebugPressed = false
+        end
+
+        --Draw Kunai
+        for i,v in ipairs(ThrownKunai) do
+            love.graphics.draw(v.baseImage,(v.xpos-CameraX)*GameScale,(v.ypos-CameraY)*GameScale,v.direction,2*GameScale,2*GameScale,0,0)
+        end
+
+        --Draw Player
+        if type(Pl.img) ~= "string" then
+            if Pl.dFacing == -1 then
+                love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
+            else
+                love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
+            end
+        end
+
+        --Draw Blocks
+        local dirties = 0
+        if NewRenderer then
+            dirties = RenderTwo()
         else
-            love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
-        end
-    end
-
-    --Draw Blocks
-    local dirties = 0
-    if NewRenderer then
-        dirties = RenderTwo()
-    else
-        dirties = 0
-        RenderOne()
-    end
-
-    --Draw sensors
-    local SH = 0
-    if DebugInfo then
-        for i,v in ipairs(Pl.se.locations) do
-            if v[1] then
-                SH = SH + 1
-            end
-        end
-        Pl.se:draw(true)
-        for i,v in pairs(ThrownKunai) do
-            v.kSe:draw(true)
-        end
-    end
-
-    --HUD Below this (Nonscaled elements)
-    GameScale = GameScale / Zoom
-
-    --draw kunai reticle
-    if KunaiReticle then
-        love.graphics.setColor(1,1,1,0.5)
-        love.graphics.rectangle("fill",MouseX-15-Pl.kunaiInnacuracy,MouseY-1,10,2)
-        love.graphics.rectangle("fill",MouseX+5+Pl.kunaiInnacuracy,MouseY-1,10,2)
-        love.graphics.rectangle("fill",MouseX-1,MouseY-15-Pl.kunaiInnacuracy,2,10)
-        love.graphics.rectangle("fill",MouseX-1,MouseY+5+Pl.kunaiInnacuracy,2,10)
-
-        love.graphics.setColor(1,1,1,1)
-    end
-
-    --Draw HUD
-    if HudEnabled then
-        HudX = -Pl.xv*3
-        HudY = -(math.min(0,Pl.yv*6))
-
-        --Draw Phone
-        love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*PhoneScale,GameScale*PhoneScale)
-        
-        --Hex
-        love.graphics.draw(HexImg,HudX,WindowHeight-(220*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
-        
-        --Hearts
-
-        for i,hp in ipairs(Health) do
-            if hp.amt <= 0 and hp.type ~= 1 then
-                table.remove(Health,i)
-            else
-                local img = HpImages[hp.fileExt..hp.amt]
-                love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY,(-4.289/57.19),4*GameScale,4*GameScale)
-            end
+            dirties = 0
+            RenderOne()
         end
 
-        --Rightside HUD Kunais
-
-        for i=0,DKunais-1,1 do
-            if i == 0 then
-                if Pl.kunaiAni >= 0 and Pl.kunaiAni <= 14 then
-                    love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+Pl.kunaiAni+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)-(Pl.kunaiAni*Pl.kunaiAni+Pl.kunaiAni*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
-                elseif Pl.kunaiAni >= 39 or Pl.kunaiAni <= -1 then
-                    love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
+        --Draw sensors
+        local SH = 0
+        if DebugInfo then
+            for i,v in ipairs(Pl.se.locations) do
+                if v[1] then
+                    SH = SH + 1
                 end
-            else
-                if Pl.kunaiAni >= 24 and Pl.kunaiAni <= 40 then
-                    love.graphics.draw(KunaiImg,WindowWidth-(152*GameScale)-(i*38*GameScale)+(Pl.kunaiAni*2.3)+HudX,WindowHeight-(154*GameScale)-(i*3*GameScale)+(Pl.kunaiAni/5*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
+            end
+            Pl.se:draw(true)
+            for i,v in pairs(ThrownKunai) do
+                v.kSe:draw(true)
+            end
+        end
+
+        --HUD Below this (Nonscaled elements)
+        GameScale = GameScale / Zoom
+
+        --draw kunai reticle
+        if KunaiReticle then
+            love.graphics.setColor(1,1,1,0.5)
+            love.graphics.rectangle("fill",MouseX-15-Pl.kunaiInnacuracy,MouseY-1,10,2)
+            love.graphics.rectangle("fill",MouseX+5+Pl.kunaiInnacuracy,MouseY-1,10,2)
+            love.graphics.rectangle("fill",MouseX-1,MouseY-15-Pl.kunaiInnacuracy,2,10)
+            love.graphics.rectangle("fill",MouseX-1,MouseY+5+Pl.kunaiInnacuracy,2,10)
+
+            love.graphics.setColor(1,1,1,1)
+        end
+
+        --Draw HUD
+        if HudEnabled then
+            HudX = -Pl.xv*3
+            HudY = -(math.min(0,Pl.yv*6))
+
+            --Draw Phone
+            love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*PhoneScale,GameScale*PhoneScale)
+            
+            --Hex
+            love.graphics.draw(HexImg,HudX,WindowHeight-(220*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
+            
+            --Hearts
+
+            for i,hp in ipairs(Health) do
+                if hp.amt <= 0 and hp.type ~= 1 then
+                    table.remove(Health,i)
                 else
-                    love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
+                    local img = HpImages[hp.fileExt..hp.amt]
+                    love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY,(-4.289/57.19),4*GameScale,4*GameScale)
+                end
+            end
+
+            --Rightside HUD Kunais
+
+            for i=0,DKunais-1,1 do
+                if i == 0 then
+                    if Pl.kunaiAni >= 0 and Pl.kunaiAni <= 14 then
+                        love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+Pl.kunaiAni+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)-(Pl.kunaiAni*Pl.kunaiAni+Pl.kunaiAni*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
+                    elseif Pl.kunaiAni >= 39 or Pl.kunaiAni <= -1 then
+                        love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
+                    end
+                else
+                    if Pl.kunaiAni >= 24 and Pl.kunaiAni <= 40 then
+                        love.graphics.draw(KunaiImg,WindowWidth-(152*GameScale)-(i*38*GameScale)+(Pl.kunaiAni*2.3)+HudX,WindowHeight-(154*GameScale)-(i*3*GameScale)+(Pl.kunaiAni/5*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
+                    else
+                        love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
+                    end
+                end
+            end
+
+
+            --Energy bar (ported from 1 line python monstrosity)
+            --pg.draw.aaline(HUD,(60,60,60) if 10*j+(i/2)>=pl.energy else (220-(pl.energy*6),40+(pl.energy*6),40) if pl.energy<30 else (40,300-pl.energy,-400+(pl.energy*6)) if pl.energy>80 else (40,220,40), (WID-20-i-(22*j)+int(energyFade),HEI-55-(j*1.666)-(i/13.333)+int(energyFade/12)+(1 if i==0 or i==19 else 0)),(WID-20-i-(22*j)+int(energyFade),HEI-20-(j*1.666)-(i/13.333)+int(energyFade/12)-(1 if i==0 or i==19 else 0)))
+
+            --Background rect
+            love.graphics.setColor(0.8,0.8,0.8,0.6)
+            love.graphics.draw(BgRectCanvas,HudX,HudY)
+            for j=0, 9, 1 do
+                for i=1, 20, HighGraphics and 1 or 2 do
+                    --Color math
+                    if 10*j+(i/2) >= Pl.energy then
+                        love.graphics.setColor(0.3,0.3,0.3,1)
+                    elseif Pl.energy < 30 then
+                        love.graphics.setColor(1-(Pl.energy/33.3333),0.1+(Pl.energy/33.3333),0.3,1)
+                    elseif Pl.energy > 80 then
+                        love.graphics.setColor(0.1,1.4-(Pl.energy/200),-2.36+(Pl.energy/30),1)
+                    else
+                        love.graphics.setColor(0.1,1,0.3,1)
+                    end
+                    --Colored rects
+                    if i == 1 or HighGraphics and i == 20 or i == 19 then
+                        love.graphics.rectangle('fill',WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(54*GameScale)-(j*1.66666*GameScale)-(i/13.333333*GameScale)+HudY,2*GameScale,33*GameScale)
+                    else
+                        love.graphics.rectangle('fill',WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(55*GameScale)-(j*1.66666*GameScale)-(i/13.333333*GameScale)+HudY,2*GameScale,35*GameScale)
+                    end
+                    love.graphics.setColor(1,1,1,1)
                 end
             end
         end
-
-
-        --Energy bar (ported from 1 line python monstrosity)
-        --pg.draw.aaline(HUD,(60,60,60) if 10*j+(i/2)>=pl.energy else (220-(pl.energy*6),40+(pl.energy*6),40) if pl.energy<30 else (40,300-pl.energy,-400+(pl.energy*6)) if pl.energy>80 else (40,220,40), (WID-20-i-(22*j)+int(energyFade),HEI-55-(j*1.666)-(i/13.333)+int(energyFade/12)+(1 if i==0 or i==19 else 0)),(WID-20-i-(22*j)+int(energyFade),HEI-20-(j*1.666)-(i/13.333)+int(energyFade/12)-(1 if i==0 or i==19 else 0)))
-
-        --Background rect
-        love.graphics.setColor(0.8,0.8,0.8,0.6)
-        love.graphics.draw(BgRectCanvas,HudX,HudY)
-        for j=0, 9, 1 do
-            for i=1, 20, HighGraphics and 1 or 2 do
-                --Color math
-                if 10*j+(i/2) >= Pl.energy then
-                    love.graphics.setColor(0.3,0.3,0.3,1)
-                elseif Pl.energy < 30 then
-                    love.graphics.setColor(1-(Pl.energy/33.3333),0.1+(Pl.energy/33.3333),0.3,1)
-                elseif Pl.energy > 80 then
-                    love.graphics.setColor(0.1,1.4-(Pl.energy/200),-2.36+(Pl.energy/30),1)
-                else
-                    love.graphics.setColor(0.1,1,0.3,1)
-                end
-                --Colored rects
-                if i == 1 or HighGraphics and i == 20 or i == 19 then
-                    love.graphics.rectangle('fill',WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(54*GameScale)-(j*1.66666*GameScale)-(i/13.333333*GameScale)+HudY,2*GameScale,33*GameScale)
-                else
-                    love.graphics.rectangle('fill',WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(55*GameScale)-(j*1.66666*GameScale)-(i/13.333333*GameScale)+HudY,2*GameScale,35*GameScale)
-                end
-                love.graphics.setColor(1,1,1,1)
-            end
-        end
-    end
-
-    --Text
-    if State == 'phonecall' then
-
-        --Border rectangle (white)
-        love.graphics.setColor(1,1,1,1)
-        love.graphics.rectangle("fill", BoxRect.x-5, BoxRect.y-5, BoxRect.w+10, BoxRect.h+10, 30,30)
-        love.graphics.rectangle("fill", NameRect.x-5, NameRect.y-5, NameRect.w+10, NameRect.h+10, 30,30)
-        
-        --Interior rectangle (black)
-        love.graphics.setColor(0,0,0,1)
-        love.graphics.rectangle("fill", BoxRect.x, BoxRect.y, BoxRect.w, BoxRect.h, 25,25)
-        love.graphics.rectangle("fill", NameRect.x, NameRect.y, NameRect.w, NameRect.h, 25,25)
-        love.graphics.setColor(1,1,1,1)
 
         --Text
-        simpleText(TextName,28,90*GameScale,WindowHeight-(380*GameScale))
-        for i,v in ipairs(CurrentText) do
-            simpleText(v,32,60*GameScale,WindowHeight-(330*GameScale)+(i*GameScale*50))
+        if State == 'phonecall' then
+
+            --Border rectangle (white)
+            love.graphics.setColor(1,1,1,1)
+            love.graphics.rectangle("fill", BoxRect.x-5, BoxRect.y-5, BoxRect.w+10, BoxRect.h+10, 30,30)
+            love.graphics.rectangle("fill", NameRect.x-5, NameRect.y-5, NameRect.w+10, NameRect.h+10, 30,30)
+            
+            --Interior rectangle (black)
+            love.graphics.setColor(0,0,0,1)
+            love.graphics.rectangle("fill", BoxRect.x, BoxRect.y, BoxRect.w, BoxRect.h, 25,25)
+            love.graphics.rectangle("fill", NameRect.x, NameRect.y, NameRect.w, NameRect.h, 25,25)
+            love.graphics.setColor(1,1,1,1)
+
+            --Text
+            simpleText(TextName,28,90*GameScale,WindowHeight-(380*GameScale))
+            for i,v in ipairs(CurrentText) do
+                simpleText(v,32,60*GameScale,WindowHeight-(330*GameScale)+(i*GameScale*50))
+            end
         end
+
+        --EVERYTHING ABOVE GETS SHADERS
+        -- love.graphics.setShader(blurShader)
+        -- blurShader:send("radius",3)
+
+        --Screenshot Text
+        if ScreenshotText > 0 then
+            love.graphics.setColor(1,1,1,math.min(1,ScreenshotText/60))
+            simpleText("Screenshot Saved",20,WindowWidth-(200*GameScale),WindowHeight-(100*GameScale))
+            ScreenshotText = ScreenshotText - 1
+        elseif ScreenshotText > -1 then
+            ScreenshotText = -1
+        end
+
+
+        --debug text & sensor
+        if DebugInfo then
+            local stats = love.graphics.getStats()
+            
+            simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
+            simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2).." V: "..love.window.getVSync(),16,10*GameScale,60*GameScale)
+            simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
+            simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
+            simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
+            simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/1024/1024,1).."MB Im: "..round(stats.images).." Di: "..round(dirties),16,10*GameScale,140*GameScale)
+        end
+        Pl.se:draw(false)
     end
-
-    --EVERYTHING ABOVE GETS SHADERS
-    -- love.graphics.setShader(blurShader)
-    -- blurShader:send("radius",3)
-
     --Draw BuildId
     simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
 
@@ -453,30 +399,6 @@ function love.draw()
     for i,v in pairs(Buttons) do
         v:draw()
     end
-
-    --Screenshot Text
-    if ScreenshotText > 0 then
-        love.graphics.setColor(1,1,1,math.min(1,ScreenshotText/60))
-        simpleText("Screenshot Saved",20,WindowWidth-(200*GameScale),WindowHeight-(100*GameScale))
-        ScreenshotText = ScreenshotText - 1
-    elseif ScreenshotText > -1 then
-        ScreenshotText = -1
-    end
-
-
-    --debug text & sensor
-    if DebugInfo then
-        local stats = love.graphics.getStats()
-        
-        simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
-        simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2).." V: "..love.window.getVSync(),16,10*GameScale,60*GameScale)
-        simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
-        simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
-        simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
-        simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/1024/1024,1).."MB Im: "..round(stats.images).." Di: "..round(dirties),16,10*GameScale,140*GameScale)
-        simpleText("L: "..LevelLoad,16,10*GameScale,160*GameScale)
-    end
-    Pl.se:draw(false)
 end
 
 
@@ -591,5 +513,12 @@ function love.resize()
         end
     end
     love.graphics.setCanvas()
+end
 
+function love.keypressed(key, scancode, isrepeat)
+    local x = split(State,'-')
+    if x[2] == 'CS' then
+        KeyBinds[x[1]] = love.keyboard.getScancodeFromKey(key)
+        State = 'controlsmenu'
+    end
 end

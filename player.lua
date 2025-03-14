@@ -392,9 +392,9 @@ function Player:update(dt)
     if self.colliderCount > 0 then
 
         --don't sink into the ground
-        for i=0,20,2 do
-            if self.se:detect(math.random(-19,27), self.col[1]-0.5)[1] then
-                self.ypos = self.ypos - 0.25
+        for i=-19,27,4 do
+            if self.se:detect(i, self.col[1]-0.5)[1] then
+                self.ypos = self.ypos - 0.5
             end
         end
 
@@ -484,7 +484,7 @@ function Player:update(dt)
     --Push out of walls
     for i=1,4,1 do
         if self.se:detect(self.col[3]-0.5,math.random(-90,2))[1] then
-            self.xpos = self.xpos - 0.5
+            self.xpos = self.xpos - 2
         end
     end
 
@@ -508,7 +508,7 @@ function Player:update(dt)
     --Push out of walls
     for i=1,4,1 do
         if self.se:detect(self.col[4]+0.5,math.random(-90,2))[1] then
-            self.xpos = self.xpos + 0.5
+            self.xpos = self.xpos + 2
         end
     end
 
@@ -522,7 +522,7 @@ function Player:update(dt)
     end
 
     --keybinds & actions
-    if love.keyboard.isDown("space") or love.keyboard.isDown("up") then
+    if love.keyboard.isDown(KeyBinds['Jump']) then
         
         --main single jump
         if self.abilities[1] > 0 then
@@ -586,7 +586,7 @@ function Player:update(dt)
             self.yv = self.yv - (dt*60) - 1.25*dt*math.abs(self.xv)
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
             self.xv = self.xv * (8^dt)
-            self.abilities[3] = self.abilities[3] - (60*dt)
+            self.abilities[3] = self.abilities[3] - (70*dt)
             self.energy = self.energy - (260*dt)
             self.jCounter = 12
             self.aniFrame = 1
@@ -649,7 +649,7 @@ function Player:update(dt)
         if not self.onGround and self.onWall~=0 and self.facing~=0 and self.energy > 1 then
             --limit fall speed
             self.yv = self.yv - 0.0025
-            if love.keyboard.isDown("lctrl") then
+            if love.keyboard.isDown(KeyBinds['Dive']) then
                 self.energy = self.energy - (10*dt) - (self.energy/7*dt)
                 if self.yv > 0.5 then
                     self.yv = self.yv * 0.001^dt
@@ -678,7 +678,7 @@ function Player:update(dt)
         end
 
         --Wall Jump
-        if self.wallClimb and self.energy > 6 and (((love.keyboard.isDown("a") or love.keyboard.isDown('left')) and self.onWall == 1 and self.WJEnabled == 1) or ((love.keyboard.isDown("d") or love.keyboard.isDown('right')) and self.onWall == -1 and self.WJEnabled == -1)) then
+        if self.wallClimb and self.energy > 6 and (((love.keyboard.isDown(KeyBinds['Left'])) and self.onWall == 1 and self.WJEnabled == 1) or ((love.keyboard.isDown(KeyBinds['Right'])) and self.onWall == -1 and self.WJEnabled == -1)) then
             self.yv = self.yv * 0.25
             self.yv = -3.75
             self.jCounter = 10
@@ -692,7 +692,7 @@ function Player:update(dt)
     end
 
     --dive
-    if love.keyboard.isDown("lctrl") and self.onWall == 0 and self.energy > 5 then
+    if love.keyboard.isDown(KeyBinds['Dive']) and self.onWall == 0 and self.energy > 5 then
         if self.abilities[4] > 0 and self.abilities[1] <= 0 and self.energy > 1 and self.onWall == 0 then
             if self.abilities[4] == 2 then
                 self.energy = self.energy - 5
@@ -726,7 +726,7 @@ function Player:update(dt)
     end
 
     --Initiate Kunai
-    if (self.kunaiAni == -1 or self.kunaiAni > 18) and self.energy > 20 and Kunais > 0 and love.keyboard.isDown("e") then
+    if (self.kunaiAni == -1 or self.kunaiAni > 18) and self.energy > 20 and Kunais > 0 and love.keyboard.isDown(KeyBinds['Throw']) then
         
         --Increase innacruacy
         if self.kunaiAni == -1 then
@@ -762,7 +762,7 @@ function Player:update(dt)
 
     --high traction on the ground
     if self.onGround then
-        if love.keyboard.isDown('lshift') then
+        if love.keyboard.isDown(KeyBinds['Sprint']) then
             self.speedMult = 1.35
             self.energy = self.energy - (20*dt)
         else
@@ -770,7 +770,7 @@ function Player:update(dt)
         end
     
         --Move left on ground
-        if (love.keyboard.isDown("a") or love.keyboard.isDown("left")) and self.onWall~=-1 then
+        if love.keyboard.isDown(KeyBinds['Left']) and self.onWall~=-1 then
             self.xv = self.xv - 20*dt*self.speedMult
             self.facing = -1
             self.animation = 'run'
@@ -781,7 +781,7 @@ function Player:update(dt)
             self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
 
         --Move right on ground
-        elseif (love.keyboard.isDown("d") or love.keyboard.isDown("right")) and self.onWall~=1 then
+        elseif love.keyboard.isDown(KeyBinds['Right']) and self.onWall~=1 then
             self.xv = self.xv + 20*dt*self.speedMult
             self.facing = 1
             self.animation = 'run'
@@ -794,7 +794,7 @@ function Player:update(dt)
         end
 
         --slide
-        if (self.slide > 0 and (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.energy > 5) or ((love.keyboard.isDown("s") or love.keyboard.isDown("down")) and (self.xv > 1.25 or self.xv < -1.25) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
+        if (self.slide > 0 and (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.energy > 5) or (love.keyboard.isDown(KeyBinds['Slide']) and (self.xv > 1.25 or self.xv < -1.25) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
             self.col = {12,-40,30,-25}
             if self.timeOnGround < 15 and self.slideMult == 0 then
                 self.slideMult = 1.5
@@ -857,12 +857,12 @@ function Player:update(dt)
         end
 
         --air movement
-        if (love.keyboard.isDown("a") or love.keyboard.isDown("left")) then
+        if love.keyboard.isDown(KeyBinds['Left']) then
             self.xv = self.xv - 4.5*dt
             self.facing = -1
             self.lastDir[1] = 'left'
             self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
-        elseif (love.keyboard.isDown("d") or love.keyboard.isDown("right")) then
+        elseif love.keyboard.isDown(KeyBinds['Right']) then
             self.xv = self.xv + 4.5*dt
             self.facing = 1
             self.lastDir[1] = 'right'
@@ -883,7 +883,7 @@ function Player:update(dt)
     end
 
     --forfeit floatiness with S
-    if love.keyboard.isDown('s') then
+    if love.keyboard.isDown(KeyBinds['Slide']) then
         self.jCounter = 0
     end
     --maybe do something with W key here

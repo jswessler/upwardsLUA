@@ -1,5 +1,13 @@
 Release Log:
 
+l.4 RC1
+- Customizable Keybinds
+- Title screen (sort of)
+- Physics fixes
+
+l.3.3
+- Player physics & collision fixes
+
 l.3.2
 - Bug Fixes
 
