@@ -14,7 +14,7 @@ end
 
 function love.load()
     --Build Id
-    BuildId = "l.3.1"
+    BuildId = "l.3.2"
 
     --Imports
     Object = require "lib.classic"
@@ -176,6 +176,7 @@ function love.update(dt)
 
             --Phone rings out at 8s
             if PhoneCounter > 8 then
+                NextCall = 0
                 TriggerPhone = false
 
             --Move phone back to corner at 7.5s
@@ -195,7 +196,7 @@ function love.update(dt)
             end
 
             --Collide
-            if pointCollideRect(PhoneRect,MouseX,MouseY) and love.mouse.isDown(1) then
+            if pointCollideRect(PhoneRect,MouseX,MouseY) and (love.mouse.isDown(1) or love.keyboard.isDown('q')) then
                 TriggerPhone = false
                 NextCall = 0-NextCall
             end
@@ -260,14 +261,14 @@ function love.draw()
 
     --Update Zoom
     local tz = ZoomBase
-    if math.abs(Pl.xv) > 2 then
-        tz = tz + ((5 - math.abs(Pl.xv))/15)-0.2
+    if math.abs(Pl.xv) + math.abs(Pl.yv/2) >= 2 then
+        tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/15)-0.2
     end
     Zoom = Zoom + (tz-Zoom)/30
     GameScale = GameScale * Zoom
 
     --Update Camera
-    normalCamera(MouseX,MouseY,math.min(0.2,1/love.timer.getFPS()),math.max(0,1.5*(Pl.yv-2.5)))
+    normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,1.5*(Pl.yv-2.5)))
 
     --F1: Toggle HUD
     if love.keyboard.isDown("f1") and not DebugPressed then

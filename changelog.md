@@ -1,5 +1,8 @@
 Release Log:
 
+l.3.2
+- Bug Fixes
+
 l.3.1
 - Code cleanup
 - All debug text works again

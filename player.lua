@@ -551,14 +551,15 @@ function Player:update(dt)
 
         --hover
         if CreativeMode then
-            if self.energy > 0.1 and self.animation~= 'djumpdown' then
-                self.yv = self.yv - 0.08
-                self.yv = self.yv * 0.001^dt
-                self.xv = self.xv * 4^dt
-                self.maxSpd = 5
+            if self.energy > 0.1 then
+                self.yv = self.yv * 0.02^dt
+                self.yv = self.yv - 0.28
+                self.maxSpd = 6
                 self.jCounter = 2
                 self.energy = self.energy + (100-self.energy)*(dt*2)
                 self.animation = 'jump'
+                self.aniTimer = 6
+                self.aniiTimer = 6
             end
                 
         else
@@ -567,6 +568,7 @@ function Player:update(dt)
                 self.yv = self.yv * 0.0001^dt
                 self.jCounter = 6
                 self.energy = self.energy - (0.06+(0.0125*math.abs(self.xv)))*(170*dt)
+                self.maxSpd = math.max(1.8,self.maxSpd-(1*dt))
                 self.animation = 'hover'
             end
         end
@@ -766,26 +768,30 @@ function Player:update(dt)
         else
             self.speedMult = 1.15
         end
-            if (love.keyboard.isDown("a" or love.keyboard.isDown("left"))) and self.onWall~=-1 then
-                self.xv = self.xv - 30*dt*self.speedMult
-                self.facing = -1
-                self.animation = 'run'
-                if self.maxSpd < 2.2*self.speedMult then
-                    self.maxSpd = self.maxSpd + 1*dt*self.speedMult
-                end
-                self.lastDir[1] = 'left'
-                self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
-            elseif (love.keyboard.isDown("d" or love.keyboard.isDown("right"))) and self.onWall~=1 then
-                self.xv = self.xv + 30*dt*self.speedMult
-                self.facing = 1
-                self.animation = 'run'
-                if self.maxSpd < 2.2*self.speedMult then
-                    self.maxSpd = self.maxSpd + 1*dt*self.speedMult
-                end
-                self.lastDir[1] = 'right'
-                self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
-                
+    
+        --Move left on ground
+        if (love.keyboard.isDown("a") or love.keyboard.isDown("left")) and self.onWall~=-1 then
+            self.xv = self.xv - 20*dt*self.speedMult
+            self.facing = -1
+            self.animation = 'run'
+            if self.maxSpd < 2.2*self.speedMult then
+                self.maxSpd = self.maxSpd + 1*dt*self.speedMult
             end
+            self.lastDir[1] = 'left'
+            self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
+
+        --Move right on ground
+        elseif (love.keyboard.isDown("d") or love.keyboard.isDown("right")) and self.onWall~=1 then
+            self.xv = self.xv + 20*dt*self.speedMult
+            self.facing = 1
+            self.animation = 'run'
+            if self.maxSpd < 2.2*self.speedMult then
+                self.maxSpd = self.maxSpd + 1*dt*self.speedMult
+            end
+            self.lastDir[1] = 'right'
+            self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
+            
+        end
 
         --slide
         if (self.slide > 0 and (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.energy > 5) or ((love.keyboard.isDown("s") or love.keyboard.isDown("down")) and (self.xv > 1.25 or self.xv < -1.25) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
@@ -832,7 +838,7 @@ function Player:update(dt)
         end
 
         --Ground friction
-        self.xv = self.xv * 0.0001^dt
+        self.xv = self.xv * 0.001^dt
 
         --Reset max speed if not moving
         if self.facing == 0 or (self.facing / self.xv) < 0 then
@@ -851,12 +857,12 @@ function Player:update(dt)
         end
 
         --air movement
-        if (love.keyboard.isDown("a" or love.keyboard.isDown("left"))) then
+        if (love.keyboard.isDown("a") or love.keyboard.isDown("left")) then
             self.xv = self.xv - 4.5*dt
             self.facing = -1
             self.lastDir[1] = 'left'
             self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
-        elseif (love.keyboard.isDown("d" or love.keyboard.isDown("right"))) then
+        elseif (love.keyboard.isDown("d") or love.keyboard.isDown("right")) then
             self.xv = self.xv + 4.5*dt
             self.facing = 1
             self.lastDir[1] = 'right'

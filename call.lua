@@ -39,9 +39,9 @@ function handlePhone(num,dt)
 
             --Reset waitCounter
             if love.keyboard.isDown('x') or love.keyboard.isDown('tab') then
-                waitCounter = 0.004
+                waitCounter = 0
             else
-                waitCounter = 0.02
+                waitCounter = 0.0001
             end
 
             --Draw text
