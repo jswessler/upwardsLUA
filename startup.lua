@@ -71,8 +71,6 @@ function LoadLevel(level)
 --Initial Variable Values
     Kunais = 5
     DKunais = 5
-    CameraX = 0
-    CameraY = 0
     DiffCX = 0
     DiffCY = 0
     DebugPressed = false
@@ -109,4 +107,6 @@ function LoadLevel(level)
 
     --Spawn Player
     Pl = Player(SpawnPoint[1]*32,SpawnPoint[2]*32+32)
+    CameraX = Pl.xpos
+    CameraY = Pl.ypos
 end

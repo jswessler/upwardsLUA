@@ -5,7 +5,7 @@
 ]]
 
 --Build Id
-BuildId = "l.4-1 Wavelet"
+BuildId = "l.4-2 Wavelet"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -185,7 +185,7 @@ function love.draw()
         --Update Zoom
         local tz = ZoomBase
         if math.abs(Pl.xv) + math.abs(Pl.yv/2) >= 2 then
-            tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/15)-0.2
+            tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/20)-0.2
         end
         Zoom = Zoom + (tz-Zoom)/(0.5/love.timer.getDelta())
         GameScale = GameScale * Zoom

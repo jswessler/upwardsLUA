@@ -1,5 +1,9 @@
 Release Log:
 
+l.4 RC2
+- Removed sprinting, added continuous speed increase while running
+- Adjusted energy
+
 l.4 RC1
 - Customizable Keybinds
 - Title screen (sort of)

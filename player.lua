@@ -133,7 +133,7 @@ function Player:animate(dt)
                 if self.aniFrame == 9 then
                     --particle effect
                 end
-                self.aniTimer = math.max(3,round(5.5-math.abs(self.xv)))
+                self.aniTimer = math.max(2,(5-math.abs(self.xv)))
             end
 
             --Grab correct frame
@@ -357,11 +357,11 @@ function Player:update(dt)
 
     --energy calculations
     if self.energy < 20 then
-        self.eRegen = (self.energy/105)+0.005
+        self.eRegen = (self.energy/111.11)+0.02
     elseif self.energy < 75 then
-        self.eRegen = 0.19
+        self.eRegen = 0.2
     else
-        self.eRegen = math.max(0.01,0.0075 + (100-self.energy)/250)
+        self.eRegen = math.max(0.02,0.0075 + (100-self.energy)/130)
     end
     --silver heart calculation
     local silverCap = 0
@@ -436,7 +436,7 @@ function Player:update(dt)
         self.abilities[3] = 4 --double jump
         self.abilities[4] = 2 --dive
         self.abilities[5] = 2 --dive jump
-        self.energy = self.energy + (270*dt*(self.eRegen+0.001))
+        self.energy = self.energy + (190*dt*(self.eRegen+0.001))
     else
 
         --Innacurate Knives
@@ -484,7 +484,7 @@ function Player:update(dt)
     --Push out of walls
     for i=1,4,1 do
         if self.se:detect(self.col[3]-0.5,math.random(-90,2))[1] then
-            self.xpos = self.xpos - 2
+            self.xpos = self.xpos - 0.5
         end
     end
 
@@ -508,7 +508,7 @@ function Player:update(dt)
     --Push out of walls
     for i=1,4,1 do
         if self.se:detect(self.col[4]+0.5,math.random(-90,2))[1] then
-            self.xpos = self.xpos + 2
+            self.xpos = self.xpos + 0.5
         end
     end
 
@@ -568,7 +568,7 @@ function Player:update(dt)
                 self.yv = self.yv * 0.0001^dt
                 self.jCounter = 6
                 self.energy = self.energy - (0.06+(0.0125*math.abs(self.xv)))*(170*dt)
-                self.maxSpd = math.max(1.8,self.maxSpd-(1*dt))
+                self.maxSpd = math.max(1.5,self.maxSpd-(1*dt))
                 self.animation = 'hover'
             end
         end
@@ -706,8 +706,8 @@ function Player:update(dt)
             self.yv = self.yv - 5*dt
             self.abilities[3] = 0
             self.abilities[4] = 1
-            self.maxSpd = 4.1
-            self.energy = self.energy - (30*dt)
+            self.maxSpd = 4
+            self.energy = self.energy - (24*dt)
             self.animation = 'jump' --change to dive later
             self.aniiTimer = 6
             self.aniTimer = 6
@@ -761,17 +761,10 @@ function Player:update(dt)
     self.facing = 0
 
     --high traction on the ground
-    if self.onGround then
-        if love.keyboard.isDown(KeyBinds['Sprint']) then
-            self.speedMult = 1.35
-            self.energy = self.energy - (20*dt)
-        else
-            self.speedMult = 1.15
-        end
-    
+    if self.onGround then    
         --Move left on ground
         if love.keyboard.isDown(KeyBinds['Left']) and self.onWall~=-1 then
-            self.xv = self.xv - 20*dt*self.speedMult
+            self.xv = self.xv - 21*dt*self.speedMult
             self.facing = -1
             self.animation = 'run'
             if self.maxSpd < 2.2*self.speedMult then
@@ -779,10 +772,11 @@ function Player:update(dt)
             end
             self.lastDir[1] = 'left'
             self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
+            self.speedMult = math.min(1.6,self.speedMult+(dt/4))
 
         --Move right on ground
         elseif love.keyboard.isDown(KeyBinds['Right']) and self.onWall~=1 then
-            self.xv = self.xv + 20*dt*self.speedMult
+            self.xv = self.xv + 21*dt*self.speedMult
             self.facing = 1
             self.animation = 'run'
             if self.maxSpd < 2.2*self.speedMult then
@@ -790,12 +784,15 @@ function Player:update(dt)
             end
             self.lastDir[1] = 'right'
             self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
-            
+            self.speedMult = math.min(1.6,self.speedMult+(dt/4))
+        else
+            self.speedMult = 1
         end
 
         --slide
         if (self.slide > 0 and (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.energy > 5) or (love.keyboard.isDown(KeyBinds['Slide']) and (self.xv > 1.25 or self.xv < -1.25) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
             self.col = {12,-40,30,-25}
+            self.speedMult = math.min(1.5,self.speedMult+(dt/2))
             if self.timeOnGround < 15 and self.slideMult == 0 then
                 self.slideMult = 1.5
                 self.maxSpd = 4
