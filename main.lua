@@ -5,7 +5,7 @@
 ]]
 
 --Build Id
-BuildId = "l.4-2 Wavelet"
+BuildId = "l.4"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -185,7 +185,7 @@ function love.draw()
         --Update Zoom
         local tz = ZoomBase
         if math.abs(Pl.xv) + math.abs(Pl.yv/2) >= 2 then
-            tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/20)-0.2
+            tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/40)-0.075
         end
         Zoom = Zoom + (tz-Zoom)/(0.5/love.timer.getDelta())
         GameScale = GameScale * Zoom
@@ -230,11 +230,19 @@ function love.draw()
 
         --Draw Player
         if type(Pl.img) ~= "string" then
+
             if Pl.dFacing == -1 then
+                love.graphics.setColor(0,0,0,0.5)
+                love.graphics.draw(Pl.img,(Pl.xpos-5-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos+10-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
+                love.graphics.setColor(1,1,1,1)
                 love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
             else
+                love.graphics.setColor(0,0,0,0.5)
+                love.graphics.draw(Pl.img,(Pl.xpos-5-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos+10-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
+                love.graphics.setColor(1,1,1,1)
                 love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
             end
+
         end
 
         --Draw Blocks
@@ -257,6 +265,7 @@ function love.draw()
             Pl.se:draw(true)
             for i,v in pairs(ThrownKunai) do
                 v.kSe:draw(true)
+                v.kSe:draw(false)
             end
         end
 

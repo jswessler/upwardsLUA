@@ -1,5 +1,10 @@
 Release Log:
 
+l.4
+- Adjusted zooming behavior
+- Adjusted dash crystal respawning behavior
+- Added shadows to buttons & player
+
 l.4 RC2
 - Removed sprinting, added continuous speed increase while running
 - Adjusted energy

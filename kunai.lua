@@ -27,28 +27,31 @@ function Kunai:update(dt)
     self.direction = t[3]
     self.yv = self.yv + (self.gravity*dt*240)
 
-    if not self.stuck then
-        self.xpos = self.xpos + self.xv*dt*60
-        self.ypos = self.ypos + self.yv*dt*60
-    end
+    --Quarterstep updating
+    for i=1,4,1 do
+        if not self.stuck then
+            self.xpos = self.xpos + self.xv*dt*15
+            self.ypos = self.ypos + self.yv*dt*15
+        end
 
-    --Scan in a rectangle
-    self.colliderCount = 0
-    for i=-10,10,2 do
-        for j=-10,10,2 do
-            if self.kSe:detect(i,j)[1] then
-                self.colliderCount = self.colliderCount + 1
+        --Scan in a rectangle
+        self.colliderCount = 0
+        for i=-8,8,8 do
+            for j=-8,8,8 do
+                if self.kSe:detect(i,j)[1] then
+                    self.colliderCount = self.colliderCount + 1
+                end
             end
         end
-    end
 
-    --Hit a wall
-    if self.colliderCount >= 2 then
-        self.stuck = true
-        self.gravity = 0
-    else
-        self.stuck = false
-        self.gravity = 0.15
+        --Hit a wall
+        if self.colliderCount >= 2 then
+            self.stuck = true
+            self.gravity = 0
+        else
+            self.stuck = false
+            self.gravity = 0.15
+        end
     end
 
     --Home back to player if stuck and alive for 1.5 seconds

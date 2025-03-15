@@ -102,12 +102,8 @@ function tileProperties(dt)
         --Reset dash crystal
         if blMain == "6" then
             TileUpdates = TileUpdates + 1
-            if blSub and math.floor(blSub) > 0 then
-                LevelData[xt.."-"..yt] = "6-"..blSub-(dt*6000)
-            else
-                LevelData[xt.."-"..yt] = "4-0"
-                DirtyTiles[xt.."-"..yt] = true
-            end
+            LevelData[xt.."-"..yt] = "4-0"
+            DirtyTiles[xt.."-"..yt] = true
         end
     end
 end

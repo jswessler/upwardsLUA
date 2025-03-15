@@ -133,7 +133,7 @@ function Player:animate(dt)
                 if self.aniFrame == 9 then
                     --particle effect
                 end
-                self.aniTimer = math.max(2,(5-math.abs(self.xv)))
+                self.aniTimer = math.max(2,(5.25-math.abs(self.xv)))
             end
 
             --Grab correct frame
@@ -845,6 +845,7 @@ function Player:update(dt)
 
     --in the air
     else
+        self.speedMult = 1
         self.col = {12,-100,30,-25}
         if self.maxSpd > 2.75 then
             self.maxSpd = self.maxSpd - (0.5*dt)

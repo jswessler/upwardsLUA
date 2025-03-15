@@ -51,7 +51,7 @@ function GraphicsMenu()
         State = 'graphicsmenu'
         Buttons['fullscreen'] = Button(10, 50, 300, 50, function() local x = 'Off' if love.window.getFullscreen() then x = 'On' end return "Fullscreen: "..x end, function() love.window.setFullscreen(not love.window.getFullscreen()) end, 0)
         Buttons['vsync'] = Button(10, 120, 300, 50, function() local x = 'Off' if love.window.getVSync()==1 then x = 'On' end return "Vsync: "..x end, function() love.window.setVSync(1 - love.window.getVSync()) end, 0.05)
-        Buttons['renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Update' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.1)
+        Buttons['renderer'] = Button(10, 190, 300, 50, function() local x = 'Canvas' if NewRenderer then x = 'Screen' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.1)
         Buttons['graphics'] = Button(10, 260, 300, 50, function() local x = 'Fast' if HighGraphics then x = 'Fancy' end return "Graphics: "..x end, function() HighGraphics = not HighGraphics end, 0.15)
         Buttons['back'] = Button(10, 330, 300, 50, "Back", OptionsMenu, 0.2)
     end
@@ -132,9 +132,15 @@ function Button:update(dt)
 end
 
 function Button:draw()
+    --Shadow
+    love.graphics.setColor(0.25,0.25,0.25,0.5)
+
+    --Increase opacity when hovering over
     if self.hover then
+        love.graphics.rectangle('fill',self.xpos-4,self.ypos+12,self.width,self.height,12,12)
         love.graphics.setColor(1,1,1,0.75)
     else
+        love.graphics.rectangle('fill',self.xpos-2,self.ypos+6,self.width,self.height,12,12)
         love.graphics.setColor(1,1,1,0.5)
     end
     
