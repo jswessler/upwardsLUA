@@ -1,5 +1,10 @@
 Release Log:
 
+l.5 RC1
+- Adjusted block drawing when zoomed out
+- Reduced draw calls
+- Added Particles
+
 l.4
 - Adjusted zooming behavior
 - Adjusted dash crystal respawning behavior

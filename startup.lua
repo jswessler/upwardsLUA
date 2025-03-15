@@ -46,6 +46,8 @@ function LoadLevel(level)
     --Load Images
     HexImg = love.graphics.newImage("Images/UI/hex.png")
     KunaiImg = love.graphics.newImage("Images/UI/kunai.png")
+    DefaultPhoneImg = love.graphics.newImage("Images/Phone/normal1.png")
+    PausePhoneImg = love.graphics.newImage("Images/Phone/pause.png")
     HpImages = {
         ['red0'] = love.graphics.newImage("/Images/Hearts/red0.png"),
         ['red1'] = love.graphics.newImage("/Images/Hearts/red1.png"),

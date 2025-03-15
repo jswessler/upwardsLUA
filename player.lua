@@ -3,6 +3,7 @@
 
 Player = Object:extend()
 require "sensor"
+require "particle"
 require "lib.extraFunc"
 
 function Player:new(x,y)
@@ -128,10 +129,10 @@ function Player:animate(dt)
                 self.aniFrame = self.aniFrame + 1
                 if self.aniFrame == 18 then
                     self.aniFrame = 1
-                    --particle effect
+                    table.insert(Particles,Particle(self.xpos,self.ypos,'run',self.dFacing))
                 end
                 if self.aniFrame == 9 then
-                    --particle effect
+                    table.insert(Particles,Particle(self.xpos,self.ypos,'run',self.dFacing))
                 end
                 self.aniTimer = math.max(2,(5.25-math.abs(self.xv)))
             end
@@ -355,24 +356,6 @@ function Player:update(dt)
         self.energy = 100
     end
 
-    --energy calculations
-    if self.energy < 20 then
-        self.eRegen = (self.energy/111.11)+0.02
-    elseif self.energy < 75 then
-        self.eRegen = 0.2
-    else
-        self.eRegen = math.max(0.02,0.0075 + (100-self.energy)/130)
-    end
-    --silver heart calculation
-    local silverCap = 0
-    for i=1,#Health,1 do
-        if Health[i].type == 3 and silverCap <= 2 then
-            silverCap = silverCap + Health[i].amt
-            self.eRegen = self.eRegen * 1+(0.02*Health[i].amt)
-            self.energy = self.energy + (4*dt) * (100-self.energy)/100 * Health[i].amt
-        end
-    end
-
     --down collision detection
     for j=1,2,1 do
         self.xpos = self.xpos + self.xv*(dt*230/2)
@@ -390,6 +373,22 @@ function Player:update(dt)
 
     --If you're on the ground
     if self.colliderCount > 0 then
+
+        --energy calculations
+        if self.energy < 20 then
+            self.eRegen = (self.energy/111.11)+0.02
+        elseif self.energy < 75 then
+            self.eRegen = 0.2
+        else
+            self.eRegen = math.max(0.02,0.0075 + (100-self.energy)/130)
+        end
+        --silver heart calculation
+        for i=1,#Health,1 do
+            if Health[i].type == 3  then
+                self.eRegen = self.eRegen * 1+(0.02*Health[i].amt)
+                self.energy = self.energy + (4*dt) * (100-self.energy)/100 * Health[i].amt
+            end
+        end
 
         --don't sink into the ground
         for i=-19,27,4 do
@@ -439,7 +438,7 @@ function Player:update(dt)
         self.energy = self.energy + (190*dt*(self.eRegen+0.001))
     else
 
-        --Innacurate Knives
+        --Innacurate Knives while airborne
         self.kunaiInnacuracy = math.max(self.kunaiInnacuracy,8)
 
         --falling
@@ -456,17 +455,16 @@ function Player:update(dt)
         end
 
         --up detection
-
         self.colliderCount = 0
-        for i = -19, 27, 23 do
+        for i = -17, 25, 21 do
             if self.se:detect(i, self.col[2])[1] then
                 self.colliderCount = self.colliderCount + 1
             end
         end
         if self.colliderCount > 0 then
-            self.yv = 0
+            self.yv = 0.5
             self.ypos = self.ypos + 1
-            self.jCounter = 0
+            self.jCounter = 4
         end
     end
 
@@ -492,7 +490,7 @@ function Player:update(dt)
     if self.colliderCount > 0 then
         self.onWall = 1
         self.xv = 0
-        if self.colliderCount > 8 then
+        if self.colliderCount > 6 then
             self.WJEnabled = 1
         end
     end
@@ -516,7 +514,7 @@ function Player:update(dt)
     if self.colliderCount > 0 then
         self.onWall = -1
         self.xv = 0
-        if self.colliderCount > 8 then
+        if self.colliderCount > 6 then
             self.WJEnabled = -1
         end
     end
@@ -682,7 +680,9 @@ function Player:update(dt)
             self.yv = self.yv * 0.25
             self.yv = -3.75
             self.jCounter = 10
-            self.xv = -self.dFacing * 3
+            self.xv = -self.dFacing * 2.95
+            self.xpos = self.xpos + self.dFacing * -6
+            self.ypos = self.ypos - 1
             self.energy = self.energy - 6
             self.wallClimb = false
             self.abilities[4] = 2

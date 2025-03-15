@@ -5,7 +5,7 @@
 ]]
 
 --Build Id
-BuildId = "l.4"
+BuildId = "l.5-1 Quark"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -78,6 +78,13 @@ function love.update(dt)
             end
         end
 
+        --Update particles
+        for i,v in ipairs(Particles) do
+            if v:update(dt) then
+                table.remove(Particles,i)
+            end
+        end
+
         --Update Phone
         PhoneRect = {x = PhoneX, y = PhoneY, w = 15*GameScale*PhoneScale, h = 40*GameScale*PhoneScale}
         if TriggerPhone then
@@ -119,7 +126,7 @@ function love.update(dt)
 
             --Set phone to the top right corner
             PhoneScale = 4
-            PhoneImg = love.graphics.newImage("Images/Phone/normal1.png")
+            PhoneImg = DefaultPhoneImg
             PhoneX = WindowWidth-(80*GameScale)
             PhoneY = (10*GameScale)
 
@@ -127,7 +134,7 @@ function love.update(dt)
             if pointCollideRect(PhoneRect,MouseX,MouseY) then
                 
                 --Switch phone image
-                PhoneImg = love.graphics.newImage("Images/Phone/pause.png")
+                PhoneImg = PausePhoneImg
 
                 --Pause if phone is clicked on the top right corner
                 if DebugPressed == false and NextCall == 0 and love.mouse.isDown(1) then
@@ -212,6 +219,12 @@ function love.draw()
             DebugInfo = not DebugInfo
         end
 
+        --F4: Sensor Info
+        if love.keyboard.isDown("f4") and not DebugPressed then
+            DebugPressed = true
+            SensorInfo = not SensorInfo
+        end
+
         --T: Toggle reticle
         if love.keyboard.isDown("t") and not DebugPressed then
             DebugPressed = true
@@ -219,7 +232,7 @@ function love.draw()
         end
 
         --Reset keys pressed (so you can't spam keys)
-        if not love.keyboard.isDown("f1","f2","f3","t","escape") and not love.mouse.isDown(1) then
+        if not love.keyboard.isDown("f1","f2","f3","f4","t","escape") and not love.mouse.isDown(1) then
             DebugPressed = false
         end
 
@@ -245,6 +258,11 @@ function love.draw()
 
         end
 
+        --Draw Particles
+        for i,v in ipairs(Particles) do
+            v:draw()
+        end
+
         --Draw Blocks
         local dirties = 0
         if NewRenderer then
@@ -262,6 +280,8 @@ function love.draw()
                     SH = SH + 1
                 end
             end
+        end
+        if SensorInfo then
             Pl.se:draw(true)
             for i,v in pairs(ThrownKunai) do
                 v.kSe:draw(true)
@@ -464,14 +484,18 @@ function RenderTwo()
         local bl = LevelData[i]
         local x = split(i,"-")[1]
         local y = split(i,"-")[2]
+
+        --Add new blocks
         if LoadedTiles[bl]~=nil then
             local t = split(LevelData[i],"-")
             if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then
-                love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2*GameScale,2*GameScale)
+                love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2*GameScale/Zoom,2*GameScale/Zoom)
             else
-                love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,1*GameScale,1*GameScale)
+                love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,GameScale/Zoom,GameScale/Zoom)
             end
         else
+
+            --Delete blocks that don't exist anymore
             love.graphics.setBlendMode('replace')
             love.graphics.setColor(0,0,0,0)
             love.graphics.rectangle('fill',x*32,y*32,math.max(32,32*GameScale/Zoom),math.max(32,32*GameScale/Zoom))
@@ -479,6 +503,8 @@ function RenderTwo()
             love.graphics.setBlendMode('alpha')
         end
     end
+
+    --Reset canvas to the screen
     love.graphics.setCanvas()
     DirtyTiles = {}
 
