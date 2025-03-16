@@ -1,5 +1,11 @@
 Release Log:
 
+l.a R1
+- Logo
+- Limit FPS option
+- Physics adjustments
+- JLI Decoder algorithm (python based)
+
 l.5
 - Fixed kunai throwing when fullscreen
 - Reimplemented fast/fancy graphics

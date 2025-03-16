@@ -30,6 +30,10 @@ function getDist(x1,y1,x2,y2)
     return math.sqrt((x2-x1)^2 + (y2-y1)^2)
 end
 
+function clamp(val,min,max)
+    return math.max(min,math.min(val,max))
+end
+
 function round(num, numDecimalPlaces)
     local mult = 10^(numDecimalPlaces or 0)
     return math.floor(num * mult + 0.5) / mult
@@ -58,15 +62,7 @@ function split(str,delimiter) --thanks google searchlabs!
     end
     return result
 end
-  
-function createList(size,value)
-    local t = {}
-    for i=1,size do
-        t[i] = value
-    end
-    return t
-end
-  
+
 function reverseList(ls)
     for i=1,math.floor(#ls/2),1 do
         ls[i],ls[#ls-i+1] = ls[#ls-i+1],ls[i]
@@ -107,3 +103,12 @@ function pointCollideRect(rect,x,y)
     return false
 end
 
+function decodeJLI(fn) --Decode FMV images
+    local path = love.filesystem.getWorkingDirectory()
+    local filename = path.."/"..fn
+    local cmd = "py "..path.."/jli/jlidecode.py "..filename
+    local exitCode = os.execute(cmd)
+    local img = love.graphics.newImage("jli/reprint.png")
+    return img
+
+end

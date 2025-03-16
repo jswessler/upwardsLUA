@@ -28,8 +28,9 @@ function SureQuit()
     if State == 'pause' then
         Buttons = {}
         State = 'surequit'
-        Buttons['back'] = Button(10, 50, 200, 50, "Back", PauseGame, 0)
-        Buttons['quit'] = Button(10, 120, 200, 50, "Quit", love.event.quit, 0.1)
+        Buttons['Back'] = Button(10, 50, 200, 50, "Back", PauseGame, 0)
+        Buttons['Title'] = Button(10, 120, 200, 50, "Title", function() State = 'menu' MenuMenu() end, 0)
+        Buttons['Quit'] = Button(10, 190, 200, 50, "Quit", love.event.quit, 0)
     end
 end
 
@@ -53,7 +54,8 @@ function GraphicsMenu()
         Buttons['vsync'] = Button(10, 120, 300, 50, function() local x = 'Off' if love.window.getVSync()==1 then x = 'On' end return "Vsync: "..x end, function() love.window.setVSync(1 - love.window.getVSync()) end, 0.05)
         Buttons['renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Canvas' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.1)
         Buttons['graphics'] = Button(10, 260, 300, 50, function() local x = 'Fast' if HighGraphics then x = 'Fancy' end return "Graphics: "..x end, function() HighGraphics = not HighGraphics end, 0.15)
-        Buttons['back'] = Button(10, 330, 300, 50, "Back", OptionsMenu, 0.2)
+        Buttons['fps'] = Button(10, 330, 300, 50, function() local x = '60' if FpsLimit ~= 71 then x = 'Unlimited'end return "FPS: "..x end, function() if FpsLimit == 71 then FpsLimit = 0 else FpsLimit = 71 end end, 0.2)
+        Buttons['back'] = Button(10, 400, 300, 50, "Back", OptionsMenu, 0.25)
     end
 end
 

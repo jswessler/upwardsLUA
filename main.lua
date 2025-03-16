@@ -5,7 +5,7 @@
 ]]
 
 --Build Id
-BuildId = "l.5"
+BuildId = "l.a R1 Aria"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -29,9 +29,9 @@ function love.load()
     require "startup"
     require "heart"
 
+    --Initial loading routine
+    State = 'initialload'
     InitialLoad()
-
-    --LoadLevel("lvl1")
 
 end
 
@@ -45,8 +45,10 @@ function love.update(dt)
     MouseX, MouseY = love.mouse.getPosition()
 
     --Update Buttons
-    for i,v in pairs(Buttons) do
-        v:update(dt)
+    if State ~= 'initialload' then
+        for i,v in pairs(Buttons) do
+            v:update(dt)
+        end
     end
 
     --Gamemodes where physics is enabled
@@ -175,6 +177,8 @@ end
 
 
 function love.draw()
+    local starttime = love.timer.getTime()
+
 
     --Background color
     love.graphics.setColor(0.1,0.1,0.1,1)
@@ -186,8 +190,7 @@ function love.draw()
     GameScale = WindowHeight/800
 
     --Things to draw when the game is running
-
-    if State ~= 'menu' then
+    if State ~= 'menu' and State ~= 'initialload' then
 
         --Update Zoom
         local tz = ZoomBase
@@ -229,11 +232,6 @@ function love.draw()
         if love.keyboard.isDown("t") and not DebugPressed then
             DebugPressed = true
             KunaiReticle = not KunaiReticle
-        end
-
-        --Reset keys pressed (so you can't spam keys)
-        if not love.keyboard.isDown("f1","f2","f3","f4","t","escape") and not love.mouse.isDown(1) then
-            DebugPressed = false
         end
 
         --Draw Kunai
@@ -416,18 +414,42 @@ function love.draw()
             simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
             simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
             simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
-            simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/1024/1024,1).."MB Im: "..round(stats.images)..(HighGraphics and " Fancy" or " Fast"),16,10*GameScale,140*GameScale)
+            simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/1024/1024,1).."MB Im: "..round(stats.images)..(HighGraphics and " Fancy" or " Fast").." GB: "..round(2986*(60*love.timer.getDelta())),16,10*GameScale,140*GameScale)
             simpleText(_VERSION.." G: "..round(collectgarbage("count")),16,10*GameScale,180*GameScale)
             simpleText("Love "..love.getVersion().." "..love.system.getOS().. " C: "..love.system.getProcessorCount(),16,10*GameScale,200*GameScale)
         end
         Pl.se:draw(false)
+    else
+        --Logo
+        if State == 'initialload' then
+            love.graphics.setColor(1,1,1,(FrameCounter < 0.5 and FrameCounter/0.5 or FrameCounter > 2.5 and 3.5-FrameCounter or 1))
+            love.graphics.draw(LogoImg,0,0,0,1280/1536,1280/1536)
+            if FrameCounter > 4 or love.keyboard.isDown(KeyBinds['Jump']) then
+                MenuLoad()
+            end
+        end
     end
+
+    --Reset keys pressed (so you can't spam keys)
+    if not love.keyboard.isDown("f1","f2","f3","f4","t","escape") and not love.mouse.isDown(1) then
+        DebugPressed = false
+    end
+
     --Draw BuildId
     simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
 
-    --Draw Buttons
-    for i,v in pairs(Buttons) do
-        v:draw()
+    if State ~= 'initialload' then
+        --Draw Buttons
+        for i,v in pairs(Buttons) do
+            v:draw()
+        end
+    end
+
+    --Enforce FPS cap
+    if FpsLimit ~= 0 then
+        while love.timer.getTime() < starttime + (1/FpsLimit) do
+            --Spinning loop
+        end
     end
 end
 

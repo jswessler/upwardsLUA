@@ -4,14 +4,19 @@
 function InitialLoad()
     --Set up window & display
     WindowWidth = 1280
-    WindowHeight = 800
-    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=800,msaa=4,highdpi=true,usedpiscale=true})
+    WindowHeight = 720
+    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=720,msaa=4,highdpi=true,usedpiscale=true})
     love.window.setTitle("Upwards "..BuildId)
 
     --Counters
     FrameCounter = 0
     SecondsCounter = 0
     UpdateCounter = 0
+
+    --Images
+    LogoImg = decodeJLI("Images/FMV/logo.jli")
+    --TitleScreenImg = love.graphics.newImage("Images/FMV/title.png")
+
     
     --Scaling
     GameScale = 1
@@ -19,10 +24,9 @@ function InitialLoad()
     ZoomBase = 1
     love.graphics.setDefaultFilter("linear","nearest",4)
 
-    --State variable
-    State = 'menu'
 
     --Variables
+    FpsLimit = 0 --71 = 60FPS, 0 = Uncapped FPS
     
     --Keyboard Constants
     KeyBinds = {
@@ -37,7 +41,10 @@ function InitialLoad()
         ['Throw'] = love.keyboard.getScancodeFromKey('e'),
         ['Sprint'] = love.keyboard.getScancodeFromKey('lshift'),
     }
+end
 
+function MenuLoad()
+    State = 'menu'
     MenuMenu()
 end
 
@@ -48,6 +55,7 @@ function LoadLevel(level)
     KunaiImg = love.graphics.newImage("Images/UI/kunai.png")
     DefaultPhoneImg = love.graphics.newImage("Images/Phone/normal1.png")
     PausePhoneImg = love.graphics.newImage("Images/Phone/pause.png")
+
     HpImages = {
         ['red0'] = love.graphics.newImage("/Images/Hearts/red0.png"),
         ['red1'] = love.graphics.newImage("/Images/Hearts/red1.png"),

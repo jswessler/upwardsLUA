@@ -134,7 +134,7 @@ function Player:animate(dt)
                 if self.aniFrame == 9 then
                     table.insert(Particles,Particle(self.xpos,self.ypos,'run',self.dFacing))
                 end
-                self.aniTimer = math.max(2,(5.25-math.abs(self.xv)))
+                self.aniTimer = math.max(2,(5.5-math.abs(self.xv)))
             end
 
             --Grab correct frame
@@ -773,7 +773,7 @@ function Player:update(dt)
             end
             self.lastDir[1] = 'left'
             self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
-            self.speedMult = math.min(1.6,self.speedMult+(dt/4))
+            self.speedMult = math.min(1.5,self.speedMult+(dt/4))
 
         --Move right on ground
         elseif love.keyboard.isDown(KeyBinds['Right']) and self.onWall~=1 then
@@ -785,7 +785,7 @@ function Player:update(dt)
             end
             self.lastDir[1] = 'right'
             self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
-            self.speedMult = math.min(1.6,self.speedMult+(dt/4))
+            self.speedMult = math.min(1.5,self.speedMult+(dt/4))
         else
             self.speedMult = 1
         end
