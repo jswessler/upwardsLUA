@@ -5,7 +5,7 @@
 ]]
 
 --Build Id
-BuildId = "l.5-1 Quark"
+BuildId = "l.5-2 Quark"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -343,17 +343,17 @@ function love.draw()
                 end
             end
 
-
-            --Energy bar (ported from 1 line python monstrosity)
-            --pg.draw.aaline(HUD,(60,60,60) if 10*j+(i/2)>=pl.energy else (220-(pl.energy*6),40+(pl.energy*6),40) if pl.energy<30 else (40,300-pl.energy,-400+(pl.energy*6)) if pl.energy>80 else (40,220,40), (WID-20-i-(22*j)+int(energyFade),HEI-55-(j*1.666)-(i/13.333)+int(energyFade/12)+(1 if i==0 or i==19 else 0)),(WID-20-i-(22*j)+int(energyFade),HEI-20-(j*1.666)-(i/13.333)+int(energyFade/12)-(1 if i==0 or i==19 else 0)))
-
-            --Background rect
+            --Energy bar background
             love.graphics.setColor(0.8,0.8,0.8,0.6)
             love.graphics.draw(BgRectCanvas,HudX,HudY)
+
+            --Energy bar
+            EnergyCanvas = love.graphics.newCanvas(238*GameScale,35*GameScale,{msaa=4})
+            love.graphics.setCanvas(EnergyCanvas)
             for j=0, 9, 1 do
-                for i=1, 20, HighGraphics and 1 or 2 do
+                for i=1, round(20*GameScale), 1 do
                     --Color math
-                    if 10*j+(i/2) >= Pl.energy then
+                    if 10*j+(i/(2*GameScale)) >= Pl.energy then
                         love.graphics.setColor(0.3,0.3,0.3,1)
                     elseif Pl.energy < 30 then
                         love.graphics.setColor(1-(Pl.energy/33.3333),0.1+(Pl.energy/33.3333),0.3,1)
@@ -363,14 +363,16 @@ function love.draw()
                         love.graphics.setColor(0.1,1,0.3,1)
                     end
                     --Colored rects
-                    if i == 1 or HighGraphics and i == 20 or i == 19 then
-                        love.graphics.rectangle('fill',WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(54*GameScale)-(j*1.66666*GameScale)-(i/13.333333*GameScale)+HudY,2*GameScale,33*GameScale)
-                    else
-                        love.graphics.rectangle('fill',WindowWidth-(20*GameScale)-i*GameScale-(22*j*GameScale)+HudX,WindowHeight-(55*GameScale)-(j*1.66666*GameScale)-(i/13.333333*GameScale)+HudY,2*GameScale,35*GameScale)
+                    local h = 35
+                    if i==1 or i==round(20*GameScale) then
+                        h = 33
                     end
-                    love.graphics.setColor(1,1,1,1)
+                    love.graphics.rectangle('fill',(238*GameScale)-(20*GameScale)-i-(22*j*GameScale),(35-h)/2,1,h*GameScale)
                 end
             end
+            love.graphics.setColor(1,1,1,1)
+            love.graphics.setCanvas()
+            love.graphics.draw(EnergyCanvas,WindowWidth-(235*GameScale)+HudX,WindowHeight-(71.5*GameScale)+HudY,(4.289/57.19))
         end
 
         --Text
@@ -489,9 +491,9 @@ function RenderTwo()
         if LoadedTiles[bl]~=nil then
             local t = split(LevelData[i],"-")
             if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then
-                love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2*GameScale/Zoom,2*GameScale/Zoom)
+                love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2,2)
             else
-                love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,GameScale/Zoom,GameScale/Zoom)
+                love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,1,1)
             end
         else
 
@@ -520,17 +522,17 @@ function love.resize()
     GameScale = WindowHeight/800
 
     --Initialize Energy bar background area
-    BgRectCanvas = love.graphics.newCanvas()
+    BgRectCanvas = love.graphics.newCanvas(WindowWidth+100,WindowHeight,{msaa=4})
     love.graphics.setCanvas(BgRectCanvas)
     for i=-100,210,1 do
         local hei = math.min(40,(math.sqrt(210-i)*8.944))
         love.graphics.rectangle('fill',WindowWidth-(50*GameScale)-i*GameScale,WindowHeight-(60*GameScale)-(i/13.333333*GameScale),1*GameScale,hei*GameScale)
     end
-    love.graphics.setCanvas()
 
+    love.graphics.setCanvas()
     --Initialize Level Canvas
     DirtyTiles = {}
-    TileCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32)
+    TileCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32,{msaa=2})
 
     love.graphics.setCanvas(TileCanvas)
     love.graphics.clear()
@@ -540,9 +542,9 @@ function love.resize()
             if LoadedTiles[bl]~=nil then
                 local t = split(LevelData[x.."-"..y],"-")
                 if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then
-                    love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2*GameScale,2*GameScale)
+                    love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2,2)
                 else
-                    love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,1*GameScale,1*GameScale)
+                    love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,1,1)
                 end
             end
         end

@@ -14,6 +14,10 @@ function normalCamera(mousex,mousey,dt,rxy)
     elseif Pl.lastDir[1] == 'right' then
         tx = tx + math.max(-200,math.min(160,Pl.lastDir[2]*640))
     end
+
+    if love.keyboard.isDown(KeyBinds['Up']) then
+        ty = ty - 110*GameScale
+    end
     
     local remcx = CameraX
     local remcy = CameraY

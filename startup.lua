@@ -5,7 +5,7 @@ function InitialLoad()
     --Set up window & display
     WindowWidth = 1280
     WindowHeight = 800
-    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=800,msaa=2,highdpi=true,usedpiscale=true})
+    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=800,msaa=4,highdpi=true,usedpiscale=true})
     love.window.setTitle("Upwards "..BuildId)
 
     --Counters
@@ -103,12 +103,12 @@ function LoadLevel(level)
 
     --Load Level
     loadARL(level..".arl")
-
-    --Initialize BG Objects
-    love.resize()
-
     --Spawn Player
     Pl = Player(SpawnPoint[1]*32,SpawnPoint[2]*32+32)
     CameraX = Pl.xpos
     CameraY = Pl.ypos
+
+    --Initialize BG Objects
+    love.resize()
+
 end

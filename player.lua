@@ -551,10 +551,11 @@ function Player:update(dt)
         if CreativeMode then
             if self.energy > 0.1 then
                 self.yv = self.yv * 0.02^dt
-                self.yv = self.yv - 0.28
+                self.yv = self.yv - 30*dt
+                self.abilities[4] = 2
                 self.maxSpd = 6
                 self.jCounter = 2
-                self.energy = self.energy + (100-self.energy)*(dt*2)
+                self.energy = self.energy + (100-self.energy)*(dt*20)
                 self.animation = 'jump'
                 self.aniTimer = 6
                 self.aniiTimer = 6
@@ -934,7 +935,7 @@ function Player:update(dt)
     end
 
     --updating xpos and ypos (maybe implement quartersteps later?)
-    local p = self:animate(dt)
+    self:animate(dt)
     return
 end
 

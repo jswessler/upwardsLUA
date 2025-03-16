@@ -1,5 +1,10 @@
 Release Log:
 
+l.5
+- Fixed some rendering issues
+- Added panning camera up with W
+- Changed how energy bar is drawn
+
 l.5 RC1
 - Adjusted block drawing when zoomed out
 - Reduced draw calls
