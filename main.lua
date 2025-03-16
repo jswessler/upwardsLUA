@@ -5,7 +5,7 @@
 ]]
 
 --Build Id
-BuildId = "l.5-2 Quark"
+BuildId = "l.5"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -191,7 +191,7 @@ function love.draw()
 
         --Update Zoom
         local tz = ZoomBase
-        if math.abs(Pl.xv) + math.abs(Pl.yv/2) >= 2 then
+        if (HighGraphics and UpdateCounter%1==1 or UpdateCounter%4==1) and math.abs(Pl.xv) + math.abs(Pl.yv/2) >= 2 then
             tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/40)-0.075
         end
         Zoom = Zoom + (tz-Zoom)/(0.5/love.timer.getDelta())
@@ -264,15 +264,13 @@ function love.draw()
         end
 
         --Draw Blocks
-        local dirties = 0
         if NewRenderer then
-            dirties = RenderTwo()
+            RenderTwo()
         else
-            dirties = 0
             RenderOne()
         end
 
-        --Draw sensors
+        --Get sensor data
         local SH = 0
         if DebugInfo then
             for i,v in ipairs(Pl.se.locations) do
@@ -281,6 +279,8 @@ function love.draw()
                 end
             end
         end
+
+        --Draw sensors
         if SensorInfo then
             Pl.se:draw(true)
             for i,v in pairs(ThrownKunai) do
@@ -295,10 +295,10 @@ function love.draw()
         --draw kunai reticle
         if KunaiReticle then
             love.graphics.setColor(1,1,1,0.5)
-            love.graphics.rectangle("fill",MouseX-15-Pl.kunaiInnacuracy,MouseY-1,10,2)
-            love.graphics.rectangle("fill",MouseX+5+Pl.kunaiInnacuracy,MouseY-1,10,2)
-            love.graphics.rectangle("fill",MouseX-1,MouseY-15-Pl.kunaiInnacuracy,2,10)
-            love.graphics.rectangle("fill",MouseX-1,MouseY+5+Pl.kunaiInnacuracy,2,10)
+            love.graphics.rectangle("fill",MouseX-(15*GameScale)-Pl.kunaiInnacuracy,MouseY-(1*GameScale),10*GameScale,2*GameScale)
+            love.graphics.rectangle("fill",MouseX+(5*GameScale)+Pl.kunaiInnacuracy,MouseY-(1*GameScale),10*GameScale,2*GameScale)
+            love.graphics.rectangle("fill",MouseX-(1*GameScale),MouseY-(15*GameScale)-Pl.kunaiInnacuracy,2*GameScale,10*GameScale)
+            love.graphics.rectangle("fill",MouseX-(1*GameScale),MouseY+(5*GameScale)+Pl.kunaiInnacuracy,2*GameScale,10*GameScale)
 
             love.graphics.setColor(1,1,1,1)
         end
@@ -348,10 +348,9 @@ function love.draw()
             love.graphics.draw(BgRectCanvas,HudX,HudY)
 
             --Energy bar
-            EnergyCanvas = love.graphics.newCanvas(238*GameScale,35*GameScale,{msaa=4})
             love.graphics.setCanvas(EnergyCanvas)
             for j=0, 9, 1 do
-                for i=1, round(20*GameScale), 1 do
+                for i=1, round(20*GameScale), HighGraphics and 1 or 2 do
                     --Color math
                     if 10*j+(i/(2*GameScale)) >= Pl.energy then
                         love.graphics.setColor(0.3,0.3,0.3,1)
@@ -363,11 +362,8 @@ function love.draw()
                         love.graphics.setColor(0.1,1,0.3,1)
                     end
                     --Colored rects
-                    local h = 35
-                    if i==1 or i==round(20*GameScale) then
-                        h = 33
-                    end
-                    love.graphics.rectangle('fill',(238*GameScale)-(20*GameScale)-i-(22*j*GameScale),(35-h)/2,1,h*GameScale)
+                    local h = (i==1 or i==round(20*GameScale)) and 33 or 35
+                    love.graphics.rectangle('fill',(238*GameScale)-(20*GameScale)-i-(22*j*GameScale),(35-h)/2,HighGraphics and 1 or 2,h*GameScale)
                 end
             end
             love.graphics.setColor(1,1,1,1)
@@ -408,6 +404,7 @@ function love.draw()
         elseif ScreenshotText > -1 then
             ScreenshotText = -1
         end
+        love.graphics.setColor(1,1,1,1)
 
 
         --debug text & sensor
@@ -419,7 +416,9 @@ function love.draw()
             simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
             simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
             simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
-            simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/1024/1024,1).."MB Im: "..round(stats.images).." Di: "..round(dirties),16,10*GameScale,140*GameScale)
+            simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/1024/1024,1).."MB Im: "..round(stats.images)..(HighGraphics and " Fancy" or " Fast"),16,10*GameScale,140*GameScale)
+            simpleText(_VERSION.." G: "..round(collectgarbage("count")),16,10*GameScale,180*GameScale)
+            simpleText("Love "..love.getVersion().." "..love.system.getOS().. " C: "..love.system.getProcessorCount(),16,10*GameScale,200*GameScale)
         end
         Pl.se:draw(false)
     end
@@ -528,6 +527,9 @@ function love.resize()
         local hei = math.min(40,(math.sqrt(210-i)*8.944))
         love.graphics.rectangle('fill',WindowWidth-(50*GameScale)-i*GameScale,WindowHeight-(60*GameScale)-(i/13.333333*GameScale),1*GameScale,hei*GameScale)
     end
+
+    --Energy bar Canvas
+    EnergyCanvas = love.graphics.newCanvas(238*GameScale,35*GameScale,{msaa=4})
 
     love.graphics.setCanvas()
     --Initialize Level Canvas

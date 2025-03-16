@@ -742,7 +742,7 @@ function Player:update(dt)
         if self.kunaiAni < 18 then
             DKunais = Kunais
         end
-        local tan = tanAngle(MouseX-(self.xpos-CameraX)+(0.05*(self.kunaiInnacuracy+1))*(love.math.random()-0.5),MouseY-(self.ypos-CameraY)+(0.05*(self.kunaiInnacuracy+1))*(love.math.random()-0.5))
+        local tan = tanAngle(MouseX-(self.xpos-CameraX)*GameScale+(0.09*(self.kunaiInnacuracy+1))*(love.math.random()-0.5),MouseY-(self.ypos-CameraY)*GameScale+(0.09*(self.kunaiInnacuracy+1))*(love.math.random()-0.5))
         local dx = tan[1] + (0.05*(self.kunaiInnacuracy+1))*0.1*(love.math.random()-0.5)
         local dy = tan[2] + (0.05*(self.kunaiInnacuracy+1))*0.1*(love.math.random()-0.5)
         table.insert(ThrownKunai,Kunai(self.xpos,self.ypos-60,dx*30,dy*30))

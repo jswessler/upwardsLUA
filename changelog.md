@@ -1,6 +1,10 @@
 Release Log:
 
 l.5
+- Fixed kunai throwing when fullscreen
+- Reimplemented fast/fancy graphics
+
+l.5 RC2
 - Fixed some rendering issues
 - Added panning camera up with W
 - Changed how energy bar is drawn
