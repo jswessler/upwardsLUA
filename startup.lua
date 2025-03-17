@@ -4,7 +4,7 @@
 function InitialLoad()
     --Set up window & display
     WindowWidth = 1280
-    WindowHeight = 720
+    WindowHeight = 800
     love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=720,msaa=4,highdpi=true,usedpiscale=true})
     love.window.setTitle("Upwards "..BuildId)
 
@@ -14,7 +14,10 @@ function InitialLoad()
     UpdateCounter = 0
 
     --Images
-    LogoImg = decodeJLI("Images/FMV/logo.jli")
+    --LogoImg = decodeJLI("Images/FMV/title.jli")
+    --TitleImg = decodeJLI("Images/FMV/title.jli")
+    LogoImg = love.graphics.newImage("Images/FMV/logo.png")
+    TitleImg = love.graphics.newImage("Images/FMV/title.png")
     --TitleScreenImg = love.graphics.newImage("Images/FMV/title.png")
 
     
@@ -23,6 +26,7 @@ function InitialLoad()
     Zoom = 1
     ZoomBase = 1
     love.graphics.setDefaultFilter("linear","nearest",4)
+    ScreenshotText = 0
 
 
     --Variables

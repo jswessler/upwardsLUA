@@ -1,5 +1,9 @@
 Release Log:
 
+a1.0
+- Title screen
+- Menu optimizations
+
 l.a R1
 - Logo
 - Limit FPS option

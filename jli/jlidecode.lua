@@ -82,14 +82,28 @@ function jliDecode(filepath)
         end
 
         --Long code
-        if byte < 64 then
+        if byte < 64 and proc then
             if byte >= 32 then --hi mode
                 if byte >= 48 then
                     mult = 2 * ((byte-32)*2) - 8
                 else
                     mult = 2 * ((byte-32)*1) - 24
                 end
+            else
+                mult = (byte*2) - 8
             end
+            local dr = (byte%2)*4
+            byteCounter = byteCounter + 1
+            byte = bites[byteCounter]
+            dr = dr + (byte*64)
+            dr = dr - 1
+            local dg = ((byte*8)%8)-1
+            local db = (byte%8)-1
+            cPix = {math.max(0,math.min(255,cPix[1]+(mult*dr))),math.max(0,math.min(255,cPix[2]+(mult*dg))),math.max(0,math.min(255,cPix[3]+(mult*db)))}
+            getInd(index2,cPix)
+            table.insert(cmdRem,{bites[byteCounter-1],bites[byteCounter]})
+            table.remove(cmdRem)
+            proc = false
         end
 
 

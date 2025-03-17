@@ -5,7 +5,7 @@
 ]]
 
 --Build Id
-BuildId = "l.a R1 Aria"
+BuildId = "a1.0"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -189,6 +189,13 @@ function love.draw()
     WindowWidth, WindowHeight = love.graphics.getDimensions()
     GameScale = WindowHeight/800
 
+    --F2: Take Screenshot
+    if love.keyboard.isDown("f2") and not DebugPressed then
+        DebugPressed = true
+        love.graphics.captureScreenshot("Upwards-"..os.time()..".png")
+        ScreenshotText = 150
+    end
+
     --Things to draw when the game is running
     if State ~= 'menu' and State ~= 'initialload' then
 
@@ -207,13 +214,6 @@ function love.draw()
         if love.keyboard.isDown("f1") and not DebugPressed then
             DebugPressed = true
             HudEnabled = not HudEnabled
-        end
-
-        --F2: Take Screenshot
-        if love.keyboard.isDown("f2") and not DebugPressed then
-            DebugPressed = true
-            love.graphics.captureScreenshot("Upwards-"..os.time()..".png")
-            ScreenshotText = 150
         end
 
         --F3: Debug Info
@@ -394,14 +394,6 @@ function love.draw()
         -- love.graphics.setShader(blurShader)
         -- blurShader:send("radius",3)
 
-        --Screenshot Text
-        if ScreenshotText > 0 then
-            love.graphics.setColor(1,1,1,math.min(1,ScreenshotText/60))
-            simpleText("Screenshot Saved",20,WindowWidth-(200*GameScale),WindowHeight-(100*GameScale))
-            ScreenshotText = ScreenshotText - 1
-        elseif ScreenshotText > -1 then
-            ScreenshotText = -1
-        end
         love.graphics.setColor(1,1,1,1)
 
 
@@ -423,12 +415,27 @@ function love.draw()
         --Logo
         if State == 'initialload' then
             love.graphics.setColor(1,1,1,(FrameCounter < 0.5 and FrameCounter/0.5 or FrameCounter > 2.5 and 3.5-FrameCounter or 1))
-            love.graphics.draw(LogoImg,0,0,0,1280/1536,1280/1536)
+            love.graphics.draw(LogoImg,0,0,0,WindowWidth/1536,WindowWidth/1536)
             if FrameCounter > 4 or love.keyboard.isDown(KeyBinds['Jump']) then
                 MenuLoad()
             end
         end
+
+        --Title Screen
+        if State == 'menu' then
+            love.graphics.draw(TitleImg,0,0,0,WindowWidth/3456,WindowWidth/3456)
+        end
     end
+
+    --Screenshot Text
+    if ScreenshotText > 0 then
+        love.graphics.setColor(1,1,1,math.min(1,ScreenshotText/60))
+        simpleText("Screenshot Saved",20,WindowWidth-(200*GameScale),WindowHeight-(100*GameScale))
+        ScreenshotText = ScreenshotText - 1
+    elseif ScreenshotText > -1 then
+        ScreenshotText = -1
+    end
+    love.graphics.setColor(1,1,1,1)
 
     --Reset keys pressed (so you can't spam keys)
     if not love.keyboard.isDown("f1","f2","f3","f4","t","escape") and not love.mouse.isDown(1) then
@@ -542,38 +549,41 @@ function love.resize()
     WindowWidth, WindowHeight = love.graphics.getDimensions()
     GameScale = WindowHeight/800
 
-    --Initialize Energy bar background area
-    BgRectCanvas = love.graphics.newCanvas(WindowWidth+100,WindowHeight,{msaa=4})
-    love.graphics.setCanvas(BgRectCanvas)
-    for i=-100,210,1 do
-        local hei = math.min(40,(math.sqrt(210-i)*8.944))
-        love.graphics.rectangle('fill',WindowWidth-(50*GameScale)-i*GameScale,WindowHeight-(60*GameScale)-(i/13.333333*GameScale),1*GameScale,hei*GameScale)
-    end
+    if State ~= 'initialload' and State ~= 'menu' then
 
-    --Energy bar Canvas
-    EnergyCanvas = love.graphics.newCanvas(238*GameScale,35*GameScale,{msaa=4})
+        --Initialize Energy bar background area
+        BgRectCanvas = love.graphics.newCanvas(WindowWidth+100,WindowHeight,{msaa=4})
+        love.graphics.setCanvas(BgRectCanvas)
+        for i=-100,210,1 do
+            local hei = math.min(40,(math.sqrt(210-i)*8.944))
+            love.graphics.rectangle('fill',WindowWidth-(50*GameScale)-i*GameScale,WindowHeight-(60*GameScale)-(i/13.333333*GameScale),1*GameScale,hei*GameScale)
+        end
 
-    love.graphics.setCanvas()
-    --Initialize Level Canvas
-    DirtyTiles = {}
-    TileCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32,{msaa=2})
+        --Energy bar Canvas
+        EnergyCanvas = love.graphics.newCanvas(238*GameScale,35*GameScale,{msaa=4})
 
-    love.graphics.setCanvas(TileCanvas)
-    love.graphics.clear()
-    for x=0,LevelWidth,1 do
-        for y=0,LevelHeight,1 do
-            local bl = LevelData[x.."-"..y]
-            if LoadedTiles[bl]~=nil then
-                local t = split(LevelData[x.."-"..y],"-")
-                if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then
-                    love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2,2)
-                else
-                    love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,1,1)
+        love.graphics.setCanvas()
+        --Initialize Level Canvas
+        DirtyTiles = {}
+        TileCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32,{msaa=2})
+
+        love.graphics.setCanvas(TileCanvas)
+        love.graphics.clear()
+        for x=0,LevelWidth,1 do
+            for y=0,LevelHeight,1 do
+                local bl = LevelData[x.."-"..y]
+                if LoadedTiles[bl]~=nil then
+                    local t = split(LevelData[x.."-"..y],"-")
+                    if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then
+                        love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2,2)
+                    else
+                        love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,1,1)
+                    end
                 end
             end
         end
+        love.graphics.setCanvas()
     end
-    love.graphics.setCanvas()
 end
 
 function love.keypressed(key, scancode, isrepeat)

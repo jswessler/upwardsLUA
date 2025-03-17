@@ -103,12 +103,19 @@ function pointCollideRect(rect,x,y)
     return false
 end
 
+local threadCode = [[
+    local exitCode = os.execute(cmd)
+]]
+
 function decodeJLI(fn) --Decode FMV images
+    os.remove("jli/reprint.png")
+    print(fn)
     local path = love.filesystem.getWorkingDirectory()
     local filename = path.."/"..fn
     local cmd = "py "..path.."/jli/jlidecode.py "..filename
     local exitCode = os.execute(cmd)
     local img = love.graphics.newImage("jli/reprint.png")
     return img
-
 end
+
+
