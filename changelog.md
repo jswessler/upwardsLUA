@@ -1,5 +1,12 @@
 Release Log:
 
+a1.0.2
+- Changed button look
+
+a1.0.1
+- Bug fixes
+- Preload JLI decoder algorithm
+
 a1.0
 - Title screen
 - Menu optimizations

@@ -138,15 +138,21 @@ function Button:draw()
     if self.id == split(State,'-')[1] then
         love.graphics.setColor(1,0,0,0.75)
     end
-
     love.graphics.rectangle("fill",self.xpos,self.ypos,self.width,self.height,10,10)
+
+    --Outline
     love.graphics.setColor(0,0,0,1)
+    love.graphics.setLineWidth(4)
     love.graphics.rectangle("line",self.xpos,self.ypos,self.width,self.height,10,10)
+    love.graphics.setLineWidth(1)
+
+    --Text
     if type(self.text) == 'string' then
         simpleText(self.text,22,self.xpos + self.width/2,self.ypos + self.height/2+2,'center')
     else
         simpleText(self.text(),22,self.xpos + self.width/2,self.ypos + self.height/2+2,'center')
     end
+
     love.graphics.setColor(1,1,1,1)
 end
 
