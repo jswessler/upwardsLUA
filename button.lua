@@ -51,24 +51,28 @@ end
 function ControlsMenu()
     Buttons = {}
     State = 'controlsmenu'
-    Buttons['Jump'] = Button(10, 50, 200, 40, function() return "Jump: "..KeyBinds['Jump'] end, function() State = 'Jump-CS' end, 0, "Jump")
-    Buttons['Right'] = Button(10, 100, 200, 40, function() return "Right: "..KeyBinds['Right'] end, function() State = 'Right-CS' end, 0.025, "Right")
-    Buttons['Left'] = Button(10, 150, 200, 40, function() return "Left: "..KeyBinds['Left'] end, function() State = 'Left-CS' end, 0.05, "Left")
-    Buttons['Up'] = Button(10, 200, 200, 40, function() return "Up: "..KeyBinds['Up'] end, function() State = 'Up-CS' end, 0.075, "Up")
-    Buttons['Slide'] = Button(10, 250, 200, 40, function() return "Slide: "..KeyBinds['Slide'] end, function() State = 'Slide-CS' end, 0.1, "Slide")
+    Buttons['Jump'] = Button(10*GameScale, 50, 200, 40, function() return "Jump: "..KeyBinds['Jump'] end, function() State = 'Jump-CS' end, 0, "Jump")
+    Buttons['Right'] = Button(10*GameScale, 100, 200, 40, function() return "Right: "..KeyBinds['Right'] end, function() State = 'Right-CS' end, 0.025, "Right")
+    Buttons['Left'] = Button(10*GameScale, 150, 200, 40, function() return "Left: "..KeyBinds['Left'] end, function() State = 'Left-CS' end, 0.05, "Left")
+    Buttons['Up'] = Button(10*GameScale, 200, 200, 40, function() return "Up: "..KeyBinds['Up'] end, function() State = 'Up-CS' end, 0.075, "Up")
+    Buttons['Slide'] = Button(10*GameScale, 250, 200, 40, function() return "Slide: "..KeyBinds['Slide'] end, function() State = 'Slide-CS' end, 0.1, "Slide")
     Buttons['Dive'] = Button(250*GameScale, 50, 200, 40, function() return "Dive: "..KeyBinds['Dive'] end, function() State = 'Dive-CS' end, 0.125, "Dive")
     Buttons['Pause'] = Button(250*GameScale, 100, 200, 40, function() return "Pause: "..KeyBinds['Pause'] end, function() State = 'Pause-CS' end, 0.15, "Pause")
     Buttons['Call'] = Button(250*GameScale, 150, 200, 40, function() return "Take Call: "..KeyBinds['Call'] end, function() State = 'Call-CS' end, 0.175, "Call")
     Buttons['Throw'] = Button(250*GameScale, 200, 200, 40, function() return "Throw Kunai: "..KeyBinds['Throw'] end, function() State = 'Throw-CS' end, 0.2, "Throw")
-    Buttons['Sprint'] = Button(250*GameScale, 250, 200, 40, function() return "Sprint: "..KeyBinds['Sprint'] end, function() State = 'Sprint-CS' end, 0.225, "Sprint")
+    Buttons['Skip'] = Button(250*GameScale, 250, 200, 40, function() return "Next Text: "..KeyBinds['Skip'] end, function() State = 'Skip-CS' end, 0.225, "Skip")
+    Buttons['Fast'] = Button(10*GameScale, 300, 200, 40, function() return "Skip Text: "..KeyBinds['Fast'] end, function() State = 'Fast-CS' end, 0.25, "Fast")
 
-    Buttons['back'] = Button(10, 300, 200, 40, 'Back', OptionsMenu, 0.3)
+
+
+    Buttons['back'] = Button(10, 350, 200, 40, 'Back', OptionsMenu, 0.3)
 end
 
 function AudioMenu()
 end
 
 function MenuMenu()
+    FrameCounter = 0
     Buttons = {}
     State = 'menu'
     Buttons['Play'] = Button(80, WindowHeight-220, 400, 100, "Play", function() LoadLevel('lvl1') end, 0)

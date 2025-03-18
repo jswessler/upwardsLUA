@@ -13,13 +13,8 @@ function InitialLoad()
     SecondsCounter = 0
     UpdateCounter = 0
 
-    --Images
-    --LogoImg = decodeJLI("Images/FMV/title.jli")
-    --TitleImg = decodeJLI("Images/FMV/title.jli")
-    LogoImg = love.graphics.newImage("Images/FMV/logo.png")
-    TitleImg = love.graphics.newImage("Images/FMV/title.png")
-    --TitleScreenImg = love.graphics.newImage("Images/FMV/title.png")
-
+    --Lists
+    Buttons = {}
     
     --Scaling
     GameScale = 1
@@ -27,6 +22,7 @@ function InitialLoad()
     ZoomBase = 1
     love.graphics.setDefaultFilter("linear","nearest",4)
     ScreenshotText = 0
+    JLIProgress = 1
 
 
     --Variables
@@ -43,8 +39,17 @@ function InitialLoad()
         ['Pause'] = love.keyboard.getScancodeFromKey('escape'),
         ['Call'] = love.keyboard.getScancodeFromKey('q'),
         ['Throw'] = love.keyboard.getScancodeFromKey('e'),
-        ['Sprint'] = love.keyboard.getScancodeFromKey('lshift'),
+        ['Skip'] = love.keyboard.getScancodeFromKey('return'),
+        ['Fast'] = love.keyboard.getScancodeFromKey('lshift'),
     }
+end
+
+function InitialLoadLoad()
+    --Images
+    LogoImg = love.graphics.newImage("Images/FMV/logo.png")
+    TitleImg = love.graphics.newImage("Images/FMV/title.png")
+    FrameCounter = 0
+    State = 'initialload'
 end
 
 function MenuLoad()
@@ -123,4 +128,17 @@ function LoadLevel(level)
     --Initialize BG Objects
     love.resize()
 
+end
+
+function JLIInitialDecode(v)
+    State = 'jlidecode'
+    JLIStatus = ''
+
+    local f = io.open("Images/"..v..".png")
+    if f == nil then
+        decodeJLI("Images/"..v)
+        JLIStatus = 'Decoded '..v..".jli..."
+    else
+        JLIStatus = 'Checking Files...'
+    end
 end

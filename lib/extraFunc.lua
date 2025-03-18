@@ -108,14 +108,18 @@ local threadCode = [[
 ]]
 
 function decodeJLI(fn) --Decode FMV images
-    os.remove("jli/reprint.png")
-    print(fn)
     local path = love.filesystem.getWorkingDirectory()
-    local filename = path.."/"..fn
+    local filename = path.."/"..fn..".jli"
     local cmd = "py "..path.."/jli/jlidecode.py "..filename
     local exitCode = os.execute(cmd)
-    local img = love.graphics.newImage("jli/reprint.png")
-    return img
+    while true do
+        local f = io.open(fn..".png")
+        if f ~= nil then
+            break
+        end
+    end
+    -- local img = love.graphics.newImage(path.."/"..fn..".png")
+    -- return img
 end
 
 

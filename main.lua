@@ -5,7 +5,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0"
+BuildId = "a1.0.1"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -30,7 +30,7 @@ function love.load()
     require "heart"
 
     --Initial loading routine
-    State = 'initialload'
+    State = 'jlidecode'
     InitialLoad()
 
 end
@@ -45,10 +45,8 @@ function love.update(dt)
     MouseX, MouseY = love.mouse.getPosition()
 
     --Update Buttons
-    if State ~= 'initialload' then
-        for i,v in pairs(Buttons) do
-            v:update(dt)
-        end
+    for i,v in pairs(Buttons) do
+        v:update(dt)
     end
 
     --Gamemodes where physics is enabled
@@ -175,7 +173,6 @@ function love.update(dt)
     end
 end
 
-
 function love.draw()
     local starttime = love.timer.getTime()
 
@@ -197,7 +194,7 @@ function love.draw()
     end
 
     --Things to draw when the game is running
-    if State ~= 'menu' and State ~= 'initialload' then
+    if State ~= 'menu' and State ~= 'initialload' and State ~= "jlidecode" then
 
         --Update Zoom
         local tz = ZoomBase
@@ -412,6 +409,8 @@ function love.draw()
         end
         Pl.se:draw(false)
     else
+
+        --Non-game states
         --Logo
         if State == 'initialload' then
             love.graphics.setColor(1,1,1,(FrameCounter < 0.5 and FrameCounter/0.5 or FrameCounter > 2.5 and 3.5-FrameCounter or 1))
@@ -423,7 +422,24 @@ function love.draw()
 
         --Title Screen
         if State == 'menu' then
-            love.graphics.draw(TitleImg,0,0,0,WindowWidth/3456,WindowWidth/3456)
+            love.graphics.setColor(1,1,1,math.min(1,FrameCounter))
+            love.graphics.draw(TitleImg,0,0,0,WindowHeight/2160,WindowHeight/2160)
+        end
+
+        --JLI Decode
+        if State == 'jlidecode' then
+            local JLIDecodes = {"FMV/logo", "FMV/title"}
+            JLIStatus = 'Checking '..JLIDecodes[JLIProgress]
+            simpleText(JLIStatus,24,WindowWidth/2,WindowHeight/2-100,'center')
+            JLIInitialDecode(JLIDecodes[JLIProgress])
+            love.graphics.setColor(0.25,0.25,0.25,1)
+            love.graphics.rectangle("fill",0,0,WindowWidth,WindowHeight)
+            love.graphics.setColor(1,1,1,1)
+            simpleText(JLIStatus,24,WindowWidth/2,WindowHeight/2-50,'center')
+            JLIProgress = JLIProgress + 1
+            if JLIProgress > #JLIDecodes then
+                InitialLoadLoad()
+            end
         end
     end
 
@@ -445,11 +461,9 @@ function love.draw()
     --Draw BuildId
     simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
 
-    if State ~= 'initialload' then
-        --Draw Buttons
-        for i,v in pairs(Buttons) do
-            v:draw()
-        end
+    --Buttons
+    for i,v in pairs(Buttons) do
+        v:draw()
     end
 
     --Enforce FPS cap
@@ -459,6 +473,13 @@ function love.draw()
         end
     end
 end
+
+
+
+
+
+
+
 
 
 
@@ -549,7 +570,7 @@ function love.resize()
     WindowWidth, WindowHeight = love.graphics.getDimensions()
     GameScale = WindowHeight/800
 
-    if State ~= 'initialload' and State ~= 'menu' then
+    if State ~= 'initialload' and State ~= 'menu' and State ~= 'jlidecode' then
 
         --Initialize Energy bar background area
         BgRectCanvas = love.graphics.newCanvas(WindowWidth+100,WindowHeight,{msaa=4})

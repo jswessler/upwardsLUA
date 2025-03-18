@@ -181,9 +181,10 @@ def qolDecode(filepath):
             except:
                 pixels[x,y] = (255,0,255) #debug color
             s += 1
-    s = filepath.split("/")[:-1]
-    img.save('jli\\reprint.png')
+    sp = filepath.split("/")
+    f = sp[-1].split('.')
+    img.save('Images\\' + str(sp[-2]) + '\\' + str(f[0]) + '.png')
 
 if __name__ == "__main__":
-    qolDecode("I:\\love\\upwards\\Images\\FMV\\logo.jli")
-    #qolDecode(sys.argv[1])
+    #qolDecode("I:\\love\\upwards\\Images\\FMV\\logo.jli")
+    qolDecode(sys.argv[1])
