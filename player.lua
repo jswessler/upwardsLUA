@@ -424,6 +424,11 @@ function Player:update(dt)
         self.onGround = true
         self.timeOnGround = self.timeOnGround + dt
 
+        --Fix for falling off an edge with fastfall animation queued
+        if self.nextAni == 'fftrans' or self.nextAni == 'fastfall' then
+            self.nextAni = 'none'
+        end
+
         --slowdown if you landed hard
         if self.animation == 'hardlanded' then
             self.xv = self.xv * 0.01^dt

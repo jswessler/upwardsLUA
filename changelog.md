@@ -1,5 +1,8 @@
 Release Log:
 
+a1.0.3
+- Fixed player animations when falling off a block
+
 a1.0.2
 - Changed button look
 
