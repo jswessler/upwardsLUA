@@ -13,6 +13,7 @@ function Player:new(x,y)
     self.xv = 0
     self.yv = 0
     self.facing = 0
+    self.dFacing = 1
 
     --energy
     self.energy = 100

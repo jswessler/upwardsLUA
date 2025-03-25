@@ -45,6 +45,7 @@ function Sensor:draw(reset)
             love.graphics.circle('fill',(v[3]-CameraX)*GameScale,(v[4]-CameraY)*GameScale,3)
         end
         love.graphics.setColor(1,1,1,1)
+        self.locations = {}
     else
         self.locations = {}
     end

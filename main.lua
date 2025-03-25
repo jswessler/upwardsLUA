@@ -5,7 +5,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.3"
+BuildId = "a1.0.3a"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -280,9 +280,10 @@ function love.draw()
             Pl.se:draw(true)
             for i,v in pairs(ThrownKunai) do
                 v.kSe:draw(true)
-                v.kSe:draw(false)
             end
         end
+
+
 
         --HUD Below this (Nonscaled elements)
         GameScale = GameScale / Zoom
@@ -310,7 +311,6 @@ function love.draw()
             love.graphics.draw(HexImg,HudX,WindowHeight-(220*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
             
             --Hearts
-
             for i,hp in ipairs(Health) do
                 if hp.amt <= 0 and hp.type ~= 1 then
                     table.remove(Health,i)
@@ -321,7 +321,6 @@ function love.draw()
             end
 
             --Rightside HUD Kunais
-
             for i=0,DKunais-1,1 do
                 if i == 0 then
                     if Pl.kunaiAni >= 0 and Pl.kunaiAni <= 14 then
@@ -356,6 +355,7 @@ function love.draw()
                     else
                         love.graphics.setColor(0.1,1,0.3,1)
                     end
+
                     --Colored rects
                     local h = (i==1 or i==round(20*GameScale)) and 33 or 35
                     love.graphics.rectangle('fill',(238*GameScale)-(20*GameScale)-i-(22*j*GameScale),(35-h)/2,HighGraphics and 1 or 2,h*GameScale)
@@ -409,8 +409,8 @@ function love.draw()
         end
         Pl.se:draw(false)
     else
-
         --Non-game states
+        
         --Logo
         if State == 'initialload' then
             love.graphics.setColor(1,1,1,(FrameCounter < 0.5 and FrameCounter/0.5 or FrameCounter > 2.5 and 3.5-FrameCounter or 1))
@@ -458,13 +458,13 @@ function love.draw()
         DebugPressed = false
     end
 
-    --Draw BuildId
-    simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
-
     --Buttons
     for i,v in pairs(Buttons) do
         v:draw()
     end
+
+    --Draw BuildId
+    simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
 
     --Enforce FPS cap
     if FpsLimit ~= 0 then
