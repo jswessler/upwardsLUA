@@ -401,7 +401,7 @@ function Player:update(dt)
         --first frame on ground
         if self.onGround == false then
             self.ypos = self.ypos + (dt*140)
-            self.energy = self.energy + (5*self.eRegen)+0.5
+            self.energy = self.energy + (8*self.eRegen)
             if self.yv > 0.5 and self.yv < 4.5 then
                 self.animation = 'landed'
                 self.aniTimer = 1+math.floor(self.yv*2.5)
@@ -441,7 +441,7 @@ function Player:update(dt)
         self.abilities[3] = 4 --double jump
         self.abilities[4] = 2 --dive
         self.abilities[5] = 2 --dive jump
-        self.energy = self.energy + (190*dt*(self.eRegen+0.001))
+        self.energy = self.energy + (160*dt*(self.eRegen+0.001))
     else
 
         --Innacurate Knives while airborne
@@ -537,7 +537,7 @@ function Player:update(dt)
             self.jCounter = 7
             self.yv = self.yv - 0.6
             if self.slideBoost ~= 0 then
-                self.energy = self.energy - (10*dt)
+                self.energy = self.energy + (10*dt)
                 self.xv = self.xv * (1+self.slideBoost/250000)
             end
             self.animation = 'jump'
@@ -548,7 +548,7 @@ function Player:update(dt)
         if not self.onGround and self.abilities[1]<=0 and self.abilities[2]>0 and self.energy > 0.2 then
             self.yv = self.yv - (dt*19) - dt*math.abs(self.xv)
             if self.abilities[2] < 12.5 then
-                self.energy = self.energy - (30*dt)
+                self.energy = self.energy + (30*dt)
             end
             self.abilities[2] = self.abilities[2] - (120*dt)
         end
@@ -561,7 +561,7 @@ function Player:update(dt)
                 self.abilities[4] = 2
                 self.maxSpd = 6
                 self.jCounter = 2
-                self.energy = self.energy + (100-self.energy)*(dt*20)
+                self.energy = self.energy + (100-self.energy)*(dt*16)
                 self.animation = 'jump'
                 self.aniTimer = 6
                 self.aniiTimer = 6
@@ -572,7 +572,7 @@ function Player:update(dt)
                 self.yv = self.yv - 0.0125
                 self.yv = self.yv * 0.0001^dt
                 self.jCounter = 6
-                self.energy = self.energy - (0.06+(0.0125*math.abs(self.xv)))*(170*dt)
+                self.energy = self.energy - (0.0625+(0.0125*math.abs(self.xv)))*(128*dt)
                 self.maxSpd = math.max(1.5,self.maxSpd-(1*dt))
                 self.animation = 'hover'
             end
@@ -592,7 +592,7 @@ function Player:update(dt)
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
             self.xv = self.xv * (8^dt)
             self.abilities[3] = self.abilities[3] - (70*dt)
-            self.energy = self.energy - (260*dt)
+            self.energy = self.energy - (60*dt)
             self.jCounter = 12
             self.aniFrame = 1
 
@@ -612,7 +612,7 @@ function Player:update(dt)
             self.xv = self.xv * 0.000001^dt
             self.abilities[5] = self.abilities[5] - (60*dt)
             self.abilities[4] = 0
-            self.energy = self.energy - (40*dt)
+            self.energy = self.energy - (30*dt)
             self.jCounter = 8
 
             --animation
@@ -702,7 +702,7 @@ function Player:update(dt)
     if love.keyboard.isDown(KeyBinds['Dive']) and self.onWall == 0 and self.energy > 5 then
         if self.abilities[4] > 0 and self.abilities[1] <= 0 and self.energy > 1 and self.onWall == 0 then
             if self.abilities[4] == 2 then
-                self.energy = self.energy - 5
+                self.energy = self.energy - 4
                 self.yv = -0.8 + (self.yv*0.1)
                 self.diveDir = self.dFacing
             end
@@ -714,7 +714,7 @@ function Player:update(dt)
             self.abilities[3] = 0
             self.abilities[4] = 1
             self.maxSpd = 4
-            self.energy = self.energy - (24*dt)
+            self.energy = self.energy - (18*dt)
             self.animation = 'jump' --change to dive later
             self.aniiTimer = 6
             self.aniTimer = 6
@@ -743,7 +743,7 @@ function Player:update(dt)
         end
 
         self.kunaiAni = 0 --equal to KuAni, initiate main loop, l.09
-        self.energy = self.energy - 12
+        self.energy = self.energy - 10
         Kunais = Kunais - 1
         if self.kunaiAni < 18 then
             DKunais = Kunais
@@ -824,14 +824,14 @@ function Player:update(dt)
             if self.slide < 225 then
                 if self.se:detect(0,-90)[1] and self.energy > 0 then
                     self.slide = 255
-                    self.energy = self.energy + (40*dt)
+                    self.energy = self.energy + (70*dt)
                 elseif self.slide > 200 then
                     self.slideMult = 0
                     self.animation = 'slide'
                 end
 
             else
-                self.energy = self.energy - (80*dt)
+                self.energy = self.energy - (90*dt)
                 self.animation = 'slide'
             end
         end
