@@ -1,5 +1,9 @@
 Release Log:
 
+a.1.0.4_01
+- Hovering over the phone now shows its hitbox
+- Phone now shrinks & grows properly
+
 a1.0.3
 - Fixed player animations when falling off a block
 

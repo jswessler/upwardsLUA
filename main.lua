@@ -5,7 +5,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.4"
+BuildId = "a1.0.4-01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -88,7 +88,6 @@ function love.update(dt)
         --Update Phone
         PhoneRect = {x = PhoneX, y = PhoneY, w = 15*GameScale*PhoneScale, h = 40*GameScale*PhoneScale}
         if TriggerPhone then
-            PhoneScale = 2
             PhoneCounter = PhoneCounter + dt
 
             --Phone shakes (image)
@@ -103,11 +102,13 @@ function love.update(dt)
 
             --Move phone back to corner at 7.5s
             elseif PhoneCounter > 7.5 then
+                PhoneScale = math.min(4,PhoneScale + (4-PhoneScale)/20)
                 PhoneX = PhoneX + (WindowWidth-(80*GameScale)-PhoneX)*(20*dt)
                 PhoneY = PhoneY + ((10*GameScale)-PhoneY)*(20*dt)
             
             --Move phone to your head at 0.5s
             elseif PhoneCounter > 0.5 then
+                PhoneScale = math.max(2,PhoneScale-dt*8)
                 PhoneX = PhoneX + (((Pl.xpos-CameraX)*(GameScale*Zoom)-PhoneX-(16*GameScale*Zoom))+love.math.random(-12,12))*(8*dt)
                 PhoneY = PhoneY + (((Pl.ypos-CameraY)*(GameScale*Zoom)-PhoneY-(175*GameScale*Zoom))+love.math.random(-12,12))*(8*dt)
             
@@ -118,9 +119,14 @@ function love.update(dt)
             end
 
             --Collide
-            if (pointCollideRect(PhoneRect,MouseX,MouseY) and (love.mouse.isDown(1)) or love.keyboard.isDown(KeyBinds['Call'])) then
-                TriggerPhone = false
-                NextCall = 0-NextCall
+            if pointCollideRect(PhoneRect,MouseX,MouseY) then
+                love.graphics.setColor(1,1,1,0.5)
+                love.graphics.rectangle('fill',PhoneX,PhoneY,15*GameScale*PhoneScale,40*GameScale*PhoneScale)
+                love.graphics.setColor(1,1,1,1)
+                if (love.mouse.isDown(1)) or love.keyboard.isDown(KeyBinds['Call']) then
+                    TriggerPhone = false
+                    NextCall = 0-NextCall
+                end
             end
         else
 
@@ -225,8 +231,8 @@ function love.draw()
             SensorInfo = not SensorInfo
         end
 
-        --T: Toggle reticle
-        if love.keyboard.isDown("t") and not DebugPressed then
+        --F5: Toggle reticle
+        if love.keyboard.isDown("f5") and not DebugPressed then
             DebugPressed = true
             KunaiReticle = not KunaiReticle
         end
@@ -236,14 +242,16 @@ function love.draw()
             love.graphics.draw(v.baseImage,(v.xpos-CameraX)*GameScale,(v.ypos-CameraY)*GameScale,v.direction,2*GameScale,2*GameScale,0,0)
         end
 
-        --Draw Player
+        --Draw Player & player shadow
         if type(Pl.img) ~= "string" then
 
+            --Facing left
             if Pl.dFacing == -1 then
                 love.graphics.setColor(0,0,0,0.5)
                 love.graphics.draw(Pl.img,(Pl.xpos-5-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos+10-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
                 love.graphics.setColor(1,1,1,1)
                 love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
+            --Facing right
             else
                 love.graphics.setColor(0,0,0,0.5)
                 love.graphics.draw(Pl.img,(Pl.xpos-5-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos+10-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
@@ -270,7 +278,7 @@ function love.draw()
         if DebugInfo then
             for i,v in ipairs(Pl.se.locations) do
                 if v[1] then
-                    SH = SH + 1
+                    SH = SH + 1 --counts up the number of sensor hits
                 end
             end
         end
@@ -295,7 +303,6 @@ function love.draw()
             love.graphics.rectangle("fill",MouseX+(5*GameScale)+Pl.kunaiInnacuracy,MouseY-(1*GameScale),10*GameScale,2*GameScale)
             love.graphics.rectangle("fill",MouseX-(1*GameScale),MouseY-(15*GameScale)-Pl.kunaiInnacuracy,2*GameScale,10*GameScale)
             love.graphics.rectangle("fill",MouseX-(1*GameScale),MouseY+(5*GameScale)+Pl.kunaiInnacuracy,2*GameScale,10*GameScale)
-
             love.graphics.setColor(1,1,1,1)
         end
 
