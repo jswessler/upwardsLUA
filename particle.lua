@@ -28,6 +28,7 @@ function Particle:update(dt)
         end
         self.img = love.graphics.newImage("Images/Particles/"..self.type..self.frame..".png")
     end
+
     return false
 end
 

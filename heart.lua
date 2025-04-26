@@ -7,6 +7,8 @@ Heart = Object:extend()
 function Heart:new(typ,amt)
     self.type = typ
     self.amt = amt
+    self.yp = 0
+    self.yv = 0 
     if typ == 1 then
         self.fileExt = 'red'
         self.maxHp = 4
@@ -37,15 +39,20 @@ end
 
 function Heart:heal(amt)
     if self.type == 1 or self.type == 3 then
-        if self.amt == self.maxHp then
-            return amt
-        elseif amt + self.amt > self.maxHp then
-            amt = amt - self.maxHp - self.amt
-            self.amt = self.maxHp
+        if self.amt == self.maxHp then --if this heart is already full
             return amt
         else
-            self.amt = self.amt + amt
-            return 0
+            --Jump hearts
+            self.yv = -3
+
+            if amt + self.amt > self.maxHp then
+                amt = amt - self.maxHp - self.amt
+                self.amt = self.maxHp
+                return amt
+            else
+                self.amt = self.amt + amt
+                return 0
+            end
         end
     else
         return amt

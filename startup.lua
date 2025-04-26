@@ -42,6 +42,13 @@ function InitialLoad()
         ['Skip'] = love.keyboard.getScancodeFromKey('return'),
         ['Fast'] = love.keyboard.getScancodeFromKey('lshift'),
     }
+
+    --skip intro & enable debug when holding shift
+    if love.keyboard.isDown('lshift') or love.keyboard.isDown('rshift') then
+        LoadLevel('lvl1')
+        DebugInfo = true
+    end
+
 end
 
 function InitialLoadLoad()
@@ -102,6 +109,7 @@ function LoadLevel(level)
     HighGraphics = true
     CreativeMode = false
     DrawDT = 0
+    StepSize = 4
 
     --Phone Calls
     NextCall = 0

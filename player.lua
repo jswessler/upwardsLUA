@@ -486,9 +486,9 @@ function Player:update(dt)
     end
 
     --Push out of walls
-    for i=1,4,1 do
+    for i=1,StepSize,1 do
         if self.se:detect(self.col[3]-0.5,math.random(-90,2))[1] then
-            self.xpos = self.xpos - 0.5
+            self.xpos = self.xpos - (2/StepSize)
         end
     end
 
@@ -510,9 +510,9 @@ function Player:update(dt)
     end
 
     --Push out of walls
-    for i=1,4,1 do
+    for i=1,StepSize,1 do
         if self.se:detect(self.col[4]+0.5,math.random(-90,2))[1] then
-            self.xpos = self.xpos + 0.5
+            self.xpos = self.xpos + (2/StepSize)
         end
     end
 

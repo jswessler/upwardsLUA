@@ -1,11 +1,12 @@
 --!file: main.lua
 --Upwards!
 
---[[
+--[[ todo
+    - e
 ]]
 
 --Build Id
-BuildId = "a1.0.4-01"
+BuildId = "a1.0.5"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -23,11 +24,14 @@ function love.load()
     require "player"
     require "sensor"
     require "camera"
-    require "kunai"
     require "button"
     require "call"
     require "startup"
     require "heart"
+
+    require "entity.kunai"
+    --require "entity.coin"
+    require "entity.entity"
 
     --Initial loading routine
     State = 'jlidecode'
@@ -319,11 +323,17 @@ function love.draw()
             
             --Hearts
             for i,hp in ipairs(Health) do
+                if hp.yp < 0 then
+                    hp.yp = hp.yp + hp.yv
+                    hp.yv = hp.yv + 0.1
+                else
+                    hp.yp = 0
+                end
                 if hp.amt <= 0 and hp.type ~= 1 then
                     table.remove(Health,i)
                 else
                     local img = HpImages[hp.fileExt..hp.amt]
-                    love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY,(-4.289/57.19),4*GameScale,4*GameScale)
+                    love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
                 end
             end
 
@@ -602,7 +612,7 @@ function love.resize()
                 local bl = LevelData[x.."-"..y]
                 if LoadedTiles[bl]~=nil then
                     local t = split(LevelData[x.."-"..y],"-")
-                    if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then
+                    if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then --double scale
                         love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2,2)
                     else
                         love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,1,1)
