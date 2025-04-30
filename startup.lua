@@ -57,10 +57,12 @@ function InitialLoadLoad()
     TitleImg = love.graphics.newImage("Images/FMV/title.png")
     FrameCounter = 0
     State = 'initialload'
+    Physics = 'off'
 end
 
 function MenuLoad()
     State = 'menu'
+    Physics = 'off'
     MenuMenu()
 end
 
@@ -71,6 +73,8 @@ function LoadLevel(level)
     KunaiImg = love.graphics.newImage("Images/UI/kunai.png")
     DefaultPhoneImg = love.graphics.newImage("Images/Phone/normal1.png")
     PausePhoneImg = love.graphics.newImage("Images/Phone/pause.png")
+
+    Physics = 'on'
 
     HpImages = {
         ['red0'] = love.graphics.newImage("/Images/Hearts/red0.png"),
@@ -110,6 +114,11 @@ function LoadLevel(level)
     CreativeMode = false
     DrawDT = 0
     StepSize = 4
+
+    --Turn on debug with lshift
+    if love.keyboard.isDown('lshift') then
+        DebugInfo = true
+    end
 
     --Phone Calls
     NextCall = 0

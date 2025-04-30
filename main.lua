@@ -6,7 +6,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.5"
+BuildId = "a1.0.5-01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -54,10 +54,9 @@ function love.update(dt)
     end
 
     --Gamemodes where physics is enabled
-    if State == 'game' or State == 'phonecall' then
+    if Physics == 'on' then
         --Update player physics & animation
         Pl:update(dt)
-
         --Update player internal collision detection (non-solid objects)
         for i=Pl.col[2]+8,Pl.col[1]-8,24 do
             for j=Pl.col[4],Pl.col[3],27.5 do
@@ -65,10 +64,6 @@ function love.update(dt)
                 playerCollisionDetect(ret[2],ret[3],dt)
             end
         end
-    end
-
-    --Gamemodes where level is updated
-    if State == 'game' or State == 'phonecall' then
 
         --Update Tiles
         TileUpdates = 0
@@ -169,7 +164,7 @@ function love.update(dt)
             PauseGame()
         
         --States where ESC sends you to options menu
-        elseif State == 'graphicsmenu' or State == 'controlsmenu' then
+        elseif State == 'graphicsmenu' or State == 'controlsmenu' or State == 'audiomenu' or State == 'performancemenu' then
             OptionsMenu()
             
         --States where ESC puts you back in the game
@@ -204,7 +199,7 @@ function love.draw()
     end
 
     --Things to draw when the game is running
-    if State ~= 'menu' and State ~= 'initialload' and State ~= "jlidecode" then
+    if Physics == 'display' or Physics == 'on' then
 
         --Update Zoom
         local tz = ZoomBase
@@ -363,8 +358,11 @@ function love.draw()
             for j=0, 9, 1 do
                 for i=1, round(20*GameScale), HighGraphics and 1 or 2 do
                     --Color math
-                    if 10*j+(i/(2*GameScale)) >= Pl.energy then
-                        love.graphics.setColor(0.3,0.3,0.3,1)
+                    if 10*j+(i/(2*GameScale)) >= Pl.energy then --set color to dark gray if energy < position
+                        love.graphics.setColor(0.45,0.45,0.45,1)
+                        if 10*j+(i/(2*GameScale)) >= Pl.remEnergy then
+                            love.graphics.setColor(0.3,0.3,0.3,1)
+                        end
                     elseif Pl.energy < 30 then
                         love.graphics.setColor(1-(Pl.energy/33.3333),0.1+(Pl.energy/33.3333),0.3,1)
                     elseif Pl.energy > 80 then
@@ -417,7 +415,7 @@ function love.draw()
             
             simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
             simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2).." V: "..love.window.getVSync(),16,10*GameScale,60*GameScale)
-            simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
+            simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." RE: "..round(Pl.remEnergy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
             simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
             simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
             simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/1024/1024,1).."MB Im: "..round(stats.images)..(HighGraphics and " Fancy" or " Fast").." GB: "..round(2986*(60*love.timer.getDelta())),16,10*GameScale,140*GameScale)

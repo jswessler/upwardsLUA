@@ -1,5 +1,11 @@
 Release Log:
 
+a1.0.5_01
+- Bug Fixes
+- Energy drain function
+- Changed energy parameters
+- Hold shift to open up debug menu immediately upon loading
+
 a1.0.5
 - Quarterstep adjustment setting
 - Made new Entity class

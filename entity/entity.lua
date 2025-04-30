@@ -24,7 +24,10 @@ function Entity:update(dt)
     self.timeAlive = self.timeAlive + dt
     local t = tanAngle(self.xv,self.yv)
     self.direction = t[3]
+
+    --Drag & air drag
     self.yv = self.yv + (self.gravity*dt*240)
+    self.xv = self.xv * (0.9^dt)
 
     --Quarterstep updating
     for i=1,StepSize,1 do

@@ -7,8 +7,8 @@ function normalCamera(mousex,mousey,dt,rxy)
     local Camy = mousey
 
     --adjust cam parameters
-    local tx = Pl.xpos + (Pl.xv*60) + (Pl.dFacing*0) - (WindowWidth/(2*GameScale)) + (Camx-(WindowWidth/2))/(3*GameScale)
-    local ty = -(WindowHeight/10) + Pl.ypos + (Pl.yv*10*GameScale) - (WindowHeight/(2*GameScale)) + (Camy-(WindowHeight/2))/(3*GameScale)
+    local tx = Pl.xpos + (Pl.xv*60) + (Pl.dFacing*0) - (WindowWidth/(2*GameScale)) + (Camx-(WindowWidth/2))/(5*GameScale)
+    local ty = -(WindowHeight/10) + Pl.ypos + (Pl.yv*10*GameScale) - (WindowHeight/(2*GameScale)) + (Camy-(WindowHeight/2))/(5*GameScale)
     if Pl.lastDir[1] == 'left' then
         tx = tx + math.min(200,math.max(-160,Pl.lastDir[2]*640))
     elseif Pl.lastDir[1] == 'right' then

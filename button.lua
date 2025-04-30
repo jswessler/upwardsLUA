@@ -9,6 +9,7 @@ function PauseGame()
     DebugInfo = false
     Buttons = {}
     State = 'pause'
+    Physics = 'display'
     Buttons['resume'] = Button(10,50,200,50,"Resume",ResumeGame,0)
     Buttons['options'] = Button(10,120,200,50,"Options",OptionsMenu,0.1)
     Buttons['quit'] = Button(10,190,200,50,"Quit",SureQuit,0.2)
@@ -17,24 +18,27 @@ end
 function ResumeGame()
     Buttons = {}
     State = 'game'
+    Physics = 'on'
 end
 
 function SureQuit()
     Buttons = {}
     State = 'surequit'
     Buttons['Back'] = Button(10, 50, 200, 50, "Back", PauseGame, 0)
-    Buttons['Title'] = Button(10, 120, 200, 50, "To Title", function() State = 'menu' MenuMenu() end, 0)
-    Buttons['Quit'] = Button(10, 190, 200, 50, "Exit Game", love.event.quit, 0)
+    Buttons['Title'] = Button(10, 120, 200, 50, "To Title", function() State = 'menu' MenuMenu() end, 0.1)
+    Buttons['Quit'] = Button(10, 190, 200, 50, "Exit Game", love.event.quit, 0.2)
 end
 
 function OptionsMenu()
     Buttons = {}
     State = 'options' 
+    Physics = 'display'
     Buttons['graphics'] = Button(10, 50, 300, 50, "Graphics", GraphicsMenu, 0)
-    Buttons['controls'] = Button(10, 120, 300, 50, "Controls", ControlsMenu, 0.05)
-    Buttons['audio'] = Button(10, 190, 300, 50, "Audio", AudioMenu, 0.1)
-    Buttons['creative'] = Button(10, 260, 300, 50, function() local x = 'Off' if CreativeMode then x = 'On' end return "Creative: "..x end, function() CreativeMode = not CreativeMode end, 0.15)
-    Buttons['back'] = Button(10, 330, 300, 50, "Back", PauseGame, 0.2)
+    Buttons['performance'] = Button(10, 120, 300, 50, "Performance", PerformanceMenu, 0.05)
+    Buttons['controls'] = Button(10, 190, 300, 50, "Controls", ControlsMenu, 0.1)
+    Buttons['audio'] = Button(10, 260, 300, 50, "Audio", AudioMenu, 0.15)
+    Buttons['creative'] = Button(10, 330, 300, 50, function() local x = 'Off' if CreativeMode then x = 'On' end return "Creative: "..x end, function() CreativeMode = not CreativeMode end, 0.2)
+    Buttons['back'] = Button(10, 400, 300, 50, "Back", PauseGame, 0.25)
 end
 
 function GraphicsMenu()
@@ -45,8 +49,14 @@ function GraphicsMenu()
     Buttons['renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Canvas' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.1)
     Buttons['graphics'] = Button(10, 260, 300, 50, function() local x = 'Fast' if HighGraphics then x = 'Fancy' end return "Graphics: "..x end, function() HighGraphics = not HighGraphics end, 0.15)
     Buttons['fps'] = Button(10, 330, 300, 50, function() local x = '60' if FpsLimit ~= 71 then x = 'Unlimited'end return "FPS: "..x end, function() if FpsLimit == 71 then FpsLimit = 0 else FpsLimit = 71 end end, 0.2)
-    Buttons['stepsize'] = Button(10,400,300,50,function() local x = '4' if StepSize == 10 then x = '10' end return "Step Size: "..x end, function() if StepSize == 10 then StepSize = 4 else StepSize = 10 end end, 0.25)
-    Buttons['back'] = Button(10, 470, 300, 50, "Back", OptionsMenu, 0.3)
+    Buttons['back'] = Button(10, 400, 300, 50, "Back", OptionsMenu, 0.3)
+end
+
+function PerformanceMenu()
+    Buttons = {}
+    State = 'performancemenu'
+    Buttons['stepsize'] = Button(10,50,300,50,function() local x = '4' if StepSize == 10 then x = '10' end return "Step Size: "..x end, function() if StepSize == 10 then StepSize = 4 else StepSize = 10 end end, 0)
+    Buttons['back'] = Button(10, 120, 300, 50, "Back", OptionsMenu, 0.1)
 end
 
 function ControlsMenu()
@@ -60,7 +70,7 @@ function ControlsMenu()
     Buttons['Dive'] = Button(250*GameScale, 50, 200, 40, function() return "Dive: "..KeyBinds['Dive'] end, function() State = 'Dive-CS' end, 0.125, "Dive")
     Buttons['Pause'] = Button(250*GameScale, 100, 200, 40, function() return "Pause: "..KeyBinds['Pause'] end, function() State = 'Pause-CS' end, 0.15, "Pause")
     Buttons['Call'] = Button(250*GameScale, 150, 200, 40, function() return "Take Call: "..KeyBinds['Call'] end, function() State = 'Call-CS' end, 0.175, "Call")
-    Buttons['Throw'] = Button(250*GameScale, 200, 200, 40, function() return "Throw Kunai: "..KeyBinds['Throw'] end, function() State = 'Throw-CS' end, 0.2, "Throw")
+    Buttons['Throw'] = Button(250*GameScale, 200, 200, 40, function() return "Kunai: "..KeyBinds['Throw'] end, function() State = 'Throw-CS' end, 0.2, "Throw")
     Buttons['Skip'] = Button(250*GameScale, 250, 200, 40, function() return "Next Text: "..KeyBinds['Skip'] end, function() State = 'Skip-CS' end, 0.225, "Skip")
     Buttons['Fast'] = Button(10*GameScale, 300, 200, 40, function() return "Skip Text: "..KeyBinds['Fast'] end, function() State = 'Fast-CS' end, 0.25, "Fast")
 
@@ -76,7 +86,8 @@ function MenuMenu()
     FrameCounter = 0
     Buttons = {}
     State = 'menu'
-    Buttons['Play'] = Button(80, WindowHeight-220, 400, 100, "Play", function() LoadLevel('lvl1') end, 0)
+    Physics = 'off'
+    Buttons['Play'] = Button(80, WindowHeight-250, 400, 130, "Play", function() LoadLevel('lvl1') end, 0)
     Buttons['Quit'] = Button(80, WindowHeight-100, 400, 50, "Quit", love.event.quit, 0)
 end
 
