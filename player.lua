@@ -402,7 +402,7 @@ function Player:update(dt)
         --first frame on ground
         if self.onGround == false then
             self.ypos = self.ypos + (dt*140)
-            self.energy = self.energy + (10*self.eRegen)
+            self.energy = self.energy + (1*self.eRegen)
             if self.yv > 0.5 and self.yv < 4.5 then
                 self.animation = 'landed'
                 self.aniTimer = 1+math.floor(self.yv*2.5)
@@ -571,7 +571,7 @@ function Player:update(dt)
                 self.yv = self.yv - 30*dt
                 self.abilities[4] = 2
                 self.maxSpd = 6
-                self.jCounter = 2
+                self.jCounter = 10
                 self.energy = self.energy + (100-self.energy)*(dt*16)
                 self.animation = 'jump'
                 self.aniTimer = 6
@@ -582,7 +582,7 @@ function Player:update(dt)
             if self.yv > 0 and self.energy > 0.1 and self.animation~='djumpdown' then
                 self.yv = self.yv - 0.0125
                 self.yv = self.yv * 0.0001^dt
-                self.jCounter = 6
+                self.jCounter = 2
                 self.energy = self.energy - (0.0625+(0.015*math.abs(self.xv)))*(150*dt)
                 self.maxSpd = math.max(1.5,self.maxSpd-(1*dt))
                 self.animation = 'hover'
@@ -601,9 +601,9 @@ function Player:update(dt)
             end
             self.yv = self.yv - (dt*60) - 1.25*dt*math.abs(self.xv)
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
-            self.xv = self.xv * (8^dt)
+            self.xv = self.xv * (10^dt)
             self.abilities[3] = self.abilities[3] - (70*dt)
-            self.energy = self.energy - (180*dt)
+            self.energy = self.energy - (250*dt)
             self.jCounter = 12
             self.aniFrame = 1
 
@@ -656,9 +656,9 @@ function Player:update(dt)
 
         --slight hover at the end of jumps (burns jCounter)
         if self.yv > -1 and self.jCounter > 0 then
-            self.energy = self.energy - (12*dt)
+            self.energy = self.energy - (2*dt)
             self.jCounter = self.jCounter - (30*dt)
-            self.gravity = 0.5
+            self.gravity = 0.45
         end
 
         --wall slide
@@ -786,11 +786,11 @@ function Player:update(dt)
             self.facing = -1
             self.animation = 'run'
             if self.maxSpd < 2.2*self.speedMult then
-                self.maxSpd = self.maxSpd + 1*dt*self.speedMult
+                self.maxSpd = self.maxSpd + 4*dt*self.speedMult
             end
             self.lastDir[1] = 'left'
             self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
-            self.speedMult = math.min(1.5,self.speedMult+(dt/4))
+            self.speedMult = math.min(1.4,self.speedMult+(dt/4))
 
         --Move right on ground
         elseif love.keyboard.isDown(KeyBinds['Right']) and self.onWall~=1 then
@@ -798,11 +798,11 @@ function Player:update(dt)
             self.facing = 1
             self.animation = 'run'
             if self.maxSpd < 2.2*self.speedMult then
-                self.maxSpd = self.maxSpd + 1*dt*self.speedMult
+                self.maxSpd = self.maxSpd + 4*dt*self.speedMult
             end
             self.lastDir[1] = 'right'
             self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
-            self.speedMult = math.min(1.5,self.speedMult+(dt/4))
+            self.speedMult = math.min(1.4,self.speedMult+(dt/4))
         else
             self.speedMult = 1
         end
@@ -835,7 +835,7 @@ function Player:update(dt)
             if self.slide < 225 then
                 if self.se:detect(0,-90)[1] and self.energy > 0 then
                     self.slide = 255
-                    self.energy = self.energy + (100*dt)
+                    self.energy = self.energy + (300*dt)
                 elseif self.slide > 200 then
                     self.slideMult = 0
                     self.animation = 'slide'

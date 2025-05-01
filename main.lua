@@ -2,11 +2,11 @@
 --Upwards!
 
 --[[ todo
-    - e
+    -
 ]]
 
 --Build Id
-BuildId = "a1.0.5-01"
+BuildId = "a1.0.5-02"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -162,6 +162,9 @@ function love.update(dt)
         --States where ESC sends you to pause menu
         if State == 'options' or State == 'game' or State == 'surequit' or State == 'phonecall' then
             PauseGame()
+            if love.keyboard.isDown('lshift') then
+                MenuMenu()
+            end
         
         --States where ESC sends you to options menu
         elseif State == 'graphicsmenu' or State == 'controlsmenu' or State == 'audiomenu' or State == 'performancemenu' then

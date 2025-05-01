@@ -48,15 +48,15 @@ function GraphicsMenu()
     Buttons['vsync'] = Button(10, 120, 300, 50, function() local x = 'Off' if love.window.getVSync()==1 then x = 'On' end return "Vsync: "..x end, function() love.window.setVSync(1 - love.window.getVSync()) end, 0.05)
     Buttons['renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Canvas' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.1)
     Buttons['graphics'] = Button(10, 260, 300, 50, function() local x = 'Fast' if HighGraphics then x = 'Fancy' end return "Graphics: "..x end, function() HighGraphics = not HighGraphics end, 0.15)
-    Buttons['fps'] = Button(10, 330, 300, 50, function() local x = '60' if FpsLimit ~= 71 then x = 'Unlimited'end return "FPS: "..x end, function() if FpsLimit == 71 then FpsLimit = 0 else FpsLimit = 71 end end, 0.2)
-    Buttons['back'] = Button(10, 400, 300, 50, "Back", OptionsMenu, 0.3)
+    Buttons['back'] = Button(10, 330, 300, 50, "Back", OptionsMenu, 0.3)
 end
 
 function PerformanceMenu()
     Buttons = {}
     State = 'performancemenu'
-    Buttons['stepsize'] = Button(10,50,300,50,function() local x = '4' if StepSize == 10 then x = '10' end return "Step Size: "..x end, function() if StepSize == 10 then StepSize = 4 else StepSize = 10 end end, 0)
-    Buttons['back'] = Button(10, 120, 300, 50, "Back", OptionsMenu, 0.1)
+    Buttons['stepsize'] = Button(10, 50, 350, 50, function() return "Step Size: "..StepSize end,nil,0,nil,function(x) StepSize = x end,2,16,function() StepSize = 4 end)
+    Buttons['fps'] = Button(10, 120, 350, 50, function() return "Max FPS: "..FpsLimit end,nil,0.1,nil,function(x) FpsLimit = x end,30,144,function() FpsLimit = 0 end)
+    Buttons['back'] = Button(10, 190, 300, 50, "Back", OptionsMenu, 0.2)
 end
 
 function ControlsMenu()
@@ -92,7 +92,7 @@ function MenuMenu()
 end
 
 
-function Button:new(x, y, width, height, text, action, delay, id)
+function Button:new(x, y, width, height, text, action, delay, id, slider, sMin, sMax,rcAction)
     self.id = id or nil
     self.xT = x*GameScale
     self.yT = y*GameScale
@@ -105,8 +105,11 @@ function Button:new(x, y, width, height, text, action, delay, id)
     self.ypos = 0
     self.width = width*GameScale
     self.height = height*GameScale
-
+    self.slider = slider or nil
+    self.sliderMin = sMin or nil
+    self.sliderMax = sMax or nil
     self.timeAlive = -delay or 0
+    self.rcAction = rcAction or nil
 end
 
 function Button:update(dt)
@@ -127,6 +130,9 @@ function Button:update(dt)
         self.hover = true
         if love.mouse.isDown(1) then
             self:click()
+        end
+        if love.mouse.isDown(2) then
+            self:rclick()
         end
     else
         self.hover = false
@@ -150,6 +156,11 @@ function Button:draw()
     if self.id == split(State,'-')[1] then
         love.graphics.setColor(1,0,0,0.75)
     end
+
+    --Override for using slider buttons
+    if love.mouse.isDown(1) and self.hover and self.slider ~= nil then
+        love.graphics.setColor(1,0,0,0.75)
+    end
     love.graphics.rectangle("fill",self.xpos,self.ypos,self.width,self.height,10,10)
 
     --Outline
@@ -169,9 +180,20 @@ function Button:draw()
 end
 
 function Button:click()
-    if self.hover and not DebugPressed then
+    if self.slider ~= nil then
+        local x = (love.mouse.getX() - self.xpos) / self.width
+        local y = round(x * (self.sliderMax - self.sliderMin) + self.sliderMin)
+        self.slider(y)
+    elseif self.hover and not DebugPressed then
         DebugPressed = true
         self.action()
+    end
+end
+
+function Button:rclick()
+    if self.rcAction ~= nil and self.hover and not DebugPressed then
+        DebugPressed = true
+        self.rcAction()
     end
 end
 

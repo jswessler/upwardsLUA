@@ -1,5 +1,8 @@
 Release Log:
 
+a1.0.5_02
+- Bug Fixes & Optimizations
+
 a1.0.5_01
 - Bug Fixes
 - Energy drain function
@@ -10,7 +13,6 @@ a1.0.5
 - Quarterstep adjustment setting
 - Made new Entity class
 - Hold shift to go straight into game
-
 
 a.1.0.4_01
 - Hovering over the phone now shows its hitbox
