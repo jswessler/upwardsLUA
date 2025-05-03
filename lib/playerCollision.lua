@@ -82,6 +82,8 @@ function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
     if blMain == 32 then
         Pl.animation = 'jump'
         Pl.nextAni = 'high'
+        Pl.abilities[2] = 0
+        Pl.abilities[3] = 0
         Pl.xv = Pl.xv * 0.9
         Pl.yv = (0.1*Pl.yv) - 3
     end

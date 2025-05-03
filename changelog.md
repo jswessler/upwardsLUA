@@ -1,5 +1,8 @@
 Release Log:
 
+a1.0.5_03
+- Movement bug fixes, holding jump & dive together works properly
+
 a1.0.5_02
 - Bug Fixes & Optimizations
 

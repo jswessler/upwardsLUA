@@ -618,7 +618,7 @@ function Player:update(dt)
         end
 
         --jump out of dive
-        if self.abilities[5] > 0 and not self.onGround and self.abilities[1] <= 0 and self.abilities[4] ~= 2 and self.energy > 5 then
+        if self.abilities[5] > 0 and self.abilities[4] == 0 and not self.onGround and self.abilities[1] <= 0 and self.abilities[4] ~= 2 and self.energy > 5 then
             self.yv = self.yv - 80*dt
             self.xv = self.xv * 0.000001^dt
             self.abilities[5] = self.abilities[5] - (60*dt)
@@ -710,7 +710,7 @@ function Player:update(dt)
     end
 
     --dive
-    if love.keyboard.isDown(KeyBinds['Dive']) and self.onWall == 0 and self.energy > 5 then
+    if love.keyboard.isDown(KeyBinds['Dive']) and self.onWall == 0 and self.abilities[2] < 5 and self.energy > 5 and not self.onGround then
         if self.abilities[4] > 0 and self.abilities[1] <= 0 and self.energy > 1 and self.onWall == 0 then
             if self.abilities[4] == 2 then
                 self.energy = self.energy - 4

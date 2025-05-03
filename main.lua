@@ -6,7 +6,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.5-02"
+BuildId = "a1.0.5-03"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -192,7 +192,7 @@ function love.draw()
 
     --Update WindowWidth & WindowHeight
     WindowWidth, WindowHeight = love.graphics.getDimensions()
-    GameScale = WindowHeight/800
+    GameScale = math.min(WindowHeight/800,WindowWidth/1280)
 
     --F2: Take Screenshot
     if love.keyboard.isDown("f2") and not DebugPressed then
