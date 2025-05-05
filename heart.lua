@@ -9,6 +9,7 @@ function Heart:new(typ,amt)
     self.amt = amt
     self.yp = 0
     self.yv = 0 
+    self.move = false
     if typ == 1 then
         self.fileExt = 'red'
         self.maxHp = 4
@@ -25,12 +26,26 @@ function Heart:new(typ,amt)
     self.img = ''
 end
 
+function Heart:update(dt)
+    if self.move then
+        self.yp = self.yp - self.yv * dt
+        if self.yp < 0 then
+            self.yp = 0
+            self.yv = 0
+            self.move = false
+        end
+        self.yv = self.yv + 70 * dt
+    end
+end
+
 function Heart:takeDmg(amt)
-    if amt > self.amt then
-        local temp = self.amt
+    if amt == 0 then
+        return 0
+    elseif amt > self.amt then
+        local ret = amt - self.amt
         amt = amt - self.amt
         self.amt = 0
-        return temp
+        return ret
     else
         self.amt = self.amt - amt
         return 0

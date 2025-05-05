@@ -2,11 +2,14 @@
 --Upwards!
 
 --[[ todo
-    -
+    -Heart flash at 1/4 heart
+    -Heart jump when healing or picking up a new heart
+    -Small heart jump occasionally
+
 ]]
 
 --Build Id
-BuildId = "a1.0.5-03"
+BuildId = "a1.0.6 SC"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -81,6 +84,16 @@ function love.update(dt)
         for i,v in ipairs(Particles) do
             if v:update(dt) then
                 table.remove(Particles,i)
+            end
+        end
+
+        --Update total health
+        TotalHealth = 0
+        HeartFlashAmt = HeartFlashAmt - (dt*2.5)
+        for i,hp in ipairs(Health) do
+            hp:update(dt)
+            if hp.amt > 0 then
+                TotalHealth = TotalHealth + hp.amt
             end
         end
 
@@ -213,7 +226,9 @@ function love.draw()
         GameScale = GameScale * Zoom
 
         --Update Camera
-        normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,1.5*(Pl.yv-2.5)))
+        if Physics == 'on' then
+            normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,1.5*(Pl.yv-2.5)))
+        end
 
         --F1: Toggle HUD
         if love.keyboard.isDown("f1") and not DebugPressed then
@@ -237,6 +252,14 @@ function love.draw()
         if love.keyboard.isDown("f5") and not DebugPressed then
             DebugPressed = true
             KunaiReticle = not KunaiReticle
+        end
+        --F6: Deal 1 dmg
+        if love.keyboard.isDown("f6") and not DebugPressed then
+            DebugPressed = true
+            local dmgAmt = 1
+            for i=#Health,1,-1 do
+                dmgAmt = Health[i]:takeDmg(dmgAmt)
+            end
         end
 
         --Draw Kunai
@@ -319,31 +342,56 @@ function love.draw()
             --Hex
             love.graphics.draw(HexImg,HudX,WindowHeight-(220*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
             
-            --Hearts
+            --Draw Hearts (Hearts are only updated on draw)
+
+            --Remove depleted soul/silver/blood hearts
             for i,hp in ipairs(Health) do
-                if hp.yp < 0 then
-                    hp.yp = hp.yp + hp.yv
-                    hp.yv = hp.yv + 0.1
-                else
-                    hp.yp = 0
-                end
                 if hp.amt <= 0 and hp.type ~= 1 then
                     table.remove(Health,i)
                 else
                     local img = HpImages[hp.fileExt..hp.amt]
+                    --Draw hearts
                     love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
+                end
+
+                --Heart jumping randomly
+                if HeartJumpCounter < FrameCounter - 0.1*i and not hp.move then
+                    print(HeartJumpCounter,FrameCounter,i)
+                    hp.yv = -20
+                    hp.move = true
+                    if i == #Health then
+                        HeartJumpCounter = math.max(0.15*#Health,(love.math.random()+0.1)*5) + FrameCounter
+                    end
+                end
+
+                --Heart flash at low HP
+                if TotalHealth <= 2 and HeartFlashCounter<FrameCounter then
+                    HeartFlashAmt = 1
+                    if hp.amt == 2 then
+                        HeartFlashCounter = FrameCounter + 1.5
+                    elseif hp.amt == 1 then
+                        HeartFlashCounter = FrameCounter + 0.5
+                    end
+                end
+
+                --Draw crit flash
+                if i == 1 and HeartFlashAmt > 0 then
+                    local critimg = HpImages['crit']
+                    love.graphics.setColor(1,1,1,HeartFlashAmt)
+                    love.graphics.draw(critimg,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
+                    love.graphics.setColor(1,1,1,1)
                 end
             end
 
             --Rightside HUD Kunais
             for i=0,DKunais-1,1 do
-                if i == 0 then
+                if i == 0 then --first kunai on the right, goes up
                     if Pl.kunaiAni >= 0 and Pl.kunaiAni <= 14 then
                         love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+Pl.kunaiAni+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)-(Pl.kunaiAni*Pl.kunaiAni+Pl.kunaiAni*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
                     elseif Pl.kunaiAni >= 39 or Pl.kunaiAni <= -1 then
                         love.graphics.draw(KunaiImg,WindowWidth-(100*GameScale)-(i*38*GameScale)+HudX,WindowHeight-(150*GameScale)-(i*3*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
                     end
-                else
+                else --all other kunais slide over to the right
                     if Pl.kunaiAni >= 24 and Pl.kunaiAni <= 40 then
                         love.graphics.draw(KunaiImg,WindowWidth-(152*GameScale)-(i*38*GameScale)+(Pl.kunaiAni*2.3)+HudX,WindowHeight-(154*GameScale)-(i*3*GameScale)+(Pl.kunaiAni/5*GameScale)+HudY,(4.289/57.19),0.15*GameScale,0.15*GameScale)
                     else
@@ -415,7 +463,6 @@ function love.draw()
         --debug text & sensor
         if DebugInfo then
             local stats = love.graphics.getStats()
-            
             simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
             simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2).." V: "..love.window.getVSync(),16,10*GameScale,60*GameScale)
             simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." RE: "..round(Pl.remEnergy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
@@ -472,7 +519,7 @@ function love.draw()
     love.graphics.setColor(1,1,1,1)
 
     --Reset keys pressed (so you can't spam keys)
-    if not love.keyboard.isDown("f1","f2","f3","f4","t","escape") and not love.mouse.isDown(1) then
+    if not love.keyboard.isDown("f1","f2","f3","f4","f5","f6","escape") and not love.mouse.isDown(1) then
         DebugPressed = false
     end
 

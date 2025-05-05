@@ -6,7 +6,7 @@ require "lib.extraFunc"
 require "startup"
 
 function PauseGame()
-    DebugInfo = false
+    --DebugInfo = false
     Buttons = {}
     State = 'pause'
     Physics = 'display'
@@ -38,7 +38,7 @@ function OptionsMenu()
     Buttons['controls'] = Button(10, 190, 300, 50, "Controls", ControlsMenu, 0.1)
     Buttons['audio'] = Button(10, 260, 300, 50, "Audio", AudioMenu, 0.15)
     Buttons['creative'] = Button(10, 330, 300, 50, function() local x = 'Off' if CreativeMode then x = 'On' end return "Creative: "..x end, function() CreativeMode = not CreativeMode end, 0.2)
-    Buttons['back'] = Button(10, 400, 300, 50, "Back", PauseGame, 0.25)
+    Buttons['back'] = Button(10, 400, 200, 50, "Back", PauseGame, 0.25)
 end
 
 function GraphicsMenu()
@@ -48,7 +48,7 @@ function GraphicsMenu()
     Buttons['vsync'] = Button(10, 120, 300, 50, function() local x = 'Off' if love.window.getVSync()==1 then x = 'On' end return "Vsync: "..x end, function() love.window.setVSync(1 - love.window.getVSync()) end, 0.05)
     Buttons['renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Canvas' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.1)
     Buttons['graphics'] = Button(10, 260, 300, 50, function() local x = 'Fast' if HighGraphics then x = 'Fancy' end return "Graphics: "..x end, function() HighGraphics = not HighGraphics end, 0.15)
-    Buttons['back'] = Button(10, 330, 300, 50, "Back", OptionsMenu, 0.3)
+    Buttons['back'] = Button(10, 330, 200, 50, "Back", OptionsMenu, 0.3)
 end
 
 function PerformanceMenu()
@@ -56,7 +56,7 @@ function PerformanceMenu()
     State = 'performancemenu'
     Buttons['stepsize'] = Button(10, 50, 350, 50, function() return "Step Size: "..StepSize end,nil,0,nil,function(x) StepSize = x end,2,16,function() StepSize = 4 end)
     Buttons['fps'] = Button(10, 120, 350, 50, function() return "Max FPS: "..FpsLimit end,nil,0.1,nil,function(x) FpsLimit = x end,30,144,function() FpsLimit = 0 end)
-    Buttons['back'] = Button(10, 190, 300, 50, "Back", OptionsMenu, 0.2)
+    Buttons['back'] = Button(10, 190, 200, 50, "Back", OptionsMenu, 0.2)
 end
 
 function ControlsMenu()
@@ -76,7 +76,7 @@ function ControlsMenu()
 
 
 
-    Buttons['back'] = Button(10, 350, 200, 40, 'Back', OptionsMenu, 0.3)
+    Buttons['back'] = Button(10, 350, 200, 50, 'Back', OptionsMenu, 0.3)
 end
 
 function AudioMenu()

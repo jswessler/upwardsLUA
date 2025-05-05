@@ -38,6 +38,7 @@ function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
         end
         LevelData[pB] = "0-0"
         DirtyTiles[pB] = true
+        HeartJumpCounter = -1000 --Jump hearts
     end
 
     --Silver Heart
@@ -49,6 +50,7 @@ function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
         end
         LevelData[pB] = "0-0"
         DirtyTiles[pB] = true
+        HeartJumpCounter = -1000 --Jump hearts
     end
 
     --Red Heart
@@ -58,11 +60,13 @@ function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
         for i=1,#Health,1 do
             healAmt = Health[i]:heal(healAmt)
         end
+        HeartJumpCounter = -1000 --Jump hearts
     end
 
     --Blood Heart
     if blMain == 10 and blSub == 1 then
         table.insert(Health,Heart(4,1))
+        HeartJumpCounter = -1000 --Jump hearts
     end
 
     --Phone Call

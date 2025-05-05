@@ -1,5 +1,13 @@
 Release Log:
 
+a1.0.6 SC
+- Removed weird textures
+- Fixed HUD kunai animations
+- Fixed debug menu/pause menu behavior
+- Added heart flashing when low HP
+- Added heart jumping when picking up new health or randomly
+- Going below 1 heart works properly
+
 a1.0.5_03
 - Movement bug fixes, holding jump & dive together works properly
 

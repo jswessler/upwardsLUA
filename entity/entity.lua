@@ -55,6 +55,7 @@ function Entity:update(dt)
             self.gravity = 0.15
         end
     end
+    return false
 end
 
 function Entity:tostring()

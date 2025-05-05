@@ -756,7 +756,7 @@ function Player:update(dt)
         self.kunaiAni = 0 --equal to KuAni, initiate main loop, l.09
         self.energy = self.energy - 10
         Kunais = Kunais - 1
-        if self.kunaiAni < 18 then
+        if self.kunaiAni > 18 then
             DKunais = Kunais
         end
         local tan = tanAngle(MouseX-(self.xpos-CameraX)*GameScale+(0.09*(self.kunaiInnacuracy+1))*(love.math.random()-0.5),MouseY-(self.ypos-CameraY)*GameScale+(0.09*(self.kunaiInnacuracy+1))*(love.math.random()-0.5))

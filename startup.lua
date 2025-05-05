@@ -88,7 +88,8 @@ function LoadLevel(level)
         ['blue4'] = love.graphics.newImage("/Images/Hearts/blue4.png"),
         ['silver1'] = love.graphics.newImage("/Images/Hearts/silver1.png"),
         ['silver2'] = love.graphics.newImage("/Images/Hearts/silver2.png"),
-        ['blood'] = love.graphics.newImage("/Images/Hearts/blood.png")
+        ['blood'] = love.graphics.newImage("/Images/Hearts/blood.png"),
+        ['crit'] = love.graphics.newImage("/Images/Hearts/red_crit.png")
     }
 
     State = 'game'
@@ -99,21 +100,25 @@ function LoadLevel(level)
     Buttons = {}
     Health = {Heart(1,4),Heart(1,4)}
 --Initial Variable Values
-    Kunais = 5
-    DKunais = 5
-    DiffCX = 0
-    DiffCY = 0
-    DebugPressed = false
-    DebugInfo = false
-    TileUpdates = 0
-    ScreenshotText = -1
-    HudEnabled = true
-    KunaiReticle = false
-    NewRenderer = true
-    HighGraphics = true
-    CreativeMode = false
-    DrawDT = 0
-    StepSize = 4
+    Kunais = 5 --Number of kunais
+    DKunais = 5 --Displayed number of kunais
+    DiffCX = 0 --Camera diff X
+    DiffCY = 0 --Camera diff Y
+    DebugPressed = false --If you're pressing any debug keys
+    DebugInfo = false --If the F3 menu is displayed
+    TileUpdates = 0 --Number of tile updates
+    ScreenshotText = -1 --Opacity of screenshot text
+    HudEnabled = true --If the HUD is enabled
+    KunaiReticle = false --If the kunai reticle is displayed
+    NewRenderer = true --If the canvas renderer is used (instead of screen)
+    HighGraphics = true --If the "fancy" graphics are selected
+    CreativeMode = false --If the player is in creative mode
+    DrawDT = 0 --IDK
+    StepSize = 4 --Quarterstep size for entities
+    HeartFlashCounter = -10000 --Timer for low HP flashing
+    HeartFlashAmt = 0 --Opacity of heart flashing
+    HeartJumpCounter = -10000 --Timer for heart jumping (randomly)
+    TotalHealth = 0 --Total health of the player
 
     --Turn on debug with lshift
     if love.keyboard.isDown('lshift') then
