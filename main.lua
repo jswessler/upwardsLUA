@@ -2,14 +2,14 @@
 --Upwards!
 
 --[[ todo
-    -Heart flash at 1/4 heart
-    -Heart jump when healing or picking up a new heart
-    -Small heart jump occasionally
-
+    -fix sliding under obstacles (gives you energy and doesn't bug out visually)
+    -Enemies (placeholder graphics)
+    -Coins (drop from enemies and bounce), heal 1/4 heart on pickup
+    -Remove healing from dash crystals
 ]]
 
 --Build Id
-BuildId = "a1.0.6 SC"
+BuildId = "a1.0.6_01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -205,7 +205,7 @@ function love.draw()
 
     --Update WindowWidth & WindowHeight
     WindowWidth, WindowHeight = love.graphics.getDimensions()
-    GameScale = math.min(WindowHeight/800,WindowWidth/1280)
+    GameScale = WindowHeight/800
 
     --F2: Take Screenshot
     if love.keyboard.isDown("f2") and not DebugPressed then
@@ -356,7 +356,6 @@ function love.draw()
 
                 --Heart jumping randomly
                 if HeartJumpCounter < FrameCounter - 0.1*i and not hp.move then
-                    print(HeartJumpCounter,FrameCounter,i)
                     hp.yv = -20
                     hp.move = true
                     if i == #Health then

@@ -5,7 +5,7 @@ function InitialLoad()
     --Set up window & display
     WindowWidth = 1280
     WindowHeight = 800
-    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=720,msaa=4,highdpi=true,usedpiscale=true})
+    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=720,msaa=4,highdpi=true,usedpiscale=true,fullscreen=false})
     love.window.setTitle("Upwards "..BuildId)
 
     --Counters
