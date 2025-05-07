@@ -15,6 +15,34 @@ end
 
 function Kunai:update(dt)
     self.super.update(self,dt)
+
+    --Hit a wall (overridden probably)
+    if self.colliderCount >= 1 then
+        self.stuck = true
+        self.gravity = 0
+    else
+        self.stuck = false
+        self.gravity = 1
+    end
+
+    --Scan for enemies
+
+    --TODO: Have kunais get stuck in enemies until they die, and then they all drop
+    self.colliderCount = 0
+    for i=-self.radius,self.radius,self.radius do
+        for j=-self.radius,self.radius,self.radius do
+            local e = self.kSe:detectEnemy(i,j,'all')
+            if e[1] and FrameCounter > e[2].iframe then
+                e[2].health = e[2].health - 1
+                e[2].iframe = FrameCounter + 0.2
+                if e[2].health == 0 then
+                    e[2].deathMode = 'struck'
+                end
+                self.xv = self.xv * -0.2
+                self.yv = love.math.random()-1.5
+            end
+        end
+    end
     
     --Home back to player if stuck and alive for 1.5 seconds
     if getDist(self.xpos,self.ypos,Pl.xpos,Pl.ypos) < 300 and self.timeAlive > 1.5 then

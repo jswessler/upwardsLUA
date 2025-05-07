@@ -16,12 +16,6 @@ function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
         Pl.energy = Pl.remEnergy + (100-Pl.energy)/10 + 5
         DirtyTiles[pB] = true
         LevelData[pB] = "6-4"
-
-        --Heal
-        local healAmt = 1
-        for i=1,#Health,1 do
-            healAmt = Health[i]:heal(healAmt)
-        end
     end
 
     --Force Crash
@@ -118,6 +112,13 @@ function tileProperties(dt)
             TileUpdates = TileUpdates + 1
             LevelData[xt.."-"..yt] = "4-0"
             DirtyTiles[xt.."-"..yt] = true
+        end
+
+        --Enemy Generators
+        if blMain == "19" then
+            TileUpdates = TileUpdates + 1
+            local e = Enemy(xt*32,yt*32,blSub+1)
+            table.insert(Enemies,e)
         end
     end
 end

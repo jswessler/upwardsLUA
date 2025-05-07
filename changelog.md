@@ -1,5 +1,10 @@
 Release Log:
 
+a1.0.7
+- Added enemies, coins, and entity player detection
+- Generalized kunais and coins to an entity superclass
+- Adjusted physics
+
 a1.0.6 SC
 - Removed weird textures
 - Fixed HUD kunai animations

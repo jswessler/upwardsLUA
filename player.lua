@@ -5,6 +5,7 @@ Player = Object:extend()
 require "sensor"
 require "particle"
 require "lib.extraFunc"
+require "lib.playerCollision"
 
 function Player:new(x,y)
     --position
@@ -36,6 +37,9 @@ function Player:new(x,y)
     self.slide = 0
     self.slideBoost = 0
     self.slideMult = 0
+
+    --Hitbox & iframes
+    self.iFrame = 0
 
     --image
     self.img = ''
@@ -358,14 +362,67 @@ function Player:update(dt)
         self.energy = 100
     end
 
+    --Non-solid collision
+    for i = self.col[2]+8,self.col[1]-8,24 do
+        for j = self.col[4],self.col[3],27.5 do
+
+            --Nonsolid player collision detection
+            local ret = self.se:detect(j,i)
+            playerCollisionDetect(ret[2],ret[3],dt)
+
+            --Slide hitbox
+            if self.slide > 180 then
+                local e = self.se:detectEnemy(j,i,'all')
+                if e[1] and e[2].health > 0 then
+                    self.xv = self.xv * 0.9
+                    e[2].health = 0
+                    e[2].deathMode = 'kicked'
+                end
+            --Damage hitbox
+            elseif FrameCounter > self.iFrame then
+                local e = self.se:detectEnemy(j,i,'hurt')
+                if e[1] then
+                    self.xv = self.xv * -1.25
+                    self.yv = love.math.random()-3
+                    --Hurt player
+                    --self.animation = 'hurt'
+                    local dmgAmt = 1
+                    for x=#Health,1,-1 do
+                        dmgAmt = Health[x]:takeDmg(dmgAmt)
+                    end
+                    self.iFrame = FrameCounter + 1
+                end
+            end
+        end
+    end
+
     --down collision detection
     for j=1,2,1 do
-        self.xpos = self.xpos + self.xv*(dt*230/2)
-        self.ypos = self.ypos + self.yv*(dt*230/2)
+        self.xpos = self.xpos + self.xv*(dt*115) --230/2
+        self.ypos = self.ypos + self.yv*(dt*115)
         self.colliderCount = 0
         for i = -19, 27, 4 do
+
+            --Solid block
             if self.se:detect(i, self.col[1])[1] then
                 self.colliderCount = self.colliderCount + 1
+            end
+
+            --Enemy (jump on head)
+            local e = self.se:detectEnemy(i,self.col[1],'top')
+            if e[1] and e[2].health > 0 then
+                self.animation = 'jump'
+                self.nextAni = 'high'
+                self.abilities[2] = 0
+                self.abilities[3] = 0
+                self.xv = self.xv * 0.8
+                if love.keyboard.isDown(KeyBinds['Slide']) then
+                    self.yv = -1.8
+                else
+                    self.yv = (0.1*self.yv) - 3.75
+                end
+                e[2].health = 0
+                e[2].deathMode = 'squish'
             end
         end
         if self.colliderCount > 0 and not self.onGround then
@@ -444,7 +501,7 @@ function Player:update(dt)
         self.abilities[5] = 2 --dive jump
 
         --Add to energy while on ground (not 1st frame)
-        self.energy = self.energy + (135*dt*(self.eRegen+0.001))
+        self.energy = self.energy + (150*dt*(self.eRegen+0.001))
     else
 
         --Innacurate Knives while airborne
@@ -459,7 +516,6 @@ function Player:update(dt)
         if self.slide > 0 then
             self.slide = 0
             self.jCounter = 4
-            self.energy = self.energy - (2*dt)
             self.nextAni = 'low'
         end
 
@@ -471,7 +527,7 @@ function Player:update(dt)
             end
         end
         if self.colliderCount > 0 then
-            self.yv = 0.5
+            self.yv = 0.1
             self.ypos = self.ypos + 1
             self.jCounter = 4
         end
@@ -479,7 +535,7 @@ function Player:update(dt)
 
     --Set remEnergy
     if self.energy < self.remEnergy then
-        self.remEnergy = self.remEnergy - ((dt*1.5) + (self.remEnergy-self.energy)/160)
+        self.remEnergy = self.remEnergy - (dt + (self.remEnergy-self.energy)/200)
     else
         self.remEnergy = self.energy
     end
@@ -656,7 +712,7 @@ function Player:update(dt)
 
         --slight hover at the end of jumps (burns jCounter)
         if self.yv > -1 and self.jCounter > 0 then
-            self.energy = self.energy - (2*dt)
+            self.energy = self.energy - (2.5*dt)
             self.jCounter = self.jCounter - (30*dt)
             self.gravity = 0.45
         end
@@ -698,7 +754,7 @@ function Player:update(dt)
             self.yv = self.yv * 0.25
             self.yv = -3.75
             self.jCounter = 10
-            self.xv = -self.dFacing * 2.95
+            self.xv = -self.onWall * 2.95
             self.xpos = self.xpos + self.dFacing * -6
             self.ypos = self.ypos - 1
             self.energy = self.energy - 6
@@ -724,7 +780,7 @@ function Player:update(dt)
             self.yv = self.yv - 5*dt
             self.abilities[3] = 0
             self.abilities[4] = 1
-            self.maxSpd = 4
+            self.maxSpd = 4.05
             self.energy = self.energy - (20*dt)
             self.animation = 'jump' --change to dive later
             self.aniiTimer = 6
@@ -762,7 +818,7 @@ function Player:update(dt)
         local tan = tanAngle(MouseX-(self.xpos-CameraX)*GameScale+(0.09*(self.kunaiInnacuracy+1))*(love.math.random()-0.5),MouseY-(self.ypos-CameraY)*GameScale+(0.09*(self.kunaiInnacuracy+1))*(love.math.random()-0.5))
         local dx = tan[1] + (0.05*(self.kunaiInnacuracy+1))*0.1*(love.math.random()-0.5)
         local dy = tan[2] + (0.05*(self.kunaiInnacuracy+1))*0.1*(love.math.random()-0.5)
-        table.insert(ThrownKunai,Kunai(self.xpos,self.ypos-60,dx*30,dy*30))
+        table.insert(Entities,Kunai(self.xpos,self.ypos-60,dx*30,dy*30))
         --self.animation = 'none' --change to throwing animation later
     end
 
@@ -786,11 +842,11 @@ function Player:update(dt)
             self.facing = -1
             self.animation = 'run'
             if self.maxSpd < 2.2*self.speedMult then
-                self.maxSpd = self.maxSpd + 4*dt*self.speedMult
+                self.maxSpd = self.maxSpd + 2*dt*self.speedMult
             end
             self.lastDir[1] = 'left'
             self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
-            self.speedMult = math.min(1.4,self.speedMult+(dt/4))
+            self.speedMult = math.min(1.4,self.speedMult+(dt/2))
 
         --Move right on ground
         elseif love.keyboard.isDown(KeyBinds['Right']) and self.onWall~=1 then
@@ -798,62 +854,65 @@ function Player:update(dt)
             self.facing = 1
             self.animation = 'run'
             if self.maxSpd < 2.2*self.speedMult then
-                self.maxSpd = self.maxSpd + 4*dt*self.speedMult
+                self.maxSpd = self.maxSpd + 2*dt*self.speedMult
             end
             self.lastDir[1] = 'right'
             self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
-            self.speedMult = math.min(1.4,self.speedMult+(dt/4))
+            self.speedMult = math.min(1.4,self.speedMult+(dt/2))
         else
             self.speedMult = 1
         end
 
         --slide
-        if (self.slide > 0 and (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.energy > 5) or (love.keyboard.isDown(KeyBinds['Slide']) and (self.xv > 1.25 or self.xv < -1.25) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
+        if (self.slide > 0 and (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.energy > 5) or (love.keyboard.isDown(KeyBinds['Slide']) and (self.xv > 1.5 or self.xv < -1.5) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
             self.col = {12,-40,30,-25}
-            self.speedMult = math.min(1.5,self.speedMult+(dt/2))
-            if self.timeOnGround < 15 and self.slideMult == 0 then
+            self.speedMult = 1.5
+            if self.timeOnGround < 15 then
                 self.slideMult = 1.5
-                self.maxSpd = 4
+                self.maxSpd = 3.75
             else
                 self.slideMult = 1.25
-                self.maxSpd = 3.5
+                self.maxSpd = 3.25
             end
             if self.xv > 0 and self.xv < self.maxSpd then
-                self.xv = self.xv + 20*dt*self.slideMult
+                self.xv = self.xv + 15*dt*self.slideMult
             elseif self.xv < 0 and self.xv > -self.maxSpd then
-                self.xv = self.xv - 20*dt*self.slideMult
+                self.xv = self.xv - 15*dt*self.slideMult
             end
             if self.slide <= 0 then
-                self.xv = self.xv * (1.5*self.slideMult)
+                self.xv = self.xv * (1.25*self.slideMult)
                 self.slide = 280
             end
         else
             self.col = {12,-100,30,-25}
         end
+
+        --Continue sliding
         if self.slide > 0 then
-            self.slide = self.slide - (dt*240)
+            self.slide = self.slide - (dt*230)
             if self.slide < 225 then
+
+                --If you're under an obstacle, keep sliding and refund energy
                 if self.se:detect(0,-90)[1] and self.energy > 0 then
                     self.slide = 255
                     self.energy = self.energy + (300*dt)
                 elseif self.slide > 200 then
-                    self.slideMult = 0
                     self.animation = 'slide'
                 end
 
             else
-                self.energy = self.energy - (120*dt)
+                self.energy = self.energy - (50*dt)
                 self.animation = 'slide'
             end
         end
 
         --slide cancels when you're not moving
         if self.slide > 0 and math.abs(self.xv) < 1 then
-            self.slide = self.slide - (1200*dt)
+            self.slide = self.slide - (3000*dt)
         end
 
         --Ground friction
-        self.xv = self.xv * 0.001^dt
+        self.xv = self.xv * 0.0011^dt
 
         --Reset max speed if not moving
         if self.facing == 0 or (self.facing / self.xv) < 0 then
@@ -865,12 +924,6 @@ function Player:update(dt)
     else
         self.speedMult = 1
         self.col = {12,-100,30,-25}
-        if self.maxSpd > 2.75 then
-            self.maxSpd = self.maxSpd - (0.5*dt)
-        end
-        if self.maxSpd < 2.6 then
-            self.maxSpd = self.maxSpd + (0.5*dt)
-        end
 
         --air movement
         if love.keyboard.isDown(KeyBinds['Left']) then
@@ -894,18 +947,22 @@ function Player:update(dt)
     if self.xv < - self.maxSpd then
         self.xv = self.xv + 8*dt
     end
-    if self.maxSpd > 2.2*self.speedMult then
-        self.maxSpd = self.maxSpd - (0.25*dt)
+
+    --Reduce max speed to the cap
+    if self.maxSpd > 3.1 then
+        self.maxSpd = self.maxSpd - (1*dt)
+    end
+    if self.maxSpd < 2.5 then
+        self.maxSpd = self.maxSpd + (0.5*dt)
     end
 
     --forfeit floatiness with S
     if love.keyboard.isDown(KeyBinds['Slide']) then
         self.jCounter = 0
     end
-    --maybe do something with W key here
 
     --apply gravity
-    self.yv = self.yv + (self.gravity*dt*7.5)
+    self.yv = self.yv + (self.gravity * dt * GlobalGravity)
 
     --stop if you're very slow & change animation
     if math.abs(self.xv)<0.4 and self.onGround and self.animation~='landed' and self.animation~='hardlanded' then

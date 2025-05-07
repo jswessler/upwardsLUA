@@ -10,8 +10,10 @@ function Entity:new(xpos,ypos,xv,yv,typ)
     self.ypos = ypos
     self.xv = xv
     self.yv = yv
+    self.xOffset = 0
+    self.yOffset = 0
     self.typ = typ
-    self.gravity = 0.15
+    self.gravity = 1
     self.timeAlive = 0
     self.kSe = Sensor(self)
     self.direction = 0
@@ -26,7 +28,7 @@ function Entity:update(dt)
     self.direction = t[3]
 
     --Drag & air drag
-    self.yv = self.yv + (self.gravity*dt*240)
+    self.yv = self.yv + (self.gravity * dt * GlobalGravity * 3)
     self.xv = self.xv * (0.9^dt)
 
     --Quarterstep updating
@@ -44,15 +46,6 @@ function Entity:update(dt)
                     self.colliderCount = self.colliderCount + 1
                 end
             end
-        end
-
-        --Hit a wall (overridden probably)
-        if self.colliderCount >= 1 then
-            self.stuck = true
-            self.gravity = 0
-        else
-            self.stuck = false
-            self.gravity = 0.15
         end
     end
     return false

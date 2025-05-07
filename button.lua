@@ -162,7 +162,12 @@ function Button:draw()
         love.graphics.setColor(1,0,0,0.75)
     end
     love.graphics.rectangle("fill",self.xpos,self.ypos,self.width,self.height,10,10)
-
+    
+    if self.slider ~= nil then
+        --Draw line
+        love.graphics.rectangle('fill',self.xpos+5,self.ypos+self.height-10,self.width-10,2)
+    end
+    
     --Outline
     love.graphics.setColor(0,0,0,1)
     love.graphics.setLineWidth(4)

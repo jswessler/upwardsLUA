@@ -96,12 +96,15 @@ function LoadLevel(level)
 
     --Setup Lists
     ThrownKunai = {}
+    Entities = {}
     Particles = {}
     Buttons = {}
+    Enemies = {}
     Health = {Heart(1,4),Heart(1,4)}
 --Initial Variable Values
     Kunais = 5 --Number of kunais
     DKunais = 5 --Displayed number of kunais
+    Coins = 0 --Number of coins
     DiffCX = 0 --Camera diff X
     DiffCY = 0 --Camera diff Y
     DebugPressed = false --If you're pressing any debug keys
@@ -118,7 +121,8 @@ function LoadLevel(level)
     HeartFlashCounter = -10000 --Timer for low HP flashing
     HeartFlashAmt = 0 --Opacity of heart flashing
     HeartJumpCounter = -10000 --Timer for heart jumping (randomly)
-    TotalHealth = 0 --Total health of the player
+    TotalHealth = 8 --Total health of the player (placeholder, updated immediately)
+    GlobalGravity = 7.75 --global gravity multiplier
 
     --Turn on debug with lshift
     if love.keyboard.isDown('lshift') then
@@ -143,7 +147,7 @@ function LoadLevel(level)
     --Load Level
     loadARL(level..".arl")
     --Spawn Player
-    Pl = Player(SpawnPoint[1]*32,SpawnPoint[2]*32+32)
+    Pl = Player(SpawnPoint[1],SpawnPoint[2]+1)
     CameraX = Pl.xpos
     CameraY = Pl.ypos
 

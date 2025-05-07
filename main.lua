@@ -2,14 +2,12 @@
 --Upwards!
 
 --[[ todo
-    -fix sliding under obstacles (gives you energy and doesn't bug out visually)
-    -Enemies (placeholder graphics)
-    -Coins (drop from enemies and bounce), heal 1/4 heart on pickup
-    -Remove healing from dash crystals
+    Fix sliding under obstacles (gives you energy and doesn't bug out visually)
+    Have kunais get stuck in enemies until they die, and then they all drop
 ]]
 
 --Build Id
-BuildId = "a1.0.6_01"
+BuildId = "a1.0.7"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -33,7 +31,7 @@ function love.load()
     require "heart"
 
     require "entity.kunai"
-    --require "entity.coin"
+    require "entity.coin"
     require "entity.entity"
 
     --Initial loading routine
@@ -58,13 +56,20 @@ function love.update(dt)
 
     --Gamemodes where physics is enabled
     if Physics == 'on' then
+
         --Update player physics & animation
         Pl:update(dt)
+
         --Update player internal collision detection (non-solid objects)
         for i=Pl.col[2]+8,Pl.col[1]-8,24 do
             for j=Pl.col[4],Pl.col[3],27.5 do
+
+                --Nonsolid block detection
                 local ret = Pl.se:detect(j,i)
                 playerCollisionDetect(ret[2],ret[3],dt)
+
+                --Enemy detection
+                local en = Pl.se:detectEnemy(j,i)
             end
         end
 
@@ -72,11 +77,34 @@ function love.update(dt)
         TileUpdates = 0
         tileProperties(dt)
 
-        --Update Kunai
-        for i,v in ipairs(ThrownKunai) do
+        --Update enemies
+        for i,v in ipairs(Enemies) do
+            v:update(dt)
+            if v.health == 0 then
+                if v:die() then
+                    --Remove enemy from list
+                    table.remove(Enemies,i)
+                end
+            end
+
+            --Disappear at the end of death animations
+            if FrameCounter > v.deathCounter and v.health == -1 then
+                
+                --Create coin if squished
+                if v.deathMode == 1 or v.deathMode == 'squish' then
+                    local coin = Coin(v.xpos,v.ypos,(love.math.random()-0.5)*5,(love.math.random()-1.5)*10)
+                    table.insert(Entities,coin)
+                end
+                --Remove enemy from list
+                table.remove(Enemies,i)
+            end
+        end
+
+        --Update Entities
+        for i,v in ipairs(Entities) do
             if v:update(dt) then
                 DKunais = Kunais
-                table.remove(ThrownKunai,i)
+                table.remove(Entities,i)
             end
         end
 
@@ -253,6 +281,7 @@ function love.draw()
             DebugPressed = true
             KunaiReticle = not KunaiReticle
         end
+
         --F6: Deal 1 dmg
         if love.keyboard.isDown("f6") and not DebugPressed then
             DebugPressed = true
@@ -263,8 +292,8 @@ function love.draw()
         end
 
         --Draw Kunai
-        for i,v in ipairs(ThrownKunai) do
-            love.graphics.draw(v.baseImage,(v.xpos-CameraX)*GameScale,(v.ypos-CameraY)*GameScale,v.direction,2*GameScale,2*GameScale,0,0)
+        for i,v in ipairs(Entities) do
+            love.graphics.draw(v.baseImage,(v.xpos-CameraX-v.xOffset)*GameScale,(v.ypos-CameraY-v.yOffset)*GameScale,v.direction,2*GameScale,2*GameScale,0,0)
         end
 
         --Draw Player & player shadow
@@ -284,6 +313,11 @@ function love.draw()
                 love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
             end
 
+        end
+
+        --Draw enemies
+        for i,v in ipairs(Enemies) do
+            v:draw()
         end
 
         --Draw Particles
@@ -311,8 +345,11 @@ function love.draw()
         --Draw sensors
         if SensorInfo then
             Pl.se:draw(true)
-            for i,v in pairs(ThrownKunai) do
+            for i,v in pairs(Entities) do
                 v.kSe:draw(true)
+            end
+            for i,v in pairs(Enemies) do
+                v.se:draw(true)
             end
         end
 
@@ -359,7 +396,7 @@ function love.draw()
                     hp.yv = -20
                     hp.move = true
                     if i == #Health then
-                        HeartJumpCounter = math.max(0.15*#Health,(love.math.random()+0.1)*5) + FrameCounter
+                        HeartJumpCounter = math.max(0.3*#Health,(love.math.random()+0.1)*12) + FrameCounter
                     end
                 end
 
@@ -510,7 +547,7 @@ function love.draw()
     --Screenshot Text
     if ScreenshotText > 0 then
         love.graphics.setColor(1,1,1,math.min(1,ScreenshotText/60))
-        simpleText("Screenshot Saved",20,WindowWidth-(200*GameScale),WindowHeight-(100*GameScale))
+        simpleText("Screenshot Saved",20,WindowWidth-(200*GameScale),WindowHeight-(300*GameScale))
         ScreenshotText = ScreenshotText - 1
     elseif ScreenshotText > -1 then
         ScreenshotText = -1

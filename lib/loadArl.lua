@@ -2,6 +2,7 @@
 --loads ARL files (level files)
 
 require "lib.extraFunc"
+require "entity.enemy"
 
 function loadARL(filename)
     local contents, size = love.filesystem.read("/Levels/"..filename)
@@ -52,8 +53,16 @@ function loadARL(filename)
                 cou = cou + 1
                 local byte2 = string.byte(contents,cou,cou)
                 LevelData[x.."-"..y] = byte.."-"..byte2
+
+                --Spawnpoint
                 if byte == 5 and byte2 == 0 then
-                    SpawnPoint = {x,y}
+                    SpawnPoint = {x*32,y*32}
+                end
+
+                --Create enemy
+                if byte == 16 or byte == 17 or byte == 18 then
+                    local e = Enemy(x*32,y*32,(byte-16)*256+byte2+1)
+                    table.insert(Enemies,e)
                 end
             end
         end
