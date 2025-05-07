@@ -635,7 +635,7 @@ function Player:update(dt)
             end
                 
         else
-            if self.yv > 0 and self.energy > 0.1 and self.animation~='djumpdown' then
+            if self.yv > 0 and self.energy > 0.1 and self.animation~='djumpdown' and self.diveDir == 0 then
                 self.yv = self.yv - 0.0125
                 self.yv = self.yv * 0.0001^dt
                 self.jCounter = 2
@@ -789,6 +789,7 @@ function Player:update(dt)
     else
         if self.abilities[4] == 1 then
             self.abilities[4] = 0
+            self.diveDir = 0
         end
     end
 
