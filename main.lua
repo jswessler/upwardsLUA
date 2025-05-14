@@ -8,7 +8,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.7-01"
+BuildId = "a1.0.8"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -292,29 +292,13 @@ function love.draw()
             end
         end
 
-        --Draw Kunai
+        --Draw Entities
         for i,v in ipairs(Entities) do
-            love.graphics.draw(v.baseImage,(v.xpos-CameraX-v.xOffset)*GameScale,(v.ypos-CameraY-v.yOffset)*GameScale,v.direction,2*GameScale,2*GameScale,0,0)
+            v:draw(GameScale)
         end
 
-        --Draw Player & player shadow
-        if type(Pl.img) ~= "string" then
-
-            --Facing left
-            if Pl.dFacing == -1 then
-                love.graphics.setColor(0,0,0,0.5)
-                love.graphics.draw(Pl.img,(Pl.xpos-5-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos+10-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
-                love.graphics.setColor(1,1,1,1)
-                love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-Pl.imgPos[1],0)
-            --Facing right
-            else
-                love.graphics.setColor(0,0,0,0.5)
-                love.graphics.draw(Pl.img,(Pl.xpos-5-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos+10-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
-                love.graphics.setColor(1,1,1,1)
-                love.graphics.draw(Pl.img,(Pl.xpos-CameraX+Pl.imgPos[1])*GameScale,(Pl.ypos-CameraY+Pl.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
-            end
-
-        end
+        --Draw Player
+        Pl:draw()
 
         --Draw enemies
         for i,v in ipairs(Enemies) do
@@ -345,12 +329,12 @@ function love.draw()
 
         --Draw sensors
         if SensorInfo then
-            Pl.se:draw(true)
+            Pl.se:draw()
             for i,v in pairs(Entities) do
-                v.kSe:draw(true)
+                v.kSe:draw()
             end
             for i,v in pairs(Enemies) do
-                v.se:draw(true)
+                v.se:draw()
             end
         end
 
@@ -509,14 +493,14 @@ function love.draw()
             simpleText(_VERSION.." G: "..round(collectgarbage("count")),16,10*GameScale,180*GameScale)
             simpleText("Love "..love.getVersion().." "..love.system.getOS().. " C: "..love.system.getProcessorCount(),16,10*GameScale,200*GameScale)
         end
-        Pl.se:draw(false)
+        Pl.se:reset()
     else
         --Non-game states
         
         --Logo
         if State == 'initialload' then
             love.graphics.setColor(1,1,1,(FrameCounter < 0.5 and FrameCounter/0.5 or FrameCounter > 2.5 and 3.5-FrameCounter or 1))
-            love.graphics.draw(LogoImg,0,0,0,WindowWidth/1536,WindowWidth/1536)
+            love.graphics.draw(LogoImg,0,0,0,WindowWidth/1382,WindowWidth/1382)
             if FrameCounter > 4 or love.keyboard.isDown(KeyBinds['Jump']) then
                 MenuLoad()
             end
@@ -524,8 +508,22 @@ function love.draw()
 
         --Title Screen
         if State == 'menu' then
+            love.graphics.push()
+            love.graphics.translate(XPadding,YPadding)
             love.graphics.setColor(1,1,1,math.min(1,FrameCounter))
             love.graphics.draw(TitleImg,0,0,0,WindowHeight/2160,WindowHeight/2160)
+            love.graphics.pop()
+        end
+
+        --Load Level
+        if State == 'loadlevel' then
+            love.graphics.setColor(0.25,0.25,0.25,1)
+            love.graphics.rectangle("fill",0,0,WindowWidth,WindowHeight)
+            love.graphics.setColor(1,1,1,1)
+            local status = LoadStatusCH:pop()
+            simpleText(status,24,WindowWidth/2,WindowHeight/2-50,'center')
+            local amt = LoadAmtCH:pop()
+            simpleText((amt*100).."%",24,WindowWidth/2,WindowHeight/2+50,'center')
         end
 
         --JLI Decode
@@ -574,8 +572,8 @@ function love.draw()
             --Spinning loop
         end
     end
-end
 
+end
 
 
 
@@ -670,7 +668,11 @@ function love.resize()
 
     --Set window width & height
     WindowWidth, WindowHeight = love.graphics.getDimensions()
+
+    --From love2d wiki
     GameScale = WindowHeight/800
+    XPadding = (WindowWidth - (1280*GameScale))/2
+    YPadding = (WindowHeight - (800*GameScale))/2
 
     if State ~= 'initialload' and State ~= 'menu' and State ~= 'jlidecode' then
 

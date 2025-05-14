@@ -22,11 +22,13 @@ function InitialLoad()
     ZoomBase = 1
     love.graphics.setDefaultFilter("linear","nearest",4)
     ScreenshotText = 0
-    JLIProgress = 1
+    XPadding = 0
+    YPadding = 0
 
 
     --Variables
     FpsLimit = 0 --71 = 60FPS, 0 = Uncapped FPS
+    JLIProgress = 1
     
     --Keyboard Constants
     KeyBinds = {
@@ -67,6 +69,11 @@ function MenuLoad()
 end
 
 function LoadLevel(level)
+
+    LoadThread = love.thread.newThread("lib/loadARL.lua")
+    LoadStatusCH = love.thread.getChannel("status")
+    LoadAmtCH = love.thread.getChannel("amt")
+    --LoadThread:start('lvl1.arl')
 
     --Load Images
     HexImg = love.graphics.newImage("Images/UI/hex.png")

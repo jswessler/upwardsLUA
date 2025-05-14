@@ -108,6 +108,11 @@ function Enemy:update(dt)
     self.yv = self.yv + (self.gravity * dt * GlobalGravity)
 
     --Death animations
+
+    if self.deathMode == 1 or self.deathMode == 'squish' then
+        self.squishFactor = self.squishFactor - (self.squishFactor-0.5) * (dt*20)
+    end
+
     if self.deathMode == 2 or self.deathMode == 'kicked' then
         self.rotation = self.rotation + (self.xv * dt * 3)
     end
@@ -126,7 +131,6 @@ function Enemy:die()
 
     --Squish to death
     if self.deathMode == 1 or self.deathMode == 'squish' then
-        self.squishFactor = 0.5
         self.health = -1
         self.deathCounter = FrameCounter + 0.5 --die after 0.5s of being squished
         return false

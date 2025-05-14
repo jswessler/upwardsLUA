@@ -54,3 +54,8 @@ end
 function Entity:tostring()
     return "Entity - "
 end
+
+function Entity:draw(s)
+    local scale = s*2 or 2
+    love.graphics.draw(self.baseImage,(self.xpos-CameraX-self.xOffset)*GameScale,(self.ypos-CameraY-self.yOffset)*GameScale,self.direction,scale,scale,0,0)
+end

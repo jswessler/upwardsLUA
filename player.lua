@@ -371,7 +371,7 @@ function Player:update(dt)
             playerCollisionDetect(ret[2],ret[3],dt)
 
             --Slide hitbox
-            if self.slide > 180 then
+            if self.slide > 180 and FrameCounter > self.iFrame then
                 local e = self.se:detectEnemy(j,i,'all')
                 if e[1] and e[2].health > 0 then
                     self.xv = self.xv * 0.9
@@ -721,19 +721,17 @@ function Player:update(dt)
         if not self.onGround and self.onWall~=0 and self.facing~=0 and self.energy > 1 then
             --limit fall speed
             self.yv = self.yv - 0.0025
-            if love.keyboard.isDown(KeyBinds['Dive']) then
-                self.energy = self.energy - (18*dt) - (self.energy/6*dt)
-                if self.yv > 0.5 then
-                    self.yv = self.yv * 0.001^dt
-                end
+            if self.yv > 0 then
+                self.energy = self.energy - (6*dt)
             else
-                self.energy = self.energy - (5*dt)
-                if self.yv > 1.5 then
-                    self.yv = self.yv * 0.1125^dt
-                end
-                if self.yv > 3 then
-                    self.yv = self.yv - (self.yv-3)/150
-                end
+                self.energy = self.energy - (2*dt)
+            end
+
+            if self.yv > 1.5 then
+                self.yv = self.yv * 0.125^dt
+            end
+            if self.yv > 3 then
+                self.yv = self.yv - (self.yv-3)/180
             end
 
             --adjust
@@ -1016,4 +1014,23 @@ end
 
 function Player:tostring()
     return "Player at x="..self.xpos.." y="..self.ypos
+end
+
+function Player:draw()
+    --Draw Player & player shadow
+
+    --Facing left
+    if self.dFacing == -1 then
+        love.graphics.setColor(0,0,0,0.5)
+        love.graphics.draw(self.img,(self.xpos-5-CameraX+self.imgPos[1])*GameScale,(self.ypos+10-CameraY+self.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-self.imgPos[1],0)
+        love.graphics.setColor(1,1,1,1)
+        love.graphics.draw(self.img,(self.xpos-CameraX+self.imgPos[1])*GameScale,(self.ypos-CameraY+self.imgPos[2])*GameScale,0,-2*GameScale,2*GameScale,-self.imgPos[1],0)
+    --Facing right
+    else
+        love.graphics.setColor(0,0,0,0.5)
+        love.graphics.draw(self.img,(self.xpos-5-CameraX+self.imgPos[1])*GameScale,(self.ypos+10-CameraY+self.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
+        love.graphics.setColor(1,1,1,1)
+        love.graphics.draw(self.img,(self.xpos-CameraX+self.imgPos[1])*GameScale,(self.ypos-CameraY+self.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
+    end
+
 end

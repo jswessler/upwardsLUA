@@ -55,27 +55,27 @@ function Sensor:detectEnemy(x,y,loc)
     return {false,nil}
 end
 
+function Sensor:reset()
+    self.locations = {}
+end
 
-function Sensor:draw(reset)
-    if reset then 
-        for i,v in ipairs(self.locations) do
-            if v[1] == 1 then
-                love.graphics.setColor(1,0,0,1) --red if you detected a solid block
-            elseif v[1] == 2 then
-                love.graphics.setColor(0,0.5,1,1) --blue if you detected a non-solid block
-            elseif v[1] == 3 then
-                love.graphics.setColor(0,1,0.25,1) --green if you detected an enemy
-            
-            else
-                love.graphics.setColor(0.3,0.3,0.3,1)
-            end
-            love.graphics.circle('fill',(v[2]-CameraX)*GameScale,(v[3]-CameraY)*GameScale,3)
+
+function Sensor:draw()
+    for i,v in ipairs(self.locations) do
+        if v[1] == 1 then
+            love.graphics.setColor(1,0,0,1) --red if you detected a solid block
+        elseif v[1] == 2 then
+            love.graphics.setColor(0,0.5,1,1) --blue if you detected a non-solid block
+        elseif v[1] == 3 then
+            love.graphics.setColor(0,1,0.25,1) --green if you detected an enemy
+        
+        else
+            love.graphics.setColor(0.3,0.3,0.3,1)
         end
-        love.graphics.setColor(1,1,1,1)
-        self.locations = {}
-    else
-        self.locations = {}
+        love.graphics.circle('fill',(v[2]-CameraX)*GameScale,(v[3]-CameraY)*GameScale,3)
     end
+    love.graphics.setColor(1,1,1,1)
+    self:reset()
 end
 
 function Sensor:tostring()

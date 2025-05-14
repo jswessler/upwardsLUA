@@ -5,6 +5,10 @@ require "lib.extraFunc"
 require "entity.enemy"
 
 function loadARL(filename)
+    local amt = 0
+    local status = ''
+    local StatusCH = love.thread.getChannel("status")
+    local AmtCH = love.thread.getChannel("amt")
     local contents, size = love.filesystem.read("/Levels/"..filename)
     LoadedTiles = {}
     local counter = 1
@@ -14,6 +18,9 @@ function loadARL(filename)
     LevelHeight = 10
     local byte = 0
     while cou<size-6 do
+        amt = cou/size
+        AmtCH:push(amt)
+        StatusCH:push(status)
         byte = string.byte(contents,cou,cou)
         if counter == 5 then
             LevelWidth = LevelWidth + (byte*256)
@@ -34,6 +41,7 @@ function loadARL(filename)
             --LevelSubData = createList(LevelWidth*LevelHeight,0)
         end
         if counter > 64 then --level data
+            status = 'Loading Level Data'
             --get positions
             local x = ((counter-65)%LevelWidth)
             local y = math.floor((counter-65)/LevelWidth)
@@ -65,13 +73,21 @@ function loadARL(filename)
                     table.insert(Enemies,e)
                 end
             end
+        else
+            status = 'Loading ARL Header'
         end
         counter = counter + 1
         cou = cou + 1
     end
     LevelData["0-0"] = "0-0"
 
+    amt = 0
+    status = 'Inserting Tiles'
+
+    --Insert tile images into the level
     for i,v in pairs(LevelData) do
+        AmtCH:push(amt)
+        StatusCH:push(status)
         local file = "Images/Tiles/"..v..".png"
         local f = io.open(file,'r')
         if f~= nil then
