@@ -8,7 +8,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.8"
+BuildId = "a1.0.8-01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()

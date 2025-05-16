@@ -148,8 +148,8 @@ function Enemy:die()
     if self.deathMode == 3 or self.deathMode == 'struck' then
         self.health = -1
         self.deathCounter = FrameCounter + 0.25 --die after 0.25s of being hit
-        self.xv = self.xv * 2
-        self.yv = -1.5
+        self.xv = self.xv * 1.5
+        self.yv = -1.6
         return false
     end
 

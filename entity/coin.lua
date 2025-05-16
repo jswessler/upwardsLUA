@@ -38,7 +38,7 @@ function Coin:update(dt)
     end
     
     --Home back to player if stuck and alive for 1.5 seconds
-    if getDist(self.xpos,self.ypos,Pl.xpos,Pl.ypos) < 50 and self.timeAlive > 0.5 then
+    if getDist(self.xpos,self.ypos,Pl.xpos,Pl.ypos) < 70 and self.timeAlive > 0.5 then
         Coins = Coins + 1
 
         --Heal

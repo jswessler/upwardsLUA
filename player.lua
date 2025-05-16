@@ -59,6 +59,7 @@ function Player:new(x,y)
     self.maxSpd = 2.5
     self.kunaiAni = -1
     self.lastDir = {'',0}
+    self.diveDir = 0
 
     --sensor
     self.se = Sensor(self)
@@ -262,7 +263,7 @@ function Player:animate(dt)
                     self.aniiTimer = 13
                 end
                 self.img = love.graphics.newImage("Images/Aria/djump"..math.min(3,self.aniFrame)..".png")
-                self.imgPos = {-84,-101}
+                self.imgPos = {-85,-101}
 
 
             --Djump transition (when moving up)
@@ -378,7 +379,8 @@ function Player:update(dt)
                     e[2].health = 0
                     e[2].deathMode = 'kicked'
                 end
-            --Damage hitbox
+
+            --Hitbox for getting hurt
             elseif FrameCounter > self.iFrame then
                 local e = self.se:detectEnemy(j,i,'hurt')
                 if e[1] then
@@ -410,16 +412,16 @@ function Player:update(dt)
 
             --Enemy (jump on head)
             local e = self.se:detectEnemy(i,self.col[1],'top')
-            if e[1] and e[2].health > 0 then
+            if e[1] and e[2].health > 0 and FrameCounter > self.iFrame then
                 self.animation = 'jump'
                 self.nextAni = 'high'
                 self.abilities[2] = 0
                 self.abilities[3] = 0
-                self.xv = self.xv * 0.8
-                if love.keyboard.isDown(KeyBinds['Slide']) then
-                    self.yv = -1.8
+                self.xv = self.xv * 0.9
+                if love.keyboard.isDown(KeyBinds['Jump']) then
+                    self.yv = -3.75
                 else
-                    self.yv = (0.1*self.yv) - 3.75
+                    self.yv = -2
                 end
                 e[2].health = 0
                 e[2].deathMode = 'squish'

@@ -11,6 +11,7 @@ function Kunai:new(xpos,ypos,xv,yv)
     self.super.new(self,xpos,ypos,xv,yv,"kunai")
     self.radius = 8
     self.baseImage = love.graphics.newImage("Images/UI/pixelkunai.png")
+    self.attachedTo = nil
 end
 
 function Kunai:update(dt)
@@ -25,21 +26,33 @@ function Kunai:update(dt)
         self.gravity = 1
     end
 
+    --Stick to enemies
+    if self.attachedTo then
+        self.xpos = self.attachedTo.xpos
+        self.ypos = self.attachedTo.ypos
+        self.xv = 0
+        self.yv = 0
+        if self.attachedTo.health == -1 then
+            self.attachedTo = nil
+        end
+    end
+
     --Scan for enemies
 
     --TODO: Have kunais get stuck in enemies until they die, and then they all drop
     self.colliderCount = 0
-    for i=-self.radius,self.radius,self.radius do
-        for j=-self.radius,self.radius,self.radius do
-            local e = self.kSe:detectEnemy(i,j,'all')
-            if e[1] and FrameCounter > e[2].iframe then
-                e[2].health = e[2].health - 1
-                e[2].iframe = FrameCounter + 0.2
-                if e[2].health == 0 then
-                    e[2].deathMode = 'struck'
+    if not self.attachedTo then
+        for i=-self.radius,self.radius,self.radius do
+            for j=-self.radius,self.radius,self.radius do
+                local e = self.kSe:detectEnemy(i,j,'all')
+                if e[1] and FrameCounter > e[2].iframe then
+                    e[2].health = e[2].health - ((self.xv+self.yv)>5 and 1 or 0)
+                    e[2].iframe = FrameCounter + 0.2
+                    if e[2].health == 0 then
+                        e[2].deathMode = 'struck'
+                    end
+                    self.attachedTo = e[2]
                 end
-                self.xv = self.xv * -0.2
-                self.yv = love.math.random()-1.5
             end
         end
     end
