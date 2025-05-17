@@ -8,7 +8,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.8-01"
+BuildId = "a1.0.8-02"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -249,7 +249,7 @@ function love.draw()
         --Update Zoom
         local tz = ZoomBase
         if (HighGraphics and UpdateCounter%1==1 or UpdateCounter%4==1) and math.abs(Pl.xv) + math.abs(Pl.yv/2) >= 2 then
-            tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/40)-0.075
+            tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/10)-0.3
         end
         Zoom = Zoom + (tz-Zoom)/(0.5/love.timer.getDelta())
         GameScale = GameScale * Zoom
@@ -355,8 +355,9 @@ function love.draw()
 
         --Draw HUD
         if HudEnabled then
-            HudX = -Pl.xv*3
-            HudY = -(math.min(0,Pl.yv*6))
+            HudX, HudY = hudSetup()
+            --HudX = -Pl.xv*3
+            --HudY = -(math.min(0,Pl.yv*6))
 
             --Draw Phone
             love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*PhoneScale,GameScale*PhoneScale)

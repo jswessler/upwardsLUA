@@ -25,4 +25,36 @@ function normalCamera(mousex,mousey,dt,rxy)
     CameraY = CameraY + (ty-CameraY) * 7.5*dt + rxy*GameScale*(love.math.random()-0.5)
     DiffCX = CameraX-remcx
     DiffCY = CameraY-remcy
+
+    --Hud position
+end
+
+function hudSetup() 
+    local hx = 0
+    local hy = 0
+    if Pl.xv ~= 0 or Pl.yv ~= 0 then
+        table.insert(HudPremov,{Pl.xv+3*(love.math.random()-0.5),Pl.yv+3*(love.math.random()-0.5)})
+    else
+        table.insert(HudPremov,{Pl.xv*1.5,Pl.yv*1.5})
+    end
+    
+    if #HudPremov > 60 then
+        table.remove(HudPremov,1)
+    end
+
+    if #HudPremov > 1 then
+        for i,v in ipairs(HudPremov) do
+            hx = hx + (v[1]*i*2)
+            hy = hy + (v[2]*i*2)
+        end
+        hx = hx/#HudPremov/16
+        hy = hy/#HudPremov/16
+    else
+        hx = Pl.xv*4
+        hy = Pl.yv*4
+    end
+
+    hy = -math.min(0,hy)
+    return hx, hy
+
 end
