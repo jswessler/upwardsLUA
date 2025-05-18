@@ -932,10 +932,18 @@ function Player:update(dt)
 
     --enforce speed cap
     if self.xv > self.maxSpd then
-        self.xv = self.xv - 8*dt
+        self.xv = self.xv - 7.5*dt
     end
     if self.xv < - self.maxSpd then
-        self.xv = self.xv + 8*dt
+        self.xv = self.xv + 7.5*dt
+    end
+
+    --enforce speed cap
+    if self.xv > 8 then
+        self.xv = self.xv - 50*dt
+    end
+    if self.xv < -8 then
+        self.xv = self.xv + 50*dt
     end
 
     --Reduce max speed to the cap
