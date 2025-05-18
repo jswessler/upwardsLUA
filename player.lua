@@ -372,7 +372,7 @@ function Player:update(dt)
             playerCollisionDetect(ret[2],ret[3],dt)
 
             --Slide hitbox
-            if self.slide > 180 and FrameCounter > self.iFrame then
+            if self.slide > 190 and FrameCounter > self.iFrame then
                 local e = self.se:detectEnemy(j,i,'all')
                 if e[1] and e[2].health > 0 then
                     self.xv = self.xv * 0.9
@@ -606,7 +606,6 @@ function Player:update(dt)
             self.jCounter = 7
             self.yv = self.yv - 0.6
             if self.slideBoost ~= 0 then
-                self.energy = self.energy + (10*dt)
                 self.xv = self.xv * (1+self.slideBoost/250000)
             end
             self.animation = 'jump'
@@ -864,52 +863,42 @@ function Player:update(dt)
             self.speedMult = 1
         end
 
-        --slide
-        if (self.slide > 0 and (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.energy > 5) or (love.keyboard.isDown(KeyBinds['Slide']) and (self.xv > 1.5 or self.xv < -1.5) and self.energy > 20 and (self.slide <= 0 or self.slide > 200)) then
+        --slide (1st case is for continuing slide, 2nd case is for starting slide)
+
+        self.slide = math.max(-1,self.slide-(dt*240))
+        --Start slide
+        if self.slide <= 0 and (self.xv<-1.5 or self.xv>1.5) and love.keyboard.isDown(KeyBinds['Slide']) then
+            self.slide = 280
+            self.xv = self.xv * 1.5
+        end
+
+        --Continue slide
+        if self.slide > 200 then
             self.col = {12,-40,30,-25}
-            self.speedMult = 1.5
-            if self.timeOnGround < 15 then
-                self.slideMult = 1.5
-                self.maxSpd = 3.75
-            else
-                self.slideMult = 1.25
-                self.maxSpd = 3.25
-            end
+            self.speedMult = 1.4
+            self.slideMult = 1.5
+            self.maxSpd = 3.5
             if self.xv > 0 and self.xv < self.maxSpd then
-                self.xv = self.xv + 15*dt*self.slideMult
+                self.xv = self.xv + 18*dt*self.slideMult
             elseif self.xv < 0 and self.xv > -self.maxSpd then
-                self.xv = self.xv - 15*dt*self.slideMult
+                self.xv = self.xv - 18*dt*self.slideMult
             end
-            if self.slide <= 0 then
-                self.xv = self.xv * (1.25*self.slideMult)
-                self.slide = 280
+
+            --Slide under an obstacle
+            if (self.se:detect(-19,-90)[1] or self.se:detect(27,90)[1]) and self.energy > 1 then
+                self.slide = math.min(230,self.slide+(dt*600))
+            else
+                self.energy = self.energy - (80*dt)
             end
+            self.animation = 'slide'
         else
             self.col = {12,-100,30,-25}
         end
 
-        --Continue sliding
-        if self.slide > 0 then
-            self.slide = self.slide - (dt*230)
-            if self.slide < 225 then
-
-                --If you're under an obstacle, keep sliding and refund energy
-                if self.se:detect(0,-90)[1] and self.energy > 0 then
-                    self.slide = 255
-                    self.energy = self.energy + (300*dt)
-                elseif self.slide > 200 then
-                    self.animation = 'slide'
-                end
-
-            else
-                self.energy = self.energy - (50*dt)
-                self.animation = 'slide'
-            end
-        end
 
         --slide cancels when you're not moving
         if self.slide > 0 and math.abs(self.xv) < 1 then
-            self.slide = self.slide - (3000*dt)
+            self.slide = self.slide - (400*dt)
         end
 
         --Ground friction

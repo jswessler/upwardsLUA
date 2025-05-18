@@ -54,6 +54,7 @@ function hudSetup()
         hy = Pl.yv*4
     end
 
+    hx = -hx
     hy = -math.min(0,hy)
     return hx, hy
 

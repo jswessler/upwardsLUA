@@ -2,13 +2,11 @@
 --Upwards!
 
 --[[ todo
-    Fix sliding under obstacles (gives you energy and doesn't bug out visually)
-    Have kunais get stuck in enemies until they die, and then they all drop
     Thread the image loading routine
 ]]
 
 --Build Id
-BuildId = "a1.0.8-02"
+BuildId = "a1.0.8-03"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
