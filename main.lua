@@ -6,7 +6,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.8-04"
+BuildId = "a1.0.8-05"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -254,7 +254,7 @@ function love.draw()
 
         --Update Camera
         if Physics == 'on' then
-            normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,1.5*(Pl.yv-2.5)))
+            normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,2.5*(Pl.yv-2.5)))
         end
 
         --F1: Toggle HUD
@@ -608,7 +608,7 @@ function RenderOne()
             --Draw tile
             if (LoadedTiles[bl]~=nil) then
                 local t = split(LevelData[xt.."-"..yt],"-")
-                if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then
+                if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" or t[1] == "32" then
                     love.graphics.draw(LoadedTiles[bl],(x-CameraX)*GameScale,(y-CameraY)*GameScale,0,2*GameScale,2*GameScale)
                 else
                     love.graphics.draw(LoadedTiles[bl],(x-CameraX)*GameScale,(y-CameraY)*GameScale,0,1*GameScale,1*GameScale)
@@ -638,7 +638,7 @@ function RenderTwo()
         --Add new blocks
         if LoadedTiles[bl]~=nil then
             local t = split(LevelData[i],"-")
-            if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then
+            if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" or t[1] == "32" then
                 love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2,2)
             else
                 love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,1,1)

@@ -103,10 +103,6 @@ function pointCollideRect(rect,x,y)
     return false
 end
 
-local threadCode = [[
-    local exitCode = os.execute(cmd)
-]]
-
 function decodeJLI(fn) --Decode FMV images
     local path = love.filesystem.getWorkingDirectory()
     local filename = path.."/"..fn..".jli"

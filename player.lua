@@ -28,6 +28,7 @@ function Player:new(x,y)
     self.wallClimb = false
     self.timeOnGround = 0
     self.onGround = true
+    self.timeOffWall = 0
     self.kunaiInnacuracy = 0
 
     --self counter
@@ -418,10 +419,12 @@ function Player:update(dt)
                 self.abilities[2] = 0
                 self.abilities[3] = 0
                 self.xv = self.xv * 0.9
-                if love.keyboard.isDown(KeyBinds['Jump']) then
-                    self.yv = -3.75
-                else
+
+                --Bounce off enemy
+                if love.keyboard.isDown(KeyBinds['Slide']) then
                     self.yv = -2
+                else
+                    self.yv = -3.75
                 end
                 e[2].health = 0
                 e[2].deathMode = 'squish'
@@ -443,6 +446,7 @@ function Player:update(dt)
         else
             self.eRegen = math.max(0.02,0.0075 + (100-self.energy)/130)
         end
+
         --silver heart calculation
         for i=1,#Health,1 do
             if Health[i].type == 3  then
@@ -545,6 +549,7 @@ function Player:update(dt)
     --Reset variables
     self.onWall = 0
     self.WJEnabled = 0
+    self.timeOffWall = self.timeOffWall + dt
 
     --Right detection
     self.colliderCount = 0
@@ -564,6 +569,7 @@ function Player:update(dt)
     --Collide right
     if self.colliderCount > 0 then
         self.onWall = 1
+        self.timeOffWall = 0
         self.xv = 0
         if self.colliderCount > 6 then
             self.WJEnabled = 1
@@ -588,6 +594,7 @@ function Player:update(dt)
     --Collide left
     if self.colliderCount > 0 then
         self.onWall = -1
+        self.timeOffWall = 0
         self.xv = 0
         if self.colliderCount > 6 then
             self.WJEnabled = -1
@@ -765,7 +772,7 @@ function Player:update(dt)
     end
 
     --dive
-    if love.keyboard.isDown(KeyBinds['Dive']) and self.onWall == 0 and self.abilities[2] < 5 and self.energy > 5 and not self.onGround then
+    if love.keyboard.isDown(KeyBinds['Dive']) and self.onWall == 0 and self.abilities[2] < 5 and self.energy > 5 and not self.onGround and self.timeOffWall > 0.25 then
         if self.abilities[4] > 0 and self.abilities[1] <= 0 and self.energy > 1 and self.onWall == 0 then
             if self.abilities[4] == 2 then
                 self.energy = self.energy - 4
@@ -885,7 +892,7 @@ function Player:update(dt)
             end
 
             --Slide under an obstacle
-            if (self.se:detect(-19,-90)[1] or self.se:detect(27,90)[1]) and self.energy > 1 then
+            if (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.energy > 1 then
                 self.slide = math.min(230,self.slide+(dt*600))
             else
                 self.energy = self.energy - (80*dt)
