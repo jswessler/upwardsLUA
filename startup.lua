@@ -25,10 +25,16 @@ function InitialLoad()
     XPadding = 0
     YPadding = 0
 
+    --Images
+    LogoImg = love.graphics.newImage("Images/FMV/logo.png")
+    TitleImg = love.graphics.newImage("Images/FMV/title.png")
+    FrameCounter = 0
+    State = 'initialload'
+    Physics = 'off'
+
 
     --Variables
     FpsLimit = 0 --71 = 60FPS, 0 = Uncapped FPS
-    JLIProgress = 1
     
     --Keyboard Constants
     KeyBinds = {
@@ -51,15 +57,6 @@ function InitialLoad()
         DebugInfo = true
     end
 
-end
-
-function InitialLoadLoad()
-    --Images
-    LogoImg = love.graphics.newImage("Images/FMV/logo.png")
-    TitleImg = love.graphics.newImage("Images/FMV/title.png")
-    FrameCounter = 0
-    State = 'initialload'
-    Physics = 'off'
 end
 
 function MenuLoad()
@@ -162,17 +159,4 @@ function LoadLevel(level)
     --Initialize BG Objects
     love.resize()
 
-end
-
-function JLIInitialDecode(v)
-    State = 'jlidecode'
-    JLIStatus = ''
-
-    local f = io.open("Images/"..v..".png")
-    if f == nil then
-        decodeJLI("Images/"..v)
-        JLIStatus = 'Decoded '..v..".jli..."
-    else
-        JLIStatus = 'Checking Files...'
-    end
 end

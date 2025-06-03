@@ -2,11 +2,11 @@
 --Upwards!
 
 --[[ todo
-    Thread the image loading routine
+    Fix memory leak
 ]]
 
 --Build Id
-BuildId = "a1.0.8-05"
+BuildId = "a1.0.9"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -523,22 +523,6 @@ function love.draw()
             simpleText(status,24,WindowWidth/2,WindowHeight/2-50,'center')
             local amt = LoadAmtCH:pop()
             simpleText((amt*100).."%",24,WindowWidth/2,WindowHeight/2+50,'center')
-        end
-
-        --JLI Decode
-        if State == 'jlidecode' then
-            local JLIDecodes = {"FMV/logo", "FMV/title"}
-            JLIStatus = 'Checking '..JLIDecodes[JLIProgress]
-            simpleText(JLIStatus,24,WindowWidth/2,WindowHeight/2-100,'center')
-            JLIInitialDecode(JLIDecodes[JLIProgress])
-            love.graphics.setColor(0.25,0.25,0.25,1)
-            love.graphics.rectangle("fill",0,0,WindowWidth,WindowHeight)
-            love.graphics.setColor(1,1,1,1)
-            simpleText(JLIStatus,24,WindowWidth/2,WindowHeight/2-50,'center')
-            JLIProgress = JLIProgress + 1
-            if JLIProgress > #JLIDecodes then
-                InitialLoadLoad()
-            end
         end
     end
 
