@@ -39,6 +39,7 @@ function InitialLoad()
 
     --Variables
     FpsLimit = 0 --71 = 60FPS, 0 = Uncapped FPS
+    Next_Time = 0
     
     --Keyboard Constants
     KeyBinds = {

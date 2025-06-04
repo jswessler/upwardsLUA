@@ -2,11 +2,11 @@
 --Upwards!
 
 --[[ todo
-    Fix memory leak
+    redo double jump animation
 ]]
 
 --Build Id
-BuildId = "a1.0.10"
+BuildId = "a1.0.11"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -238,6 +238,10 @@ function love.update(dt)
     local endtime = love.timer.getTime()-starttime
     GlobalDt = dt
     FrameTime.endtime = endtime
+
+    if FpsLimit ~= 0 then
+        Next_Time = Next_Time + 1/FpsLimit
+    end
 
 end
 
@@ -501,7 +505,7 @@ function love.draw()
         love.graphics.setColor(1,1,1,1)
 
         --Debug block IDS
-        if love.keyboard.isDown("f6") then
+        if love.keyboard.isDown("f9") then
             local Xl,Yl = getOnScreen()
             for i,x in ipairs(Xl) do
                 for o,y in ipairs(Yl) do
@@ -517,6 +521,8 @@ function love.draw()
                     simpleText(t[1],8,(x-CameraX)*GameScale,(y-CameraY)*GameScale)
                     simpleText(t[2],8,(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
                     simpleText(xt.."/"..yt,8,(x-CameraX)*GameScale,20+(y-CameraY)*GameScale)
+                    print(LevelData['22-33'])
+                    print(LevelData['26-30'])
 
                 end
             end
@@ -611,6 +617,14 @@ function love.draw()
     simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
 
     --Enforce FPS cap
+    if FpsLimit ~= 0 then
+        local cur_time = love.timer.getTime()
+        if Next_Time <= cur_time then
+            Next_Time = cur_time
+            return
+        end
+        love.timer.sleep(Next_Time - cur_time)
+    end
 end
 
 
@@ -643,7 +657,6 @@ function RenderOne()
             x = x - (x%32)
             y = y - (y%32)
             local bl = LevelData[xt.."-"..yt]
-
             --Draw tile
             if (LoadedTiles[bl]~=nil) then
                 local t = split(LevelData[xt.."-"..yt],"-")
@@ -737,7 +750,7 @@ function love.resize()
                 local bl = LevelData[x.."-"..y]
                 if LoadedTiles[bl]~=nil then
                     local t = split(LevelData[x.."-"..y],"-")
-                    if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" then --double scale
+                    if t[1] == "7" or t[1] == "8" or t[1] == "9" or t[1] == "10" or t[1] == "32" then --double scale
                         love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,2,2)
                     else
                         love.graphics.draw(LoadedTiles[bl],x*32,y*32,0,1,1)

@@ -348,6 +348,20 @@ function Player:animate(dt)
             end
         end
     end
+
+    --Kunai
+    if self.nextAni == 'kunai' then
+        print('kunai',self.kunaiAni)
+        self.imgPos = {-26,-100}
+
+        if self.kunaiAni > 12 and self.kunaiAni < 14 then 
+            self.nextAni = 'low'
+        elseif self.kunaiAni > 4 then
+            self.img = love.graphics.newImage("Images/Aria/kunaithrow1-2.png")
+        elseif self.kunaiAni > 0 then
+            self.img = love.graphics.newImage("Images/Aria/kunaithrow1-1.png")
+        end
+    end
 end
 
 function Player:update(dt)
@@ -824,16 +838,28 @@ function Player:update(dt)
         if self.kunaiAni > 18 then
             DKunais = Kunais
         end
+
+        --Spawn kunai
         local tan = tanAngle(MouseX-(self.xpos-CameraX)*GameScale+(0.09*(self.kunaiInnacuracy+1))*(love.math.random()-0.5),MouseY-(self.ypos-CameraY)*GameScale+(0.09*(self.kunaiInnacuracy+1))*(love.math.random()-0.5))
         local dx = tan[1] + (0.05*(self.kunaiInnacuracy+1))*0.1*(love.math.random()-0.5)
         local dy = tan[2] + (0.05*(self.kunaiInnacuracy+1))*0.1*(love.math.random()-0.5)
         table.insert(Entities,Kunai(self.xpos,self.ypos-60,dx*30,dy*30))
-        --self.animation = 'none' --change to throwing animation later
     end
 
     --Update kunaiAnimation
     if self.kunaiAni ~= -1 then
         self.kunaiAni = self.kunaiAni + (60*dt)
+        if self.kunaiAni < 9 then
+            self.nextAni = 'kunai'
+
+            --Turn around if you're shooting behind you
+            if self.dFacing == 1 and MouseX < self.xpos-CameraX then
+                self.dFacing = -1
+            end
+            if self.dFacing == -1 and MouseX > self.xpos-CameraX then
+                self.dFacing = 1
+            end
+        end
     end
     if self.kunaiAni >= 40 then
         self.kunaiAni = -1

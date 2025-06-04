@@ -85,19 +85,25 @@ function loadARL(filename)
     status = 'Inserting Tiles'
 
     --Insert tile images into the level
-    for i,v in pairs(LevelData) do
-        AmtCH:push(amt)
-        StatusCH:push(status)
-        local file = "Images/Tiles/"..v..".png"
-        if file ~= nil then
-            local f = io.open(file,'r')
-            if f ~= nil then
-                if LoadedTiles[v]~=nil then
-                else
-                    local i = love.graphics.newImage("Images/Tiles/"..v..".png")
-                    LoadedTiles[v] = i
+    for i=1,8,1 do
+        for i,v in pairs(LevelData) do
+            -- AmtCH:push(amt)
+            -- StatusCH:push(status)
+            if v == '32-1' then
+                print(v)
+            end
+            local file = "Images/Tiles/"..v..".png"
+            if file ~= nil then
+                local f = io.open(file,'r')
+                if f ~= nil then
+                    if LoadedTiles[v]~=nil then
+                    else
+                        local i = love.graphics.newImage("Images/Tiles/"..v..".png")
+                        LoadedTiles[v] = i
+                    end
                 end
             end
         end
     end
+    print('done')
 end
