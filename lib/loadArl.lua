@@ -89,13 +89,15 @@ function loadARL(filename)
         AmtCH:push(amt)
         StatusCH:push(status)
         local file = "Images/Tiles/"..v..".png"
-        local f = io.open(file,'r')
-        if f~= nil then
-            if LoadedTiles[v]~=nil then
-            else
-                LoadedTiles[v] = love.graphics.newImage("Images/Tiles/"..v..".png")
+        if file ~= nil then
+            local f = io.open(file,'r')
+            if f ~= nil then
+                if LoadedTiles[v]~=nil then
+                else
+                    local i = love.graphics.newImage("Images/Tiles/"..v..".png")
+                    LoadedTiles[v] = i
+                end
             end
         end
     end
-
 end

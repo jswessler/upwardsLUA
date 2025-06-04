@@ -12,6 +12,10 @@ function InitialLoad()
     FrameCounter = 0
     SecondsCounter = 0
     UpdateCounter = 0
+    DrawCounter = 0
+
+    FrameTime = {}
+    GlobalDt = 0
 
     --Lists
     Buttons = {}

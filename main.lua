@@ -6,7 +6,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.9"
+BuildId = "a1.0.10"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -40,6 +40,7 @@ function love.load()
 end
 
 function love.update(dt)
+    local starttime = love.timer.getTime()
     --Update counters
     FrameCounter = FrameCounter + dt
     UpdateCounter = UpdateCounter + 1
@@ -52,12 +53,15 @@ function love.update(dt)
     for i,v in pairs(Buttons) do
         v:update(dt)
     end
+    local buttonTime = love.timer.getTime()-starttime
 
     --Gamemodes where physics is enabled
     if Physics == 'on' then
 
         --Update player physics & animation
         Pl:update(dt)
+        local playerphysicsTime = love.timer.getTime()-starttime-buttonTime
+
 
         --Update player internal collision detection (non-solid objects)
         for i=Pl.col[2]+8,Pl.col[1]-8,24 do
@@ -71,10 +75,13 @@ function love.update(dt)
                 local en = Pl.se:detectEnemy(j,i)
             end
         end
+        local playercolTime = love.timer.getTime()-starttime-playerphysicsTime
+
 
         --Update Tiles
         TileUpdates = 0
         tileProperties(dt)
+        local tileupdateTime = love.timer.getTime()-starttime-playercolTime
 
         --Update enemies
         for i,v in ipairs(Enemies) do
@@ -98,6 +105,8 @@ function love.update(dt)
                 table.remove(Enemies,i)
             end
         end
+        local enemyupdateTime = love.timer.getTime()-starttime-tileupdateTime
+
 
         --Update Entities
         for i,v in ipairs(Entities) do
@@ -106,6 +115,8 @@ function love.update(dt)
                 table.remove(Entities,i)
             end
         end
+        local entityupdateTime = love.timer.getTime()-starttime-enemyupdateTime
+
 
         --Update particles
         for i,v in ipairs(Particles) do
@@ -113,6 +124,8 @@ function love.update(dt)
                 table.remove(Particles,i)
             end
         end
+        local particleupdateTime = love.timer.getTime()-starttime-entityupdateTime
+
 
         --Update total health
         TotalHealth = 0
@@ -188,6 +201,9 @@ function love.update(dt)
                 end
             end
         end
+        local phoneupdateTime = love.timer.getTime()-starttime-particleupdateTime
+        FrameTime = {start = starttime, button = buttonTime,plphysics = playerphysicsTime,plcol = playercolTime,tileup = tileupdateTime,enup = enemyupdateTime,entup = entityupdateTime,parup = particleupdateTime,phoup = phoneupdateTime}
+
 
         --Handle Phone Calls
         if NextCall > 0 then
@@ -219,10 +235,14 @@ function love.update(dt)
             love.event.quit()
         end
     end
+    local endtime = love.timer.getTime()-starttime
+    GlobalDt = dt
+    FrameTime.endtime = endtime
+
 end
 
 function love.draw()
-    local starttime = love.timer.getTime()
+    DrawCounter = DrawCounter + 1
 
 
     --Background color
@@ -296,6 +316,7 @@ function love.draw()
         end
 
         --Draw Player
+        Pl:animate(Pl.saveDt)
         Pl:draw()
 
         --Draw enemies
@@ -479,20 +500,60 @@ function love.draw()
 
         love.graphics.setColor(1,1,1,1)
 
+        --Debug block IDS
+        if love.keyboard.isDown("f6") then
+            local Xl,Yl = getOnScreen()
+            for i,x in ipairs(Xl) do
+                for o,y in ipairs(Yl) do
+                    local xt = math.floor(x/32)
+                    local yt = math.floor(y/32)
+                    x = x - (x%32)
+                    y = y - (y%32)
+                    local bl = LevelData[xt.."-"..yt]
+                    local t = {0,0}
+                    if LoadedTiles[bl]~= nil then
+                        t = split(bl,"-")
+                    end
+                    simpleText(t[1],8,(x-CameraX)*GameScale,(y-CameraY)*GameScale)
+                    simpleText(t[2],8,(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
+                    simpleText(xt.."/"..yt,8,(x-CameraX)*GameScale,20+(y-CameraY)*GameScale)
+
+                end
+            end
+        end
+
 
         --debug text & sensor
         if DebugInfo then
             local stats = love.graphics.getStats()
-            simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." V: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
-            simpleText(round(love.timer.getFPS(),1).." fps Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2).." V: "..love.window.getVSync(),16,10*GameScale,60*GameScale)
+            simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." BL:"..math.floor(Pl.xpos/32).." / "..math.floor(Pl.ypos/32).." Ve: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
+            simpleText(round(love.timer.getFPS(),1).." fps "..(love.window.getVSync() and "V" or "").." Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2),16,10*GameScale,60*GameScale)
             simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." RE: "..round(Pl.remEnergy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
             simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
             simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
-            simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/1024/1024,1).."MB Im: "..round(stats.images)..(HighGraphics and " Fancy" or " Fast").." GB: "..round(2986*(60*love.timer.getDelta())),16,10*GameScale,140*GameScale)
+            simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/(1024*1024),1).."MB Im: "..round(stats.images)..(HighGraphics and " Fancy" or " Fast"),16,10*GameScale,140*GameScale)
             simpleText(_VERSION.." G: "..round(collectgarbage("count")),16,10*GameScale,180*GameScale)
             simpleText("Love "..love.getVersion().." "..love.system.getOS().. " C: "..love.system.getProcessorCount(),16,10*GameScale,200*GameScale)
+        
+            --Frame time graph
+            love.graphics.setColor(0.3,0.3,0.3)
+            love.graphics.rectangle('fill',WindowWidth/3,10,WindowWidth/2,10,1,1)
+            love.graphics.setColor(1,1,1)
+            love.graphics.rectangle('fill',WindowWidth/3,10,FrameTime.endtime / GlobalDt * WindowWidth/2,10,1,1)
+            simpleText(round(100*FrameTime.endtime/GlobalDt).. ' Percent of frametime used',12,WindowWidth/3,20)
+
+            --Frame time breakdown
+            local x = 0
+            love.graphics.setColor(0.3,0.3,0.3)
+            love.graphics.rectangle('fill',WindowWidth/3,40,WindowWidth/2,15,1,1)
+
         end
         Pl.se:reset()
+
+        --Collect garbage every few frames
+        if DrawCounter%4 == 0 then
+            collectgarbage('step', collectgarbage('count')/20)
+        end
     else
         --Non-game states
         
@@ -550,12 +611,6 @@ function love.draw()
     simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
 
     --Enforce FPS cap
-    if FpsLimit ~= 0 then
-        while love.timer.getTime() < starttime + (1/FpsLimit) do
-            --Spinning loop
-        end
-    end
-
 end
 
 

@@ -55,6 +55,7 @@ function Player:new(x,y)
     self.aniiTimer = 0
 
     self.speedMult = 1
+    self.saveDt = 0
 
     --misc
     self.maxSpd = 2.5
@@ -350,6 +351,7 @@ function Player:animate(dt)
 end
 
 function Player:update(dt)
+    self.saveDt = dt
     
     --reduce jCounter
     if self.jCounter > 0 then
@@ -793,9 +795,9 @@ function Player:update(dt)
             self.aniTimer = 6
         end
     else
+        self.diveDir = 0
         if self.abilities[4] == 1 then
             self.abilities[4] = 0
-            self.diveDir = 0
         end
     end
 
@@ -1013,9 +1015,6 @@ function Player:update(dt)
         self.yv = self.yv * 0.7^dt
     end
 
-    --updating xpos and ypos (maybe implement quartersteps later?)
-    self:animate(dt)
-    return
 end
 
 function Player:tostring()

@@ -93,6 +93,7 @@ function simpleText(text,textSize,x,y,orient)
       y = y - textHei
     end
     love.graphics.draw(textObject,x,y,0)
+    textObject:release()
 end
 
 --Collide point (x,y) with rect(x,y,wid,hei)
