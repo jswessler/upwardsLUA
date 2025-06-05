@@ -351,9 +351,7 @@ function Player:animate(dt)
 
     --Kunai
     if self.nextAni == 'kunai' then
-        print('kunai',self.kunaiAni)
         self.imgPos = {-26,-100}
-
         if self.kunaiAni > 12 and self.kunaiAni < 14 then 
             self.nextAni = 'low'
         elseif self.kunaiAni > 4 then

@@ -44,7 +44,7 @@ function Kunai:update(dt)
     if not self.attachedTo then
         for i=-self.radius,self.radius,self.radius do
             for j=-self.radius,self.radius,self.radius do
-                local e = self.kSe:detectEnemy(i,j,'all')
+                local e = self.se:detectEnemy(i,j,'all')
                 if e[1] and FrameCounter > e[2].iframe then
                     e[2].health = e[2].health - ((self.xv+self.yv)>5 and 1 or 0)
                     e[2].iframe = FrameCounter + 0.2

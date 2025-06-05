@@ -15,7 +15,7 @@ function Entity:new(xpos,ypos,xv,yv,typ)
     self.typ = typ
     self.gravity = 1
     self.timeAlive = 0
-    self.kSe = Sensor(self)
+    self.se = Sensor(self)
     self.direction = 0
     self.colliderCount = 0
     self.radius = 8
@@ -42,7 +42,7 @@ function Entity:update(dt)
         self.colliderCount = 0
         for i=-self.radius,self.radius,self.radius do
             for j=-self.radius,self.radius,self.radius do
-                if self.kSe:detect(i,j)[1] then
+                if self.se:detect(i,j)[1] then
                     self.colliderCount = self.colliderCount + 1
                 end
             end

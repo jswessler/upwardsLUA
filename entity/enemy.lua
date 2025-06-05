@@ -68,6 +68,8 @@ function Enemy:update(dt)
         self.onGround = false
         self.gravity = 1
     end
+
+
     
     --Right detection
     self.colliderCount = 0
@@ -116,6 +118,7 @@ function Enemy:update(dt)
     if self.deathMode == 2 or self.deathMode == 'kicked' then
         self.rotation = self.rotation + (self.xv * dt * 3)
     end
+
 end
 
 function Enemy:draw()

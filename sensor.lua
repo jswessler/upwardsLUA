@@ -9,6 +9,7 @@ function Sensor:new(owner)
 end
 
 function Sensor:detect(x,y)
+
     local xp = math.min(LevelWidth*32,math.max(0,self.owner.xpos+x+self.owner.xv))
     local yp = math.min(LevelHeight*32,math.max(0,self.owner.ypos+y+self.owner.yv))
     local block = math.floor(xp/32).."-"..math.floor(yp/32) --location of block

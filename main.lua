@@ -6,7 +6,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.11"
+BuildId = "a1.0.11-01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -354,7 +354,7 @@ function love.draw()
         if SensorInfo then
             Pl.se:draw()
             for i,v in pairs(Entities) do
-                v.kSe:draw()
+                v.se:draw()
             end
             for i,v in pairs(Enemies) do
                 v.se:draw()
@@ -521,8 +521,6 @@ function love.draw()
                     simpleText(t[1],8,(x-CameraX)*GameScale,(y-CameraY)*GameScale)
                     simpleText(t[2],8,(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
                     simpleText(xt.."/"..yt,8,(x-CameraX)*GameScale,20+(y-CameraY)*GameScale)
-                    print(LevelData['22-33'])
-                    print(LevelData['26-30'])
 
                 end
             end
@@ -554,11 +552,10 @@ function love.draw()
             love.graphics.rectangle('fill',WindowWidth/3,40,WindowWidth/2,15,1,1)
 
         end
-        Pl.se:reset()
 
         --Collect garbage every few frames
-        if DrawCounter%4 == 0 then
-            collectgarbage('step', collectgarbage('count')/20)
+        if DrawCounter%6 == 0 then
+            collectgarbage('step', collectgarbage('count')/100)
         end
     else
         --Non-game states
@@ -611,6 +608,17 @@ function love.draw()
     --Buttons
     for i,v in pairs(Buttons) do
         v:draw()
+    end
+
+    --Reset sensors (probably remove this before 1.0 release (as well as sensor location tracking))
+    if Physics == 'on' or Physics == 'display' then
+        for i,v in ipairs(Entities) do
+            v.se:reset()
+        end
+        for i,v in ipairs(Enemies) do
+            v.se:reset()
+        end
+        Pl.se:reset()
     end
 
     --Draw BuildId
@@ -667,8 +675,8 @@ function RenderOne()
                 end
             end
 
-            --Draw block text when pressing P
-            if love.keyboard.isDown("p") and bl~= '0-0' then
+            --Draw block text when pressing f9
+            if love.keyboard.isDown("f9") and bl~= '0-0' then
                 simpleText(bl,14,16+(x-CameraX)*GameScale,16+(y-CameraY)*GameScale,'center')
             end
         end

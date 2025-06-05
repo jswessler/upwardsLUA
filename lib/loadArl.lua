@@ -89,9 +89,6 @@ function loadARL(filename)
         for i,v in pairs(LevelData) do
             -- AmtCH:push(amt)
             -- StatusCH:push(status)
-            if v == '32-1' then
-                print(v)
-            end
             local file = "Images/Tiles/"..v..".png"
             if file ~= nil then
                 local f = io.open(file,'r')
@@ -105,5 +102,4 @@ function loadARL(filename)
             end
         end
     end
-    print('done')
 end
