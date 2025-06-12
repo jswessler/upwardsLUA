@@ -76,7 +76,7 @@ local cachedFontObject = nil
 function simpleText(text,textSize,x,y,orient)
     local orient = orient or "left"
     if cachedFontSize ~= textSize*1.5*GameScale then
-        cachedFontObject = love.graphics.newFont("lib/Mikofont-Regular.ttf",textSize*1.5*GameScale,'normal')
+        cachedFontObject = love.graphics.newFont("lib/Ariafont-Regular.ttf",textSize*1.5*GameScale,'normal')
         cachedFontSize = textSize*1.5*GameScale
     end
     local textObject = love.graphics.newText(cachedFontObject,text)
