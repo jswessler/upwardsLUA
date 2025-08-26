@@ -32,7 +32,7 @@ function InitialLoad()
     --Images
     LogoImg = love.graphics.newImage("Images/FMV/logo.png")
     TitleImg = love.graphics.newImage("Images/FMV/title.png")
-    FrameCounter = 0
+    FrameCounter = -1
     State = 'initialload'
     Physics = 'off'
 
@@ -55,12 +55,6 @@ function InitialLoad()
         ['Skip'] = love.keyboard.getScancodeFromKey('return'),
         ['Fast'] = love.keyboard.getScancodeFromKey('lshift'),
     }
-
-    --skip intro & enable debug when holding shift
-    if love.keyboard.isDown('lshift') or love.keyboard.isDown('rshift') then
-        LoadLevel('lvl1')
-        DebugInfo = true
-    end
 
 end
 

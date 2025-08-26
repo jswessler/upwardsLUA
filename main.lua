@@ -6,7 +6,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.11_03"
+BuildId = "a1.0.11_04"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -522,7 +522,7 @@ function love.draw()
         end
 
 
-        --debug text & sensor
+        --debug text
         if DebugInfo then
             local stats = love.graphics.getStats()
             simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." BL: "..math.floor(Pl.xpos/32).." / "..math.floor(Pl.ypos/32).." Ve: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
@@ -544,6 +544,11 @@ function love.draw()
             love.graphics.draw(LogoImg,0,0,0,WindowWidth/1382,WindowWidth/1382)
             if FrameCounter > 4 or love.keyboard.isDown(KeyBinds['Jump']) then
                 MenuLoad()
+            end
+                --skip intro & enable debug when holding shift
+            if love.keyboard.isDown('lshift') or love.keyboard.isDown('rshift') then
+                LoadLevel('lvl1')
+                DebugInfo = true
             end
         end
 
