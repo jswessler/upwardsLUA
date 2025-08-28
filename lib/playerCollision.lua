@@ -81,16 +81,16 @@ function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
         Pl.animation = 'jump'
         Pl.nextAni = 'high'
         if blSub == 1 then --straight up
-            Pl.xv = Pl.xv * 0.9
-            Pl.yv = (0.1*Pl.yv) - 3.5
+            Pl.xv = Pl.xv * 0.75
+            Pl.yv = (0.1*Pl.yv) - 4
         end
         if blSub == 2 then --to the right
-            Pl.xv = (0.1*Pl.xv) + 3
-            Pl.yv = (0.1*Pl.yv) - 3
+            Pl.xv = (0.1*Pl.xv) + 3.5
+            Pl.yv = (0.75*Pl.yv) - 0.5
         end
         if blSub == 3 then --to the left
-            Pl.xv = (0.1*Pl.xv) - 3
-            Pl.yv = (0.1*Pl.yv) - 3
+            Pl.xv = (0.1*Pl.xv) - 3.5
+            Pl.yv = (0.75*Pl.yv) - 0.5
         end
     end
 end
