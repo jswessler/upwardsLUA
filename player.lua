@@ -8,19 +8,19 @@ require "lib.extraFunc"
 require "lib.playerCollision"
 
 local VVal = {
-    singleJump = 0.6, --yv
-    jumpExt = 19, --*dt
-    hoverMul = 0.0001, --^dt
-    dblJumpY = 60, --*dt
-    dblJumpX = 1.25, --xv increase when double jump
-    diveJump = 80, --*dt
+    singleJump = 0.55, --yv
+    jumpExt = 21, --*dt
+    hoverMul = 0.00014, --^dt
+    dblJumpY = 55, --*dt
+    dblJumpX = 1.2, --xv increase when double jump
+    diveJump = 77.5, --*dt
     jCounterG = 0.45, --gravity multiplier when in jcounter
-    wallSlide = 0.125, --^dt
-    wallJumpY = -3.75, --yv
-    wallJumpX = 2.95, --xv
+    wallSlide = 0.1375, --^dt
+    wallJumpY = -3.65, --yv
+    wallJumpX = 2.875, --xv
     diveInitX = 4, --initial xv on dive press
-    diveInitY = -0.8, --initial yv on dive press
-    diveConY = 5, --*dt
+    diveInitY = -0.75, --initial yv on dive press
+    diveConY = 5.5, --*dt
     groundAcc = 21, --*dt*speedMult
     airAcc = 4.5, --*dt
     slideAcc = 18, --*dt*slideMult

@@ -104,7 +104,7 @@ function LoadLevel(level)
     Particles = {}
     Buttons = {}
     Enemies = {}
-    HudPremov = {}
+    HudMov = {}
     Health = {Heart(1,4),Heart(1,4)}
 --Initial Variable Values
     Kunais = 5 --Number of kunais

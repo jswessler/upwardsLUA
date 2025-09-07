@@ -6,7 +6,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.12"
+BuildId = "a1.0.13"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -213,7 +213,7 @@ function love.draw()
         GameScale = GameScale * Zoom
 
         --Update Camera
-        if Physics == 'on' then
+        if Physics == 'on' and State == 'game' then
             normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,2.5*(Pl.yv-2.5)))
         end
 
@@ -256,7 +256,9 @@ function love.draw()
         end
 
         --Draw Player
-        Pl:animate(Pl.saveDt)
+        if State == 'game' then
+            Pl:animate(Pl.saveDt)
+        end
         Pl:draw()
 
         --Draw enemies
@@ -315,15 +317,15 @@ function love.draw()
         --Draw HUD
         if HudEnabled then
             HudX, HudY = hudSetup()
-            --HudX = -Pl.xv*3
-            --HudY = -(math.min(0,Pl.yv*6))
 
             --Draw Phone
             love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*PhoneScale,GameScale*PhoneScale)
             
             --Hex
+            love.graphics.setDefaultFilter("linear","linear",8)
             love.graphics.draw(HexImg,HudX,WindowHeight-(220*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
-            
+            love.graphics.setDefaultFilter("linear","nearest",4)
+
             --Draw Hearts (Hearts are only updated on draw)
 
             --Remove depleted soul/silver/blood hearts

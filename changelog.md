@@ -1,5 +1,8 @@
 Release Log:
 
+a1.0.13
+- HUD and player no longer animate when paused
+
 a1.0.12
 - Added customization for player platforming stats
 - Adjusted logo & image scaling
