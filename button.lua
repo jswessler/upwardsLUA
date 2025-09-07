@@ -25,7 +25,7 @@ function SureQuit()
     Buttons = {}
     State = 'surequit'
     Buttons['Back'] = Button(10, 50, 200, 50, "Back", PauseGame, 0)
-    Buttons['Title'] = Button(10, 120, 200, 50, "To Title", function() State = 'menu' MenuMenu() end, 0.1)
+    Buttons['Title'] = Button(10, 120, 200, 50, "To Title", function() State = 'title' MenuMenu() end, 0.1)
     Buttons['Quit'] = Button(10, 190, 200, 50, "Exit Game", love.event.quit, 0.2)
 end
 
@@ -83,9 +83,10 @@ function AudioMenu()
 end
 
 function MenuMenu()
+    love.graphics.setDefaultFilter("linear","linear",4)
     FrameCounter = 0
     Buttons = {}
-    State = 'menu'
+    State = 'title'
     Physics = 'off'
     Buttons['Play'] = Button(70, 570, 400, 130, "Play", function() LoadLevel('lvl1') end, 0)
     Buttons['Quit'] = Button(70, 720, 400, 50, "Quit", love.event.quit, 0)

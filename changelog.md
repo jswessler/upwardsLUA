@@ -1,5 +1,29 @@
 Release Log:
 
+a1.0.12
+- Added customization for player platforming stats
+- Adjusted logo & image scaling
+- Split animations into their own file (prep for dialogue portraits)
+- Enemies recoil in the correct direction after being knifed
+
+a1.0.11
+- Added kunai throwing animation
+- Fixed memory leak issues
+- Adjusted how the FPS cap works
+
+a1.0.10
+- Performance optimizations
+
+a1.0.9
+- Removed JLI images
+
+a1.0.8
+- Enemies squish over time when you jump on them
+- Entity scaling works properly
+- Graphics adjustments
+- Player draw function moved back into Player class
+- Adjusted sensor debug info
+
 a1.0.7
 - Added enemies, coins, and entity player detection
 - Generalized kunais and coins to an entity superclass

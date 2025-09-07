@@ -1,0 +1,68 @@
+--file: animation.lua
+-- handles phone animations & portraits
+
+function PhoneAnimate(dt)
+
+    if TriggerPhone then
+        PhoneCounter = PhoneCounter + dt
+
+        --Phone shakes (image)
+        if UpdateCounter%2 == 0 then
+            PhoneImg = love.graphics.newImage("Images/Phone/phone"..round(1+(UpdateCounter%6)/2)..".png")
+        end
+
+        --Phone rings out at 8s
+        if PhoneCounter > 8 then
+            NextCall = 0
+            TriggerPhone = false
+
+        --Move phone back to corner at 7.5s
+        elseif PhoneCounter > 7.5 then
+            PhoneScale = math.min(4,PhoneScale + (4-PhoneScale)/20)
+            PhoneX = PhoneX + (WindowWidth-(80*GameScale)-PhoneX)*(20*dt)
+            PhoneY = PhoneY + ((10*GameScale)-PhoneY)*(20*dt)
+        
+        --Move phone to your head at 0.5s
+        elseif PhoneCounter > 0.5 then
+            PhoneScale = math.max(2,PhoneScale-dt*8)
+            PhoneX = PhoneX + (((Pl.xpos-CameraX)*(GameScale*Zoom)-PhoneX-(16*GameScale*Zoom))+love.math.random(-12,12))*(8*dt)
+            PhoneY = PhoneY + (((Pl.ypos-CameraY)*(GameScale*Zoom)-PhoneY-(175*GameScale*Zoom))+love.math.random(-12,12))*(8*dt)
+        
+        --Set phone to top right otherwise
+        else
+            PhoneX = WindowWidth-(80*GameScale)
+            PhoneY = (10*GameScale)
+        end
+
+        --Collide
+        if pointCollideRect(PhoneRect,MouseX,MouseY) then
+            love.graphics.setColor(1,1,1,0.5)
+            love.graphics.rectangle('fill',PhoneX,PhoneY,15*GameScale*PhoneScale,40*GameScale*PhoneScale)
+            love.graphics.setColor(1,1,1,1)
+            if (love.mouse.isDown(1)) or love.keyboard.isDown(KeyBinds['Call']) then
+                TriggerPhone = false
+                NextCall = 0-NextCall
+            end
+        end
+    else
+
+        --Set phone to the top right corner
+        PhoneScale = 4
+        PhoneImg = DefaultPhoneImg
+        PhoneX = WindowWidth-(80*GameScale)
+        PhoneY = (10*GameScale)
+
+        --If hovering over the phone when not active
+        if pointCollideRect(PhoneRect,MouseX,MouseY) then
+            
+            --Switch phone image
+            PhoneImg = PausePhoneImg
+
+            --Pause if phone is clicked on the top right corner
+            if DebugPressed == false and NextCall == 0 and love.mouse.isDown(1) then
+                DebugPressed = true
+                PauseGame()
+            end
+        end
+    end
+end

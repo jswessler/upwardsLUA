@@ -49,7 +49,11 @@ function Kunai:update(dt)
                     e[2].health = e[2].health - ((self.xv+self.yv)>5 and 1 or 0)
                     e[2].iframe = FrameCounter + 0.2
                     if e[2].health == 0 then
-                        e[2].deathMode = 'struck'
+                        if self.xv > 0 then
+                            e[2].deathMode = 'struckr'
+                        else
+                            e[2].deathMode = 'struckl'
+                        end
                     end
                     self.attachedTo = e[2]
                 end

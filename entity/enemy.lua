@@ -148,10 +148,10 @@ function Enemy:die()
     end
 
     --Hit by throwing knife
-    if self.deathMode == 3 or self.deathMode == 'struck' then
+    if self.deathMode == 'struckr' or self.deathMode == 'struckl' then
         self.health = -1
-        self.deathCounter = FrameCounter + 0.25 --die after 0.25s of being hit
-        self.xv = self.xv * 1.5
+        self.deathCounter = FrameCounter + 0.3 --die after 0.3s of being hit
+        self.xv = (self.deathMode == 'struckr' and 3 or -3)
         self.yv = -1.6
         return false
     end

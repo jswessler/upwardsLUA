@@ -24,7 +24,7 @@ function InitialLoad()
     GameScale = 1
     Zoom = 1
     ZoomBase = 1
-    love.graphics.setDefaultFilter("linear","nearest",4)
+    love.graphics.setDefaultFilter("linear","linear",4)
     ScreenshotText = 0
     XPadding = 0
     YPadding = 0
@@ -59,7 +59,7 @@ function InitialLoad()
 end
 
 function MenuLoad()
-    State = 'menu'
+    State = 'title'
     Physics = 'off'
     MenuMenu()
 end
@@ -69,6 +69,7 @@ function LoadLevel(level)
     LoadThread = love.thread.newThread("lib/loadARL.lua")
     LoadStatusCH = love.thread.getChannel("status")
     LoadAmtCH = love.thread.getChannel("amt")
+    love.graphics.setDefaultFilter("linear","nearest",4)
     --LoadThread:start('lvl1.arl')
 
     --Load Images

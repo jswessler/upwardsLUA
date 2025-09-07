@@ -6,7 +6,7 @@
 ]]
 
 --Build Id
-BuildId = "a1.0.11_05"
+BuildId = "a1.0.12"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -18,6 +18,8 @@ function love.load()
     require "lib.loadArl"
     require "lib.extraFunc"
     require "lib.playerCollision"
+
+    require "Images.animation"
     
     require "shader.gaussianblur"
 
@@ -132,68 +134,7 @@ function love.update(dt)
 
         --Update Phone
         PhoneRect = {x = PhoneX, y = PhoneY, w = 15*GameScale*PhoneScale, h = 40*GameScale*PhoneScale}
-        if TriggerPhone then
-            PhoneCounter = PhoneCounter + dt
-
-            --Phone shakes (image)
-            if UpdateCounter%2 == 0 then
-                PhoneImg = love.graphics.newImage("Images/Phone/phone"..round(1+(UpdateCounter%6)/2)..".png")
-            end
-
-            --Phone rings out at 8s
-            if PhoneCounter > 8 then
-                NextCall = 0
-                TriggerPhone = false
-
-            --Move phone back to corner at 7.5s
-            elseif PhoneCounter > 7.5 then
-                PhoneScale = math.min(4,PhoneScale + (4-PhoneScale)/20)
-                PhoneX = PhoneX + (WindowWidth-(80*GameScale)-PhoneX)*(20*dt)
-                PhoneY = PhoneY + ((10*GameScale)-PhoneY)*(20*dt)
-            
-            --Move phone to your head at 0.5s
-            elseif PhoneCounter > 0.5 then
-                PhoneScale = math.max(2,PhoneScale-dt*8)
-                PhoneX = PhoneX + (((Pl.xpos-CameraX)*(GameScale*Zoom)-PhoneX-(16*GameScale*Zoom))+love.math.random(-12,12))*(8*dt)
-                PhoneY = PhoneY + (((Pl.ypos-CameraY)*(GameScale*Zoom)-PhoneY-(175*GameScale*Zoom))+love.math.random(-12,12))*(8*dt)
-            
-            --Set phone to top right otherwise
-            else
-                PhoneX = WindowWidth-(80*GameScale)
-                PhoneY = (10*GameScale)
-            end
-
-            --Collide
-            if pointCollideRect(PhoneRect,MouseX,MouseY) then
-                love.graphics.setColor(1,1,1,0.5)
-                love.graphics.rectangle('fill',PhoneX,PhoneY,15*GameScale*PhoneScale,40*GameScale*PhoneScale)
-                love.graphics.setColor(1,1,1,1)
-                if (love.mouse.isDown(1)) or love.keyboard.isDown(KeyBinds['Call']) then
-                    TriggerPhone = false
-                    NextCall = 0-NextCall
-                end
-            end
-        else
-
-            --Set phone to the top right corner
-            PhoneScale = 4
-            PhoneImg = DefaultPhoneImg
-            PhoneX = WindowWidth-(80*GameScale)
-            PhoneY = (10*GameScale)
-
-            --If hovering over the phone when not active
-            if pointCollideRect(PhoneRect,MouseX,MouseY) then
-                
-                --Switch phone image
-                PhoneImg = PausePhoneImg
-
-                --Pause if phone is clicked on the top right corner
-                if DebugPressed == false and NextCall == 0 and love.mouse.isDown(1) then
-                    DebugPressed = true
-                    PauseGame()
-                end
-            end
-        end
+        PhoneAnimate(dt)
 
 
         --Handle Phone Calls
@@ -222,7 +163,7 @@ function love.update(dt)
             ResumeGame()
 
         --States where ESC quits the game
-        elseif State == 'menu' then
+        elseif State == 'title' then
             love.event.quit()
         end
     end
@@ -540,20 +481,28 @@ function love.draw()
         
         --Logo
         if State == 'initialload' then
-            love.graphics.setColor(1,1,1,(FrameCounter < 0.5 and FrameCounter/0.5 or FrameCounter > 2.5 and 3.5-FrameCounter or 1))
+            if FrameCounter < 0.25 then
+                love.graphics.setColor(1,1,1,FrameCounter*4)
+            elseif FrameCounter < 2.75 then
+                love.graphics.setColor(1,1,1,1)
+            else
+                love.graphics.setColor(1,1,1,(3.5-FrameCounter)*1.333)
+            end
             love.graphics.draw(LogoImg,0,0,0,WindowWidth/1382,WindowWidth/1382)
-            if FrameCounter > 4 or love.keyboard.isDown(KeyBinds['Jump']) then
+            if FrameCounter > 3.5 or love.keyboard.isDown(KeyBinds['Jump']) or love.mouse.isDown(1) then
                 MenuLoad()
             end
-                --skip intro & enable debug when holding shift
+
+            --skip intro & enable debug when holding shift
             if love.keyboard.isDown('lshift') or love.keyboard.isDown('rshift') then
+                MenuLoad()
                 LoadLevel('lvl1')
                 DebugInfo = true
             end
         end
 
         --Title Screen
-        if State == 'menu' then
+        if State == 'title' then
             love.graphics.push()
             love.graphics.translate(XPadding,YPadding)
             love.graphics.setColor(1,1,1,math.min(1,FrameCounter))
@@ -716,7 +665,7 @@ function love.resize()
     XPadding = (WindowWidth - (1280*GameScale))/2
     YPadding = (WindowHeight - (800*GameScale))/2
 
-    if State ~= 'initialload' and State ~= 'menu' and State ~= 'jlidecode' then
+    if State ~= 'initialload' and State ~= 'title' and State ~= 'jlidecode' then
 
         --Initialize Energy bar background area
         BgRectCanvas = love.graphics.newCanvas(WindowWidth+100,WindowHeight,{msaa=4})
