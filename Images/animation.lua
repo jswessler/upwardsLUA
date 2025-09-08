@@ -66,3 +66,25 @@ function PhoneAnimate(dt)
         end
     end
 end
+
+function GlobalAnimate() --run once per frame at the very end of love.draw(), should handle anything with GlAni (stuff here goes on top of everything else)
+    --Draw a box when quitting the game
+    if State == 'quitting' then
+        love.graphics.setColor(0,0,0,1)
+        love.graphics.rectangle('fill',0,-20,WindowWidth,math.sqrt(0.5-GlAni)*(WindowHeight*math.sqrt(2)),20,20)
+        if GlAni <= 0 then love.event.quit() end
+        love.graphics.setColor(1,1,1,1)
+    end
+
+    --Box in from the right when starting
+    if State == 'levelloadtrans' then
+        love.thread.getChannel('status'):clear()
+        love.graphics.setColor(0,0,0,1)
+        local sigmoid = 1 / (1+math.exp(5-GlAni*14))
+        love.graphics.rectangle('fill',sigmoid*WindowWidth,0,WindowWidth,WindowHeight,20,20)
+        if GlAni <= 0 then LoadLevel("lvl1") end
+        love.graphics.setColor(1,1,1,1)
+    end
+
+
+end

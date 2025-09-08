@@ -13,7 +13,9 @@ function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
         Pl.abilities[3] = 4
         Pl.abilities[4] = 2
         Pl.abilities[5] = 2
-        Pl.energy = Pl.remEnergy + (100-Pl.energy)/10 + 5
+        local totEnergy = 10 + (Pl.remEnergy-Pl.totalEnergy)/2
+        Pl.energy[1] = Pl.energy[1] + 0.25*totEnergy
+        Pl.energy[2] = Pl.energy[2] + 0.75*totEnergy
         DirtyTiles[pB] = true
         LevelData[pB] = "6-4"
     end

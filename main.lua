@@ -2,11 +2,15 @@
 --Upwards!
 
 --[[ todo
-    redo double jump animation
+    a1.0.14
+    LTO battery
+    a1.1
+    multiple levels
+    saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
 --Build Id
-BuildId = "a1.0.13"
+BuildId = "Alpha 1.1.0"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -15,7 +19,6 @@ end
 function love.load()
     --Imports
     Object = require "lib.classic"
-    require "lib.loadArl"
     require "lib.extraFunc"
     require "lib.playerCollision"
 
@@ -34,6 +37,7 @@ function love.load()
     require "entity.kunai"
     require "entity.coin"
     require "entity.entity"
+    require "entity.enemy"
 
     --Initial loading routine
     State = 'jlidecode'
@@ -47,6 +51,10 @@ function love.update(dt)
     FrameCounter = FrameCounter + dt
     UpdateCounter = UpdateCounter + 1
     SecondsCounter = round(FrameCounter)
+
+    --Update GlobalAnimations timers
+    if GlAni > 0 then GlAni = GlAni - dt end
+    if GlAni < 0 then GlAni = 0 end
 
     --Update mouse position
     MouseX, MouseY = love.mouse.getPosition()
@@ -164,7 +172,8 @@ function love.update(dt)
 
         --States where ESC quits the game
         elseif State == 'title' then
-            love.event.quit()
+            GlAni = 0.5
+            State = 'quitting'
         end
     end
     GlobalDt = dt
@@ -392,15 +401,15 @@ function love.draw()
             for j=0, 9, 1 do
                 for i=1, round(20*GameScale), HighGraphics and 1 or 2 do
                     --Color math
-                    if 10*j+(i/(2*GameScale)) >= Pl.energy then --set color to dark gray if energy < position
+                    if 10*j+(i/(2*GameScale)) >= Pl.totalEnergy then --set color to dark gray if energy < position
                         love.graphics.setColor(0.45,0.45,0.45,1)
                         if 10*j+(i/(2*GameScale)) >= Pl.remEnergy then
                             love.graphics.setColor(0.3,0.3,0.3,1)
                         end
-                    elseif Pl.energy < 30 then
-                        love.graphics.setColor(1-(Pl.energy/33.3333),0.1+(Pl.energy/33.3333),0.3,1)
-                    elseif Pl.energy > 80 then
-                        love.graphics.setColor(0.1,1.4-(Pl.energy/200),-2.36+(Pl.energy/30),1)
+                    elseif Pl.totalEnergy < 30 then
+                        love.graphics.setColor(1-(Pl.totalEnergy/33.3333),0.1+(Pl.totalEnergy/33.3333),0.3,1)
+                    elseif Pl.energy[1] > 15 then
+                        love.graphics.setColor(0.1,1.15-(Pl.energy[1]/100),-1.5+(Pl.energy[1]/10),1)
                     else
                         love.graphics.setColor(0.1,1,0.3,1)
                     end
@@ -470,7 +479,7 @@ function love.draw()
             local stats = love.graphics.getStats()
             simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." BL: "..math.floor(Pl.xpos/32).." / "..math.floor(Pl.ypos/32).." Ve: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
             simpleText(round(love.timer.getFPS(),1).." fps "..(love.window.getVSync() and "V" or "").." Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2),16,10*GameScale,60*GameScale)
-            simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy,1).." RE: "..round(Pl.remEnergy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
+            simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy[1],1).."/"..round(Pl.energy[2],1).." RE: "..round(Pl.remEnergy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
             simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
             simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
             simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/(1024*1024),1).."MB Im: "..round(stats.images)..(HighGraphics and " Fancy" or " Fast"),16,10*GameScale,140*GameScale)
@@ -483,51 +492,102 @@ function love.draw()
         
         --Logo
         if State == 'initialload' then
-            if FrameCounter < 0.25 then
-                love.graphics.setColor(1,1,1,FrameCounter*4)
-            elseif FrameCounter < 2.75 then
-                love.graphics.setColor(1,1,1,1)
+            if GlAni == 0 then --Wait a small amount before showing title screen
+                if FrameCounter < 0.25 then
+                    love.graphics.setColor(1,1,1,FrameCounter*4)
+                elseif FrameCounter < 2.75 then
+                    love.graphics.setColor(1,1,1,1)
+                else
+                    love.graphics.setColor(1,1,1,(3.5-FrameCounter)*1.333)
+                end
+                love.graphics.draw(LogoImg,0,0,0,WindowWidth/1382,WindowWidth/1382)
+                if FrameCounter > 3.5 or love.keyboard.isDown(KeyBinds['Jump']) or love.mouse.isDown(1) then
+                    MenuMenu()
+                end
             else
-                love.graphics.setColor(1,1,1,(3.5-FrameCounter)*1.333)
-            end
-            love.graphics.draw(LogoImg,0,0,0,WindowWidth/1382,WindowWidth/1382)
-            if FrameCounter > 3.5 or love.keyboard.isDown(KeyBinds['Jump']) or love.mouse.isDown(1) then
-                MenuLoad()
-            end
-
-            --skip intro & enable debug when holding shift
-            if love.keyboard.isDown('lshift') or love.keyboard.isDown('rshift') then
-                MenuLoad()
-                LoadLevel('lvl1')
-                DebugInfo = true
+                FrameCounter = 0
             end
         end
 
-        --Title Screen
-        if State == 'title' then
+        --Title Screen Draws
+        if State == 'title' or State == 'quitting' or State == 'levelloadtrans' then
             love.graphics.push()
-            love.graphics.translate(XPadding,YPadding)
-            love.graphics.setColor(1,1,1,math.min(1,FrameCounter))
-            love.graphics.draw(TitleImg,0,0,0,WindowHeight/2160,WindowHeight/2160)
+            love.graphics.translate(XPadding,YPadding) --center the title screen graphics
+            love.graphics.setColor(1,1,1,math.min(1,FrameCounter*1.25)) --fade in
+
+            --Title screen background moves slightly
+            local perx = love.math.noise(FrameCounter/3)
+            local pery = love.math.noise(FrameCounter/3+100)
+            local perr = love.math.noise(FrameCounter/4-100)
+            love.graphics.draw(TitleImgBg,(perx-0.5)*6,(pery-0.5)*6,(perr-0.5)/300,WindowHeight/(2160-math.min(10,FrameCounter*5)),WindowHeight/(2160-math.min(10,FrameCounter*5)))
+            
+            --Aria fades in from the bottom and moves around with perlin noise
+            local perx = love.math.noise(FrameCounter/3,love.math.getRandomSeed()*1000) --only the x is randomized like this because the default y has aria going down immediately after floating up and it looks nice
+            local pery = love.math.noise(FrameCounter/3+100)
+            local perr = love.math.noise(FrameCounter/4-100)
+
+            --Aria follows your mouse a bit
+            table.insert(RemArX,(MouseX-(WindowWidth/2))/60)
+            table.insert(RemArY,(MouseY-(WindowHeight/2))/60)
+            if #RemArX > 120 then table.remove(RemArX,1) end
+            if #RemArY > 120 then table.remove(RemArY,1) end
+
+            love.graphics.draw(TitleImgAr,(perx-0.5)*18+avg(RemArX),((pery-0.5)*36)+50*math.pow(1.5-math.min(1.5,FrameCounter),2.5)+avg(RemArY),(perr-0.5)/20,WindowHeight/2160,WindowHeight/2160)
             love.graphics.pop()
         end
 
-        --Load Level
-        if State == 'loadlevel' then
-            love.graphics.setColor(0.25,0.25,0.25,1)
-            love.graphics.rectangle("fill",0,0,WindowWidth,WindowHeight)
-            love.graphics.setColor(1,1,1,1)
-            local status = LoadStatusCH:pop()
-            simpleText(status,24,WindowWidth/2,WindowHeight/2-50,'center')
-            local amt = LoadAmtCH:pop()
-            simpleText((amt*100).."%",24,WindowWidth/2,WindowHeight/2+50,'center')
+        --Load Level Draws
+        if State == 'loadlevel' or State == 'levelloadtrans' then
+
+            --Check if the level loading routine is done
+            local info = love.thread.getChannel("lvlLoadRet"):pop()
+            if info then
+                LevelData = info[1]
+                LevelWidth = info[3]
+                LevelHeight = info[4]
+
+                --Create loadedtiles list
+                LoadedTiles = {}
+                for a,v in pairs(info[2]) do
+                    local i = love.graphics.newImage(v)
+                    LoadedTiles[a] = i
+                end
+                --Spawn enemies
+                for i,v in pairs(info[5]) do
+                    local e = Enemy(v[1],v[2],v[3])
+                    table.insert(Enemies,e)
+                end
+                
+                --Spawn Player
+                Pl = Player(info[6][1],info[6][2]+1)
+                CameraX = Pl.xpos
+                CameraY = Pl.ypos
+
+                --change state
+                State = 'game'
+                Physics = 'on'
+                love.resize()
+            else
+                --background if GlAni = 0
+                if GlAni <= 0 then
+                    love.graphics.clear(0,0,0,1)
+                end
+                --show progress bar
+                local progress = love.thread.getChannel('status'):pop()
+                if progress then
+                    love.thread.getChannel('status'):clear()
+                    love.graphics.setColor(0.333,0.333,0.333,1) love.graphics.rectangle('fill',WindowWidth-375,WindowHeight-25,350,10,5,5) --bg rect
+                    love.graphics.setColor(1,1,1,1) love.graphics.rectangle('fill', WindowWidth-375,WindowHeight-25,350*progress[2],10,5,5) --main rect
+                    simpleText(progress[1],20,WindowWidth-175,WindowHeight-60)
+                end
+            end
         end
     end
 
     --Screenshot Text
     if ScreenshotText > 0 then
         love.graphics.setColor(1,1,1,math.min(1,ScreenshotText/60))
-        simpleText("Screenshot Saved",20,WindowWidth-(200*GameScale),WindowHeight-(300*GameScale))
+        simpleText("Screenshot Saved",20,190*GameScale,10*GameScale)
         ScreenshotText = ScreenshotText - 1
     elseif ScreenshotText > -1 then
         ScreenshotText = -1
@@ -555,6 +615,9 @@ function love.draw()
         Pl.se:reset()
     end
 
+    --Global Animations (down here to go on top of buttons)
+    GlobalAnimate()
+
     --Draw BuildId
     simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
 
@@ -568,11 +631,6 @@ function love.draw()
         love.timer.sleep(Next_Time - cur_time)
     end
 end
-
-
-
-
-
 
 
 

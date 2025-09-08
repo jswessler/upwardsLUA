@@ -88,7 +88,7 @@ function MenuMenu()
     Buttons = {}
     State = 'title'
     Physics = 'off'
-    Buttons['Play'] = Button(70, 570, 400, 130, "Play", function() LoadLevel('lvl1') end, 0)
+    Buttons['Play'] = Button(70, 570, 400, 130, "Play", function() State = 'levelloadtrans' GlAni = 0.6 end, 0)
     Buttons['Quit'] = Button(70, 720, 400, 50, "Quit", love.event.quit, 0)
 end
 

@@ -1,5 +1,12 @@
 Release Log:
 
+a1.1.0
+- Changed how energy is added
+- Threaded level loading routine
+- Added fade in/slide in animations to certain actions
+- Animated title screen!
+- Level loading progress bar
+
 a1.0.13
 - HUD and player no longer animate when paused
 

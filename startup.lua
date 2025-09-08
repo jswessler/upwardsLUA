@@ -5,7 +5,7 @@ function InitialLoad()
     --Set up window & display
     WindowWidth = 1280
     WindowHeight = 800
-    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=720,msaa=2,highdpi=true,usedpiscale=true,fullscreen=false})
+    love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=720,msaa=4,highdpi=true,usedpiscale=true,fullscreen=false})
     love.window.setTitle("Upwards "..BuildId)
 
     --Counters
@@ -19,22 +19,26 @@ function InitialLoad()
 
     --Lists
     Buttons = {}
+    RemArX = {}
+    RemArY = {}
     
     --Scaling
     GameScale = 1
     Zoom = 1
     ZoomBase = 1
-    love.graphics.setDefaultFilter("linear","linear",4)
+    love.graphics.setDefaultFilter("linear","linear",8)
     ScreenshotText = 0
     XPadding = 0
     YPadding = 0
 
     --Images
     LogoImg = love.graphics.newImage("Images/FMV/logo.png")
-    TitleImg = love.graphics.newImage("Images/FMV/title.png")
+    TitleImgBg = love.graphics.newImage("Images/FMV/titlebg.png")
+    TitleImgAr = love.graphics.newImage("Images/FMV/titlear.png")
     FrameCounter = -1
     State = 'initialload'
     Physics = 'off'
+    GlAni = 0.1 --general purpose timers for global animation. Both of these will count down by 1 per frame
 
 
     --Variables
@@ -58,27 +62,18 @@ function InitialLoad()
 
 end
 
-function MenuLoad()
-    State = 'title'
-    Physics = 'off'
-    MenuMenu()
-end
-
 function LoadLevel(level)
-
+    State = 'loadlevel'
     LoadThread = love.thread.newThread("lib/loadARL.lua")
-    LoadStatusCH = love.thread.getChannel("status")
-    LoadAmtCH = love.thread.getChannel("amt")
+
+    --set filter for pixel art
     love.graphics.setDefaultFilter("linear","nearest",4)
-    --LoadThread:start('lvl1.arl')
 
     --Load Images
     HexImg = love.graphics.newImage("Images/UI/hex.png")
     KunaiImg = love.graphics.newImage("Images/UI/kunai.png")
     DefaultPhoneImg = love.graphics.newImage("Images/Phone/normal1.png")
     PausePhoneImg = love.graphics.newImage("Images/Phone/pause.png")
-
-    Physics = 'on'
 
     HpImages = {
         ['red0'] = love.graphics.newImage("/Images/Hearts/red0.png"),
@@ -95,9 +90,6 @@ function LoadLevel(level)
         ['blood'] = love.graphics.newImage("/Images/Hearts/blood.png"),
         ['crit'] = love.graphics.newImage("/Images/Hearts/red_crit.png")
     }
-
-    State = 'game'
-
     --Setup Lists
     ThrownKunai = {}
     Entities = {}
@@ -150,13 +142,6 @@ function LoadLevel(level)
     PhoneY = 0
 
     --Load Level
-    loadARL(level..".arl")
-    --Spawn Player
-    Pl = Player(SpawnPoint[1],SpawnPoint[2]+1)
-    CameraX = Pl.xpos
-    CameraY = Pl.ypos
-
-    --Initialize BG Objects
-    love.resize()
+    LoadThread:start(level..".arl") --start level loading thread
 
 end
