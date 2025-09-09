@@ -7,23 +7,24 @@ require "particle"
 require "lib.extraFunc"
 require "lib.playerCollision"
 
-local VVal = {
+local plStats = {
     singleJump = 0.55, --yv
     jumpExt = 21, --*dt
     hoverMul = 0.00014, --^dt
     dblJumpY = 55, --*dt
     dblJumpX = 1.2, --xv increase when double jump
     diveJump = 77.5, --*dt
-    jCounterG = 0.45, --gravity multiplier when in jcounter
+    jCounterG = 0.475, --gravity multiplier when in jcounter
     wallSlide = 0.1375, --^dt
-    wallJumpY = -3.65, --yv
+    wallJumpY = -3.6, --yv
     wallJumpX = 2.875, --xv
     diveInitX = 4, --initial xv on dive press
     diveInitY = -0.75, --initial yv on dive press
     diveConY = 5.5, --*dt
-    groundAcc = 21, --*dt*speedMult
-    airAcc = 4.5, --*dt
+    groundAcc = 17, --*dt*speedMult
+    airAcc = 4.375, --*dt
     slideAcc = 18, --*dt*slideMult
+    slideMaxSpd = 3.6,
 
 }
 
@@ -476,7 +477,7 @@ function Player:update(dt)
         elseif self.energy[1] < 17.5 then
             self.eRegen[1] = 0.2
         else
-            self.eRegen[1] = math.max(0.005,(22.5-self.energy[1])/25)
+            self.eRegen[1] = math.max(0.008,(22.5-self.energy[1])/25)
         end
 
         if self.energy[2] < 4 then
@@ -484,7 +485,7 @@ function Player:update(dt)
         elseif self.energy[2] < 60 then
             self.eRegen[2] = 0.08
         else
-            self.eRegen[2] = math.max(0.01,(75-self.energy[2])/187.5)
+            self.eRegen[2] = math.max(0.012,(75-self.energy[2])/187.5)
         end
 
         --silver heart calculation
@@ -654,7 +655,7 @@ function Player:update(dt)
             end
             self.abilities[1] = 0
             self.jCounter = 7
-            self.yv = self.yv - VVal.singleJump
+            self.yv = self.yv - plStats.singleJump
             if self.slideBoost ~= 0 then
                 self.xv = self.xv * (1+self.slideBoost/250000)
             end
@@ -664,7 +665,7 @@ function Player:update(dt)
 
         --jump extension
         if not self.onGround and self.abilities[1]<=0 and self.abilities[2]>0 and self.totalEnergy > 0.2 then
-            self.yv = self.yv - (dt*VVal.jumpExt) - dt*math.abs(self.xv)
+            self.yv = self.yv - (dt*plStats.jumpExt) - dt*math.abs(self.xv)
             if self.abilities[2] < 12.5 then
                 self.energyQueue = self.energyQueue + (30*dt)
             end
@@ -685,13 +686,14 @@ function Player:update(dt)
                 self.aniiTimer = 6
             end
                 
+        --normal hover
         else
             if self.yv > 0 and self.totalEnergy > 0.1 and self.animation~='djumpdown' and self.diveDir == 0 then
                 self.yv = self.yv - 0.0125
                 self.yv = self.yv * 0.0001^dt
                 self.jCounter = 2
                 self.energyQueue = self.energyQueue - (0.0625+(0.015*math.abs(self.xv)))*(150*dt)
-                self.maxSpd = math.max(1.5,self.maxSpd-(1*dt))
+                self.maxSpd = math.max(1.75,self.maxSpd-(self.maxSpd/1.5*dt))
                 self.animation = 'hover'
             end
         end
@@ -706,7 +708,7 @@ function Player:update(dt)
             if self.yv < -3 then
                 self.yv = self.yv + 10*dt
             end
-            self.yv = self.yv - (dt*VVal.dblJumpY) - VVal.dblJumpX*dt*math.abs(self.xv)
+            self.yv = self.yv - (dt*plStats.dblJumpY) - plStats.dblJumpX*dt*math.abs(self.xv)
             self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
             self.xv = self.xv * (10^dt)
             self.abilities[3] = self.abilities[3] - (70*dt)
@@ -726,7 +728,7 @@ function Player:update(dt)
 
         --jump out of dive
         if self.abilities[5] > 0 and self.abilities[4] == 0 and not self.onGround and self.abilities[1] <= 0 and self.abilities[4] ~= 2 and self.totalEnergy > 5 then
-            self.yv = self.yv - VVal.diveJump*dt
+            self.yv = self.yv - plStats.diveJump*dt
             self.xv = self.xv * 0.000001^dt
             self.abilities[5] = self.abilities[5] - (60*dt)
             self.abilities[4] = 0
@@ -765,7 +767,7 @@ function Player:update(dt)
         if self.yv > -1 and self.jCounter > 0 then
             self.energyQueue = self.energyQueue - (2.5*dt)
             self.jCounter = self.jCounter - (30*dt)
-            self.gravity = VVal.jCounterG
+            self.gravity = plStats.jCounterG
         end
 
         --wall slide
@@ -779,7 +781,7 @@ function Player:update(dt)
             end
 
             if self.yv > 1.5 then
-                self.yv = self.yv * VVal.wallSlide^dt
+                self.yv = self.yv * plStats.wallSlide^dt
             end
             if self.yv > 3 then
                 self.yv = self.yv - (self.yv-3)/180
@@ -800,9 +802,9 @@ function Player:update(dt)
         --Wall Jump
         if self.wallClimb and self.totalEnergy > 6 and (((love.keyboard.isDown(KeyBinds['Left'])) and self.onWall == 1 and self.WJEnabled == 1) or ((love.keyboard.isDown(KeyBinds['Right'])) and self.onWall == -1 and self.WJEnabled == -1)) then
             self.yv = self.yv * 0.25
-            self.yv = VVal.wallJumpY
+            self.yv = plStats.wallJumpY
             self.jCounter = 10
-            self.xv = -self.onWall * VVal.wallJumpX
+            self.xv = -self.onWall * plStats.wallJumpX
             self.xpos = self.xpos + self.dFacing * -6
             self.ypos = self.ypos - 1
             self.energyQueue = self.energyQueue - 6
@@ -818,17 +820,17 @@ function Player:update(dt)
         if self.abilities[4] > 0 and self.abilities[1] <= 0 and self.totalEnergy > 1 and self.onWall == 0 then
             if self.abilities[4] == 2 then
                 self.energyQueue = self.energyQueue - 4
-                self.yv = VVal.diveInitY + (self.yv*0.1)
+                self.yv = plStats.diveInitY + (self.yv*0.1)
                 self.diveDir = self.dFacing
             end
             --Adjust stats
-            self.xv = self.diveDir * VVal.diveInitX
+            self.xv = self.diveDir * plStats.diveInitX
             self.dFacing = self.diveDir
             self.yv = self.yv * 0.5^dt
-            self.yv = self.yv - VVal.diveConY*dt
+            self.yv = self.yv - plStats.diveConY*dt
             self.abilities[3] = 0
             self.abilities[4] = 1
-            self.maxSpd = VVal.diveInitX + 0.1
+            self.maxSpd = plStats.diveInitX + 0.1
             self.energyQueue = self.energyQueue - (20*dt)
             self.animation = 'jump' --change to dive later
             self.aniiTimer = 6
@@ -899,7 +901,7 @@ function Player:update(dt)
     if self.onGround then    
         --Move left on ground
         if love.keyboard.isDown(KeyBinds['Left']) and self.onWall~=-1 then
-            self.xv = self.xv - VVal.groundAcc*dt*self.speedMult
+            self.xv = self.xv - plStats.groundAcc*dt*self.speedMult
             self.facing = -1
             self.animation = 'run'
             if self.maxSpd < 2.2*self.speedMult then
@@ -911,7 +913,7 @@ function Player:update(dt)
 
         --Move right on ground
         elseif love.keyboard.isDown(KeyBinds['Right']) and self.onWall~=1 then
-            self.xv = self.xv + VVal.groundAcc*dt*self.speedMult
+            self.xv = self.xv + plStats.groundAcc*dt*self.speedMult
             self.facing = 1
             self.animation = 'run'
             if self.maxSpd < 2.2*self.speedMult then
@@ -928,9 +930,9 @@ function Player:update(dt)
 
         self.slide = math.max(-1,self.slide-(dt*240))
         --Start slide
-        if self.slide <= 0 and (self.xv<-1.5 or self.xv>1.5) and love.keyboard.isDown(KeyBinds['Slide']) then
+        if self.slide <= 0 and (self.xv<-1 or self.xv>1) and love.keyboard.isDown(KeyBinds['Slide']) then
             self.slide = 280
-            self.xv = self.xv * 1.5
+            self.xv = self.xv * 1.8
         end
 
         --Continue slide
@@ -938,11 +940,11 @@ function Player:update(dt)
             self.col = {12,-40,30,-25}
             self.speedMult = 1.4
             self.slideMult = 1.5
-            self.maxSpd = 3.5
+            self.maxSpd = plStats.slideMaxSpd
             if self.xv > 0 and self.xv < self.maxSpd then
-                self.xv = self.xv + VVal.slideAcc*dt*self.slideMult
+                self.xv = self.xv + plStats.slideAcc*dt*self.slideMult
             elseif self.xv < 0 and self.xv > -self.maxSpd then
-                self.xv = self.xv - VVal.slideAcc*dt*self.slideMult
+                self.xv = self.xv - plStats.slideAcc*dt*self.slideMult
             end
 
             --Slide under an obstacle
@@ -978,12 +980,12 @@ function Player:update(dt)
 
         --air movement
         if love.keyboard.isDown(KeyBinds['Left']) then
-            self.xv = self.xv - VVal.airAcc*dt
+            self.xv = self.xv - plStats.airAcc*dt
             self.facing = -1
             self.lastDir[1] = 'left'
             self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
         elseif love.keyboard.isDown(KeyBinds['Right']) then
-            self.xv = self.xv + VVal.airAcc*dt
+            self.xv = self.xv + plStats.airAcc*dt
             self.facing = 1
             self.lastDir[1] = 'right'
             self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)

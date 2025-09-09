@@ -2,15 +2,18 @@
 --Upwards!
 
 --[[ todo
-    a1.0.14
-    LTO battery
-    a1.1
+
+    a1.1.1
+    change "Physics" variable and references to actually reflect how physics is handled
+    probably change "State" to be a list showing different levels of detail
+
+    a1.1.2
     multiple levels
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
 --Build Id
-BuildId = "Alpha 1.1.0"
+BuildId = "Alpha 1.1.0_01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -140,15 +143,17 @@ function love.update(dt)
             end
         end
 
-        --Update Phone
-        PhoneRect = {x = PhoneX, y = PhoneY, w = 15*GameScale*PhoneScale, h = 40*GameScale*PhoneScale}
-        PhoneAnimate(dt)
-
 
         --Handle Phone Calls
         if NextCall > 0 then
             handlePhone(NextCall,dt)
         end
+    end
+
+    --Update Phone
+    if State == 'game' or State == 'pause' then
+        PhoneRect = {x = PhoneX, y = PhoneY, w = 15*GameScale*PhoneScale, h = 40*GameScale*PhoneScale}
+        PhoneAnimate(dt)
     end
 
     --Do things when ESC pressed
@@ -501,7 +506,7 @@ function love.draw()
                     love.graphics.setColor(1,1,1,(3.5-FrameCounter)*1.333)
                 end
                 love.graphics.draw(LogoImg,0,0,0,WindowWidth/1382,WindowWidth/1382)
-                if FrameCounter > 3.5 or love.keyboard.isDown(KeyBinds['Jump']) or love.mouse.isDown(1) then
+                if FrameCounter > 3.5 or love.keyboard.isDown(KeyBinds['Jump']) then
                     MenuMenu()
                 end
             else

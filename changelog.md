@@ -1,5 +1,10 @@
 Release Log:
 
+a1.1.0_01
+- Camera shake is now dependent on FPS
+- Emphasized slide to gain velocity on the ground
+- Added more customization for platforming stats
+
 a1.1.0
 - Changed how energy is added
 - Threaded level loading routine

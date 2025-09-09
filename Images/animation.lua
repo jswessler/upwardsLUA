@@ -61,7 +61,11 @@ function PhoneAnimate(dt)
             --Pause if phone is clicked on the top right corner
             if DebugPressed == false and NextCall == 0 and love.mouse.isDown(1) then
                 DebugPressed = true
-                PauseGame()
+                if State == 'pause' then
+                    ResumeGame()
+                else
+                    PauseGame()
+                end
             end
         end
     end
