@@ -8,8 +8,9 @@ require "startup"
 function PauseGame()
     --DebugInfo = false
     Buttons = {}
-    State = 'pause'
-    Physics = 'display'
+    StateVar.state = 'menu'
+    StateVar.substate = 'none'
+    StateVar.physics = 'display'
     Buttons['resume'] = Button(10,50,200,50,"Resume",ResumeGame,0)
     Buttons['options'] = Button(10,120,200,50,"Options",OptionsMenu,0.1)
     Buttons['quit'] = Button(10,190,200,50,"Quit",SureQuit,0.2)
@@ -17,22 +18,23 @@ end
 
 function ResumeGame()
     Buttons = {}
-    State = 'game'
-    Physics = 'on'
+    StateVar.genstate = 'game'
+    StateVar.state = 'play'
+    StateVar.physics = 'on'
 end
 
 function SureQuit()
     Buttons = {}
-    State = 'surequit'
+    StateVar.substate = 'surequit'
     Buttons['Back'] = Button(10, 50, 200, 50, "Back", PauseGame, 0)
-    Buttons['Title'] = Button(10, 120, 200, 50, "To Title", function() State = 'title' MenuMenu() end, 0.1)
-    Buttons['Quit'] = Button(10, 190, 200, 50, "Exit Game", function() GlAni = 0.5 State = 'quitting' end, 0.2)
+    Buttons['Title'] = Button(10, 120, 200, 50, "To Title", function() StateVar.genstate = 'title' TitleScreen() end, 0.1)
+    Buttons['Quit'] = Button(10, 190, 200, 50, "Exit Game", function() GlAni = 0.5 StateVar.ani = 'quitting' end, 0.2)
 end
 
 function OptionsMenu()
     Buttons = {}
-    State = 'options' 
-    Physics = 'display'
+    StateVar.substate = 'options'
+    StateVar.physics = 'display'
     Buttons['graphics'] = Button(10, 50, 300, 50, "Graphics", GraphicsMenu, 0)
     Buttons['performance'] = Button(10, 120, 300, 50, "Performance", PerformanceMenu, 0.05)
     Buttons['controls'] = Button(10, 190, 300, 50, "Controls", ControlsMenu, 0.1)
@@ -43,7 +45,7 @@ end
 
 function GraphicsMenu()
     Buttons = {}
-    State = 'graphicsmenu'
+    StateVar.substate = 'graphics'
     Buttons['fullscreen'] = Button(10, 50, 300, 50, function() local x = 'Off' if love.window.getFullscreen() then x = 'On' end return "Fullscreen: "..x end, function() love.window.setFullscreen(not love.window.getFullscreen()) end, 0)
     Buttons['vsync'] = Button(10, 120, 300, 50, function() local x = 'Adaptive' if love.window.getVSync()==1 then x = 'Single' end return "Vsync: "..x end, function() love.window.setVSync(0 - love.window.getVSync()) end, 0.05)
     Buttons['renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Canvas' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.1)
@@ -53,7 +55,7 @@ end
 
 function PerformanceMenu()
     Buttons = {}
-    State = 'performancemenu'
+    StateVar.substate = 'performance'
     Buttons['stepsize'] = Button(10, 50, 350, 50, function() return "Step Size: "..StepSize end,nil,0,nil,function(x) StepSize = x end,2,16,function() StepSize = 4 end)
     Buttons['fps'] = Button(10, 120, 350, 50, function() if FpsLimit == 0 then return "Max FPS: Unlimited" else return "Max FPS: "..FpsLimit end end,nil,0.1,nil,function(x) FpsLimit = x end,30,144,function() FpsLimit = 0 end)
     Buttons['back'] = Button(10, 190, 200, 50, "Back", OptionsMenu, 0.2)
@@ -61,18 +63,18 @@ end
 
 function ControlsMenu()
     Buttons = {}
-    State = 'controlsmenu'
-    Buttons['Jump'] = Button(10*GameScale, 50, 200, 40, function() return "Jump: "..KeyBinds['Jump'] end, function() State = 'Jump-CS' end, 0.25, "Jump")
-    Buttons['Right'] = Button(10*GameScale, 100, 200, 40, function() return "Right: "..KeyBinds['Right'] end, function() State = 'Right-CS' end, 0.275, "Right")
-    Buttons['Left'] = Button(10*GameScale, 150, 200, 40, function() return "Left: "..KeyBinds['Left'] end, function() State = 'Left-CS' end, 0.3, "Left")
-    Buttons['Up'] = Button(10*GameScale, 200, 200, 40, function() return "Up: "..KeyBinds['Up'] end, function() State = 'Up-CS' end, 0.325, "Up")
-    Buttons['Slide'] = Button(10*GameScale, 250, 200, 40, function() return "Slide: "..KeyBinds['Slide'] end, function() State = 'Slide-CS' end, 0.35, "Slide")
-    Buttons['Dive'] = Button(250*GameScale, 50, 200, 40, function() return "Dive: "..KeyBinds['Dive'] end, function() State = 'Dive-CS' end, 0, "Dive")
-    Buttons['Pause'] = Button(250*GameScale, 100, 200, 40, function() return "Pause: "..KeyBinds['Pause'] end, function() State = 'Pause-CS' end, 0.025, "Pause")
-    Buttons['Call'] = Button(250*GameScale, 150, 200, 40, function() return "Take Call: "..KeyBinds['Call'] end, function() State = 'Call-CS' end, 0.05, "Call")
-    Buttons['Throw'] = Button(250*GameScale, 200, 200, 40, function() return "Kunai: "..KeyBinds['Throw'] end, function() State = 'Throw-CS' end, 0.075, "Throw")
-    Buttons['Skip'] = Button(250*GameScale, 250, 200, 40, function() return "Next Text: "..KeyBinds['Skip'] end, function() State = 'Skip-CS' end, 0.1, "Skip")
-    Buttons['Fast'] = Button(10*GameScale, 300, 200, 40, function() return "Skip Text: "..KeyBinds['Fast'] end, function() State = 'Fast-CS' end, 0.375, "Fast")
+    StateVar.substate = 'controls'
+    Buttons['Jump'] = Button(10*GameScale, 50, 200, 40, function() return "Jump: "..KeyBinds['Jump'] end, function() StateVar.substate = 'Jump-CS' end, 0.25, "Jump")
+    Buttons['Right'] = Button(10*GameScale, 100, 200, 40, function() return "Right: "..KeyBinds['Right'] end, function() StateVar.substate = 'Right-CS' end, 0.275, "Right")
+    Buttons['Left'] = Button(10*GameScale, 150, 200, 40, function() return "Left: "..KeyBinds['Left'] end, function() StateVar.substate = 'Left-CS' end, 0.3, "Left")
+    Buttons['Up'] = Button(10*GameScale, 200, 200, 40, function() return "Up: "..KeyBinds['Up'] end, function() StateVar.substate = 'Up-CS' end, 0.325, "Up")
+    Buttons['Slide'] = Button(10*GameScale, 250, 200, 40, function() return "Slide: "..KeyBinds['Slide'] end, function() StateVar.substate = 'Slide-CS' end, 0.35, "Slide")
+    Buttons['Dive'] = Button(250*GameScale, 50, 200, 40, function() return "Dive: "..KeyBinds['Dive'] end, function() StateVar.substate = 'Dive-CS' end, 0, "Dive")
+    Buttons['Pause'] = Button(250*GameScale, 100, 200, 40, function() return "Pause: "..KeyBinds['Pause'] end, function() StateVar.substate = 'Pause-CS' end, 0.025, "Pause")
+    Buttons['Call'] = Button(250*GameScale, 150, 200, 40, function() return "Take Call: "..KeyBinds['Call'] end, function() StateVar.substate = 'Call-CS' end, 0.05, "Call")
+    Buttons['Throw'] = Button(250*GameScale, 200, 200, 40, function() return "Kunai: "..KeyBinds['Throw'] end, function() StateVar.substate = 'Throw-CS' end, 0.075, "Throw")
+    Buttons['Skip'] = Button(250*GameScale, 250, 200, 40, function() return "Next Text: "..KeyBinds['Skip'] end, function() StateVar.substate = 'Skip-CS' end, 0.1, "Skip")
+    Buttons['Fast'] = Button(10*GameScale, 300, 200, 40, function() return "Skip Text: "..KeyBinds['Fast'] end, function() StateVar.substate = 'Fast-CS' end, 0.375, "Fast")
 
     Buttons['back'] = Button(10, 350, 200, 50, 'Back', OptionsMenu, 0.3)
 end
@@ -80,14 +82,14 @@ end
 function AudioMenu()
 end
 
-function MenuMenu()
+function TitleScreen()
     love.graphics.setDefaultFilter("linear","linear",4)
     FrameCounter = 0
     Buttons = {}
-    State = 'title'
-    Physics = 'off'
-    Buttons['Play'] = Button(70, 570, 400, 130, "Play", function() State = 'levelloadtrans' GlAni = 0.6 end, 0)
-    Buttons['Quit'] = Button(70, 720, 400, 50, "Quit", function() GlAni = 0.5 State = 'quitting' end, 0)
+    StateVar.genstate = 'title'
+    StateVar.physics = 'off'
+    Buttons['Play'] = Button(70, 570, 400, 130, "Play", function() StateVar.ani = 'levelloadtrans' GlAni = 0.6 end, 0)
+    Buttons['Quit'] = Button(70, 720, 400, 50, "Quit", function() GlAni = 0.5 StateVar.ani = 'quitting' end, 0)
 end
 
 
@@ -152,7 +154,7 @@ function Button:draw()
     end
     
     --Override for controls menu buttons
-    if self.id == split(State,'-')[1] then
+    if self.id == split(StateVar.substate,'-')[1] then
         love.graphics.setColor(1,0,0,0.75)
     end
 

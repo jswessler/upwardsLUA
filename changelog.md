@@ -1,5 +1,9 @@
 Release Log:
 
+a1.1.0_02
+- The gamestate is now stored more precisely
+- Tile updating/ticking is now framerate-independent
+
 a1.1.0_01
 - Camera shake is now dependent on FPS
 - Emphasized slide to gain velocity on the ground

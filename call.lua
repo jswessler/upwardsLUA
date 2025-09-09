@@ -9,7 +9,7 @@ local line = -1
 local fullTextBox = false
 
 function handlePhone(num,dt)
-    State = 'phonecall'
+    StateVar.state = 'phonecall'
 
     --Text rectangle sizes
     BoxRect = {x = 50*GameScale, y = WindowHeight-(300*GameScale), w = TBoxWidth, h = (250*GameScale)}
@@ -93,7 +93,7 @@ function handlePhone(num,dt)
                     NameRect = ''
                     NextCall = 0
                     TBoxWidth = 0
-                    State = 'game'
+                    StateVar.state = 'play'
                 end
             end
         --Wait

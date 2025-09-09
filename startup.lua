@@ -13,14 +13,13 @@ function InitialLoad()
     SecondsCounter = 0
     UpdateCounter = 0
     DrawCounter = 0
+    UpdateTime = 0
 
     FrameTime = {}
     GlobalDt = 0
 
     --Lists
     Buttons = {}
-    RemArX = {}
-    RemArY = {}
     
     --Scaling
     GameScale = 1
@@ -36,8 +35,9 @@ function InitialLoad()
     TitleImgBg = love.graphics.newImage("Images/FMV/titlebg.png")
     TitleImgAr = love.graphics.newImage("Images/FMV/titlear.png")
     FrameCounter = -1
-    State = 'initialload'
-    Physics = 'off'
+
+    StateVar = {genstate = 'initialload', state = 'initialload', substate = 'N/A', ani = 'N/A', physics = 'off'}
+
     GlAni = 0.1 --general purpose timers for global animation. Both of these will count down by 1 per frame
 
 
@@ -63,7 +63,8 @@ function InitialLoad()
 end
 
 function LoadLevel(level)
-    State = 'loadlevel'
+    StateVar.state = 'loadlevel'
+    StateVar.genstate = 'none'
     LoadThread = love.thread.newThread("lib/loadARL.lua")
 
     --set filter for pixel art
@@ -98,7 +99,8 @@ function LoadLevel(level)
     Enemies = {}
     HudMov = {}
     Health = {Heart(1,4),Heart(1,4)}
---Initial Variable Values
+
+    --Initial Variable Values
     Kunais = 5 --Number of kunais
     DKunais = 5 --Displayed number of kunais
     Coins = 0 --Number of coins
@@ -143,5 +145,6 @@ function LoadLevel(level)
 
     --Load Level
     LoadThread:start(level..".arl") --start level loading thread
+    StateVar.ani = 'none'
 
 end

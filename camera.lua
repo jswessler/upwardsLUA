@@ -35,7 +35,7 @@ end
 function hudSetup() 
     local hx = 0
     local hy = 0
-    if State ~= 'game' then
+    if StateVar.genstate ~= 'game' then
         table.insert(HudMov,{0,0})
     elseif Pl.xv ~= 0 or Pl.yv ~= 0 then
         table.insert(HudMov,{Pl.xv+3*(love.math.random()-0.5),Pl.yv+3*(love.math.random()-0.5)})

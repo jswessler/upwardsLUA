@@ -4,8 +4,7 @@
 --[[ todo
 
     a1.1.1
-    change "Physics" variable and references to actually reflect how physics is handled
-    probably change "State" to be a list showing different levels of detail
+    
 
     a1.1.2
     multiple levels
@@ -13,7 +12,7 @@
 ]]
 
 --Build Id
-BuildId = "Alpha 1.1.0_01"
+BuildId = "Alpha 1.1.0_02"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -29,6 +28,11 @@ function love.load()
     
     require "shader.gaussianblur"
 
+    require "entity.kunai"
+    require "entity.coin"
+    require "entity.entity"
+    require "entity.enemy"
+
     require "player"
     require "sensor"
     require "camera"
@@ -37,13 +41,7 @@ function love.load()
     require "startup"
     require "heart"
 
-    require "entity.kunai"
-    require "entity.coin"
-    require "entity.entity"
-    require "entity.enemy"
-
     --Initial loading routine
-    State = 'jlidecode'
     InitialLoad()
 
 end
@@ -68,11 +66,10 @@ function love.update(dt)
     end
 
     --Gamemodes where physics is enabled
-    if Physics == 'on' then
+    if StateVar.physics == 'on' then
 
         --Update player physics & animation
         Pl:update(dt)
-
 
         --Update player internal collision detection (non-solid objects)
         for i=Pl.col[2]+8,Pl.col[1]-8,24 do
@@ -80,7 +77,7 @@ function love.update(dt)
 
                 --Nonsolid block detection
                 local ret = Pl.se:detect(j,i)
-                playerCollisionDetect(ret[2],ret[3],dt)
+                PlColDetect(ret[2],ret[3],dt)
 
                 --Enemy detection
                 local en = Pl.se:detectEnemy(j,i)
@@ -90,7 +87,7 @@ function love.update(dt)
 
         --Update Tiles
         TileUpdates = 0
-        tileProperties(dt)
+        TileProp(dt)
 
         --Update enemies
         for i,v in ipairs(Enemies) do
@@ -151,7 +148,7 @@ function love.update(dt)
     end
 
     --Update Phone
-    if State == 'game' or State == 'pause' then
+    if StateVar.genstate == 'game' then
         PhoneRect = {x = PhoneX, y = PhoneY, w = 15*GameScale*PhoneScale, h = 40*GameScale*PhoneScale}
         PhoneAnimate(dt)
     end
@@ -161,24 +158,24 @@ function love.update(dt)
         DebugPressed = true
 
         --States where ESC sends you to pause menu
-        if State == 'options' or State == 'game' or State == 'surequit' or State == 'phonecall' then
+        if StateVar.genstate == 'game' and (StateVar.state == 'play') or (StateVar.state == 'menu' and (StateVar.substate == "options" or StateVar.substate == 'surequit')) then
             PauseGame()
             if love.keyboard.isDown('lshift') then
-                MenuMenu()
+                TitleScreen()
             end
         
         --States where ESC sends you to options menu
-        elseif State == 'graphicsmenu' or State == 'controlsmenu' or State == 'audiomenu' or State == 'performancemenu' then
+        elseif StateVar.genstate == 'game' and StateVar.state ~= 'play' and (StateVar.substate == 'graphics' or StateVar.substate == 'performance' or StateVar.substate == 'controls' or StateVar.substate == 'audio') then
             OptionsMenu()
             
         --States where ESC puts you back in the game
-        elseif State == 'pause' then
+        elseif StateVar.genstate == 'game' and StateVar.state == 'menu' then
             ResumeGame()
 
         --States where ESC quits the game
-        elseif State == 'title' then
+        elseif StateVar.genstate == 'title' then
             GlAni = 0.5
-            State = 'quitting'
+            StateVar.ani = 'quitting'
         end
     end
     GlobalDt = dt
@@ -216,7 +213,7 @@ function love.draw()
     end
 
     --Things to draw when the game is running
-    if Physics == 'display' or Physics == 'on' then
+    if StateVar.physics ~= 'off' then
 
         --Update Zoom
         local tz = ZoomBase
@@ -227,7 +224,7 @@ function love.draw()
         GameScale = GameScale * Zoom
 
         --Update Camera
-        if Physics == 'on' and State == 'game' then
+        if StateVar.physics == 'on' then
             normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,2.5*(Pl.yv-2.5)))
         end
 
@@ -270,7 +267,7 @@ function love.draw()
         end
 
         --Draw Player
-        if State == 'game' then
+        if StateVar.physics == 'on' then
             Pl:animate(Pl.saveDt)
         end
         Pl:draw()
@@ -430,7 +427,7 @@ function love.draw()
         end
 
         --Text
-        if State == 'phonecall' then
+        if StateVar.state == 'phonecall' then
 
             --Border rectangle (white)
             love.graphics.setColor(1,1,1,1)
@@ -496,7 +493,7 @@ function love.draw()
         --Non-game states
         
         --Logo
-        if State == 'initialload' then
+        if StateVar.genstate == 'initialload' then
             if GlAni == 0 then --Wait a small amount before showing title screen
                 if FrameCounter < 0.25 then
                     love.graphics.setColor(1,1,1,FrameCounter*4)
@@ -507,7 +504,7 @@ function love.draw()
                 end
                 love.graphics.draw(LogoImg,0,0,0,WindowWidth/1382,WindowWidth/1382)
                 if FrameCounter > 3.5 or love.keyboard.isDown(KeyBinds['Jump']) then
-                    MenuMenu()
+                    TitleScreen()
                 end
             else
                 FrameCounter = 0
@@ -515,7 +512,7 @@ function love.draw()
         end
 
         --Title Screen Draws
-        if State == 'title' or State == 'quitting' or State == 'levelloadtrans' then
+        if StateVar.genstate == 'title' then
             love.graphics.push()
             love.graphics.translate(XPadding,YPadding) --center the title screen graphics
             love.graphics.setColor(1,1,1,math.min(1,FrameCounter*1.25)) --fade in
@@ -532,17 +529,13 @@ function love.draw()
             local perr = love.math.noise(FrameCounter/4-100)
 
             --Aria follows your mouse a bit
-            table.insert(RemArX,(MouseX-(WindowWidth/2))/60)
-            table.insert(RemArY,(MouseY-(WindowHeight/2))/60)
-            if #RemArX > 120 then table.remove(RemArX,1) end
-            if #RemArY > 120 then table.remove(RemArY,1) end
 
-            love.graphics.draw(TitleImgAr,(perx-0.5)*18+avg(RemArX),((pery-0.5)*36)+50*math.pow(1.5-math.min(1.5,FrameCounter),2.5)+avg(RemArY),(perr-0.5)/20,WindowHeight/2160,WindowHeight/2160)
+            love.graphics.draw(TitleImgAr,(perx-0.5)*18,((pery-0.5)*36)+50*math.pow(1.5-math.min(1.5,FrameCounter),2.5),(perr-0.5)/20,WindowHeight/2160,WindowHeight/2160)
             love.graphics.pop()
         end
 
         --Load Level Draws
-        if State == 'loadlevel' or State == 'levelloadtrans' then
+        if StateVar.state == 'loadlevel' then
 
             --Check if the level loading routine is done
             local info = love.thread.getChannel("lvlLoadRet"):pop()
@@ -569,8 +562,9 @@ function love.draw()
                 CameraY = Pl.ypos
 
                 --change state
-                State = 'game'
-                Physics = 'on'
+                StateVar.genstate = 'game'
+                StateVar.state = 'play'
+                StateVar.physics = 'on'
                 love.resize()
             else
                 --background if GlAni = 0
@@ -610,7 +604,7 @@ function love.draw()
     end
 
     --Reset sensors (probably remove this before 1.0 release (as well as sensor location tracking))
-    if Physics == 'on' or Physics == 'display' then
+    if StateVar.physics ~= 'off' then
         for i,v in ipairs(Entities) do
             v.se:reset()
         end
@@ -730,7 +724,7 @@ function love.resize()
     XPadding = (WindowWidth - (1280*GameScale))/2
     YPadding = (WindowHeight - (800*GameScale))/2
 
-    if State ~= 'initialload' and State ~= 'title' and State ~= 'jlidecode' then
+    if StateVar.genstate == 'game' then
 
         --Initialize Energy bar background area
         BgRectCanvas = love.graphics.newCanvas(WindowWidth+100,WindowHeight,{msaa=4})
@@ -768,9 +762,24 @@ function love.resize()
 end
 
 function love.keypressed(key, scancode, isrepeat)
-    local x = split(State,'-')
+    local x = split(StateVar.substate,'-')
     if x[2] == 'CS' then
         KeyBinds[x[1]] = love.keyboard.getScancodeFromKey(key)
-        State = 'controlsmenu'
+        StateVar.state = 'controlsmenu'
     end
 end
+
+
+--[[ingame:
+{game, play, N/A, on}
+menu
+{game, menu, menu, display}
+optionsmenu
+{game, menu, optionsmenu, display}
+surequit
+{game, menu, surequit, display}
+title screen
+{title, title, N/A, off}
+options in title screen
+{title, menu, menu, off} etc..
+]]

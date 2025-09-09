@@ -61,7 +61,7 @@ function PhoneAnimate(dt)
             --Pause if phone is clicked on the top right corner
             if DebugPressed == false and NextCall == 0 and love.mouse.isDown(1) then
                 DebugPressed = true
-                if State == 'pause' then
+                if StateVar.genstate == 'menu' then
                     ResumeGame()
                 else
                     PauseGame()
@@ -73,7 +73,7 @@ end
 
 function GlobalAnimate() --run once per frame at the very end of love.draw(), should handle anything with GlAni (stuff here goes on top of everything else)
     --Draw a box when quitting the game
-    if State == 'quitting' then
+    if StateVar.ani == 'quitting' then
         love.graphics.setColor(0,0,0,1)
         love.graphics.rectangle('fill',0,-20,WindowWidth,math.sqrt(0.5-GlAni)*(WindowHeight*math.sqrt(2)),20,20)
         if GlAni <= 0 then love.event.quit() end
@@ -81,7 +81,7 @@ function GlobalAnimate() --run once per frame at the very end of love.draw(), sh
     end
 
     --Box in from the right when starting
-    if State == 'levelloadtrans' then
+    if StateVar.ani == 'levelloadtrans' then
         love.thread.getChannel('status'):clear()
         love.graphics.setColor(0,0,0,1)
         local sigmoid = 1 / (1+math.exp(5-GlAni*14))

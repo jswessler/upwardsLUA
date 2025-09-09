@@ -38,7 +38,7 @@ function Player:new(x,y)
     self.dFacing = 1
 
     --energy
-    self.energy = {50,50}
+    self.energy = {25,75}
     self.remEnergy = 100
     self.eRegen = {0,0}
 
@@ -403,7 +403,7 @@ function Player:update(dt)
 
             --Nonsolid player collision detection
             local ret = self.se:detect(j,i)
-            playerCollisionDetect(ret[2],ret[3],dt)
+            PlColDetect(ret[2],ret[3],dt)
 
             --Slide hitbox
             if self.slide > 190 and FrameCounter > self.iFrame then
@@ -452,6 +452,7 @@ function Player:update(dt)
                 self.abilities[2] = 0
                 self.abilities[3] = 0
                 self.xv = self.xv * 0.9
+                self.jCounter = 14 --highest jCounter
 
                 --Bounce off enemy
                 if love.keyboard.isDown(KeyBinds['Slide']) then
@@ -491,8 +492,8 @@ function Player:update(dt)
         --silver heart calculation
         for i=1,#Health,1 do
             if Health[i].type == 3  then
-                self.eRegen = self.eRegen * 1+(0.02*Health[i].amt)
-                self.energy[1] = self.energy[1] + (4*dt) * (100-self.energy)/100 * Health[i].amt
+                self.eRegen[1] = self.eRegen[1] * 1+(0.02*Health[i].amt)
+                self.energy[1] = self.energy[1] + (4*dt) * (100-self.energy[1])/100 * Health[i].amt
             end
         end
 
@@ -585,7 +586,7 @@ function Player:update(dt)
     self.energyQueue = 0
     --Set remEnergy
     if self.totalEnergy < self.remEnergy then
-        self.remEnergy = self.remEnergy - (dt + (self.remEnergy-self.totalEnergy)/300)
+        self.remEnergy = self.remEnergy - (dt + (self.remEnergy-self.totalEnergy)/400)
     else
         self.remEnergy = self.totalEnergy
     end
@@ -713,7 +714,7 @@ function Player:update(dt)
             self.xv = self.xv * (10^dt)
             self.abilities[3] = self.abilities[3] - (70*dt)
             self.energyQueue = self.energyQueue - (250*dt)
-            self.jCounter = 12
+            self.jCounter = 9
             self.aniFrame = 1
 
             --adjust animation

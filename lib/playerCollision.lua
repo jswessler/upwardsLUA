@@ -3,7 +3,7 @@
 
 require "lib.extraFunc"
 
-function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
+function PlColDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
     local blF = split(tile,"-")
     local blMain = tonumber(blF[1])
     local blSub = tonumber(blF[2])
@@ -97,15 +97,27 @@ function playerCollisionDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
     end
 end
 
-
 --Update on-screen tiles
-function tileProperties(dt)
+function TileProp(dt)
+    UpdateTime = UpdateTime + dt
+    if UpdateTime < 0.05 then return end
+    
+    --If it's time to update
+    UpdateTime = 0
     local Xl,Yl = getOnScreen()
-    for i=1,6,1 do
+    --Update 10 on-screen tiles and 2 random tiles per 1/20 second
+    for i=1,12,1 do
 
         --pick 1 block
-        local x = love.math.random(Xl[1],Xl[#Xl])
-        local y = love.math.random(Yl[1],Yl[#Yl])
+        local x = 0
+        local y = 0
+        if i <= 10 then
+            x = love.math.random(Xl[1],Xl[#Xl])
+            y = love.math.random(Yl[1],Yl[#Yl])
+        else
+            x = love.math.random(0,LevelWidth/32)*32
+            y = love.math.random(0,LevelHeight/32)*32
+        end
         local xt = math.floor(x/32)
         local yt = math.floor(y/32)
         x = x - (x%32)
