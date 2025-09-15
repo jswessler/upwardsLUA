@@ -1111,4 +1111,3 @@ function Player:draw()
         love.graphics.draw(self.img,(self.xpos-CameraX+self.imgPos[1])*GameScale,(self.ypos-CameraY+self.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
     end
 end
-

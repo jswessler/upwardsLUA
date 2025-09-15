@@ -161,7 +161,8 @@ function love.update(dt)
         if StateVar.genstate == 'game' and (StateVar.state == 'play') or (StateVar.state == 'menu' and (StateVar.substate == "options" or StateVar.substate == 'surequit')) then
             PauseGame()
             if love.keyboard.isDown('lshift') then
-                TitleScreen()
+                GlAni = 0.5
+                StateVar.ani = 'totitle'
             end
         
         --States where ESC sends you to options menu
@@ -768,18 +769,3 @@ function love.keypressed(key, scancode, isrepeat)
         StateVar.state = 'controlsmenu'
     end
 end
-
-
---[[ingame:
-{game, play, N/A, on}
-menu
-{game, menu, menu, display}
-optionsmenu
-{game, menu, optionsmenu, display}
-surequit
-{game, menu, surequit, display}
-title screen
-{title, title, N/A, off}
-options in title screen
-{title, menu, menu, off} etc..
-]]

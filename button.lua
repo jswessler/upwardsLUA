@@ -27,7 +27,7 @@ function SureQuit()
     Buttons = {}
     StateVar.substate = 'surequit'
     Buttons['Back'] = Button(10, 50, 200, 50, "Back", PauseGame, 0)
-    Buttons['Title'] = Button(10, 120, 200, 50, "To Title", function() StateVar.genstate = 'title' TitleScreen() end, 0.1)
+    Buttons['Title'] = Button(10, 120, 200, 50, "To Title", function() StateVar.genstate = 'title' GlAni = 0.5 StateVar.ani = 'totitle' end, 0.1)
     Buttons['Quit'] = Button(10, 190, 200, 50, "Exit Game", function() GlAni = 0.5 StateVar.ani = 'quitting' end, 0.2)
 end
 

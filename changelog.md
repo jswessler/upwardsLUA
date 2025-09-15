@@ -1,5 +1,8 @@
 Release Log:
 
+a1.1.0_04
+- More sliding/fading animations
+
 a1.1.0_03
 - Camera adjustments
 - Global tile updating enabled
