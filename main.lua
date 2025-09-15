@@ -12,7 +12,7 @@
 ]]
 
 --Build Id
-BuildId = "Alpha 1.1.0_02"
+BuildId = "Alpha 1.1.0_03"
 
 if arg[2] == "debug" then
     require("lldebugger").start()

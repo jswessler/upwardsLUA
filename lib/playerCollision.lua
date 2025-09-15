@@ -105,18 +105,18 @@ function TileProp(dt)
     --If it's time to update
     UpdateTime = 0
     local Xl,Yl = getOnScreen()
-    --Update 10 on-screen tiles and 2 random tiles per 1/20 second
-    for i=1,12,1 do
+    --Update 15 on-screen tiles and 5 random tiles per 1/20 second
+    for i=1,20,1 do
 
         --pick 1 block
         local x = 0
         local y = 0
-        if i <= 10 then
+        if i <= 15 then
             x = love.math.random(Xl[1],Xl[#Xl])
             y = love.math.random(Yl[1],Yl[#Yl])
         else
-            x = love.math.random(0,LevelWidth/32)*32
-            y = love.math.random(0,LevelHeight/32)*32
+            x = math.floor(love.math.random(0,LevelWidth)*32)
+            y = math.floor(love.math.random(0,LevelHeight)*32)
         end
         local xt = math.floor(x/32)
         local yt = math.floor(y/32)

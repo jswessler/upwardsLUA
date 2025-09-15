@@ -21,7 +21,7 @@ local plStats = {
     diveInitX = 4, --initial xv on dive press
     diveInitY = -0.75, --initial yv on dive press
     diveConY = 5.5, --*dt
-    groundAcc = 17, --*dt*speedMult
+    groundAcc = 18, --*dt*speedMult
     airAcc = 4.375, --*dt
     slideAcc = 18, --*dt*slideMult
     slideMaxSpd = 3.6,
@@ -406,10 +406,11 @@ function Player:update(dt)
             PlColDetect(ret[2],ret[3],dt)
 
             --Slide hitbox
-            if self.slide > 190 and FrameCounter > self.iFrame then
+            if self.slide > 180 and FrameCounter > self.iFrame then
                 local e = self.se:detectEnemy(j,i,'all')
                 if e[1] and e[2].health > 0 then
-                    self.xv = self.xv * 0.9
+                    self.slide = self.slide + 30 --extend slide time
+                    self.xv = self.xv * 0.75
                     e[2].health = 0
                     e[2].deathMode = 'kicked'
                 end
@@ -452,7 +453,7 @@ function Player:update(dt)
                 self.abilities[2] = 0
                 self.abilities[3] = 0
                 self.xv = self.xv * 0.9
-                self.jCounter = 14 --highest jCounter
+                self.jCounter = 13 --highest jCounter
 
                 --Bounce off enemy
                 if love.keyboard.isDown(KeyBinds['Slide']) then
@@ -506,7 +507,7 @@ function Player:update(dt)
 
         --first frame on ground
         if self.onGround == false then
-            self.ypos = self.ypos + (dt*140)
+            self.ypos = self.ypos + (dt*144)
             self.energy[1] = self.energy[1] + (self.eRegen[1]+self.eRegen[2]) --restore a bit of energy when you first hit the ground
             if self.yv > 0.5 and self.yv < 4.5 then
                 self.animation = 'landed'
@@ -538,7 +539,7 @@ function Player:update(dt)
 
         --slowdown if you landed hard
         if self.animation == 'hardlanded' then
-            self.xv = self.xv * 0.009^dt
+            self.xv = self.xv * 0.008^dt
         end
         self.yv = 0
         self.gravity = 0
@@ -582,9 +583,10 @@ function Player:update(dt)
         end
     end
 
+    --Energy calculations
     self.totalEnergy = sum(self.energy)
     self.energyQueue = 0
-    --Set remEnergy
+    --Set remEnergy (light gray bar)
     if self.totalEnergy < self.remEnergy then
         self.remEnergy = self.remEnergy - (dt + (self.remEnergy-self.totalEnergy)/400)
     else
@@ -648,7 +650,6 @@ function Player:update(dt)
 
     --keybinds & actions
     if love.keyboard.isDown(KeyBinds['Jump']) then
-        
         --main single jump
         if self.abilities[1] > 0 then
             if self.slide >= 190 and self.slideBoost == 0 then
@@ -704,13 +705,13 @@ function Player:update(dt)
         if (self.abilities[3] > 0 and self.abilities[3] < 4) and not self.onGround and not self.wallClimb and self.abilities[1]<=0 and self.abilities[4]==2 and self.totalEnergy > 1 then
             --cancel out some momentum to normalize double jump height
             if self.yv > 0 then
-                self.yv = self.yv - 80*dt
+                self.yv = self.yv - 150*dt
             end
             if self.yv < -3 then
                 self.yv = self.yv + 10*dt
             end
             self.yv = self.yv - (dt*plStats.dblJumpY) - plStats.dblJumpX*dt*math.abs(self.xv)
-            self.maxSpd = math.min(2.75,self.maxSpd*(5^dt))
+            self.maxSpd = math.max(self.maxSpd,2.6)
             self.xv = self.xv * (10^dt)
             self.abilities[3] = self.abilities[3] - (70*dt)
             self.energyQueue = self.energyQueue - (250*dt)
@@ -902,11 +903,11 @@ function Player:update(dt)
     if self.onGround then    
         --Move left on ground
         if love.keyboard.isDown(KeyBinds['Left']) and self.onWall~=-1 then
-            self.xv = self.xv - plStats.groundAcc*dt*self.speedMult
+            self.xv = self.xv - plStats.groundAcc*dt*self.speedMult*(self.maxSpd/2.9)
             self.facing = -1
             self.animation = 'run'
-            if self.maxSpd < 2.2*self.speedMult then
-                self.maxSpd = self.maxSpd + 2*dt*self.speedMult
+            if self.maxSpd < 2.2*self.speedMult and self.xv < -0.9*self.maxSpd then
+                self.maxSpd = self.maxSpd + 0.5*dt*self.speedMult
             end
             self.lastDir[1] = 'left'
             self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
@@ -914,11 +915,11 @@ function Player:update(dt)
 
         --Move right on ground
         elseif love.keyboard.isDown(KeyBinds['Right']) and self.onWall~=1 then
-            self.xv = self.xv + plStats.groundAcc*dt*self.speedMult
+            self.xv = self.xv + plStats.groundAcc*dt*self.speedMult*(self.maxSpd/2.9)
             self.facing = 1
             self.animation = 'run'
-            if self.maxSpd < 2.2*self.speedMult then
-                self.maxSpd = self.maxSpd + 2*dt*self.speedMult
+            if self.maxSpd < 2.2*self.speedMult and self.xv > 0.9*self.maxSpd then
+                self.maxSpd = self.maxSpd + 0.5*dt*self.speedMult
             end
             self.lastDir[1] = 'right'
             self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
@@ -962,7 +963,7 @@ function Player:update(dt)
 
         --slide cancels when you're not moving
         if self.slide > 0 and math.abs(self.xv) < 1 then
-            self.slide = self.slide - (400*dt)
+            self.slide = self.slide - (300*dt)
         end
 
         --Ground friction
@@ -970,7 +971,7 @@ function Player:update(dt)
 
         --Reset max speed if not moving
         if self.facing == 0 or (self.facing / self.xv) < 0 then
-            self.maxSpd = 2.1
+            self.maxSpd = 2.2
         end
 
 
@@ -994,28 +995,28 @@ function Player:update(dt)
         self.xv = self.xv * 0.25^dt 
     end
 
-    --enforce speed cap
+    --enforce speed cap set by maxspd
     if self.xv > self.maxSpd then
-        self.xv = self.xv - 7.5*dt
+        self.xv = self.xv - 8*dt
     end
     if self.xv < - self.maxSpd then
-        self.xv = self.xv + 7.5*dt
+        self.xv = self.xv + 8*dt
     end
 
-    --enforce speed cap
+    --enforce absolute speed cap
     if self.xv > 6 then
-        self.xv = self.xv - 50*dt
+        self.xv = self.xv - 20*dt
     end
     if self.xv < -6 then
-        self.xv = self.xv + 50*dt
+        self.xv = self.xv + 20*dt
     end
 
     --Reduce maxspeed to the cap
     if self.maxSpd > 3.1 then
-        self.maxSpd = self.maxSpd - (1*dt)
+        self.maxSpd = self.maxSpd - (0.75*dt)
     end
-    if self.maxSpd < 2.5 then
-        self.maxSpd = self.maxSpd + (0.5*dt)
+    if self.maxSpd < 2.2 then
+        self.maxSpd = self.maxSpd + (0.75*dt)
     end
 
     --forfeit floatiness with S
@@ -1031,8 +1032,8 @@ function Player:update(dt)
         self.animation = 'none'
         self.saveAni = 'none'
     end
-    if math.abs(self.xv)<0.1 and self.onGround then
-        self.xv = self.xv * self.xv
+    if math.abs(self.xv)<0.04 and self.onGround then
+        self.xv = self.xv * 6 * (self.xv)
     end
 
     --cancel wall animations if on ground

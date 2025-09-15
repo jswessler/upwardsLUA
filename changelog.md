@@ -1,7 +1,11 @@
 Release Log:
 
+a1.1.0_03
+- Camera adjustments
+- Global tile updating enabled
+
 a1.1.0_02
-- The gamestate is now stored more precisely
+- Gamestate is now stored more precisely
 - Tile updating/ticking is now framerate-independent
 
 a1.1.0_01
