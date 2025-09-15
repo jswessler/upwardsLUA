@@ -12,7 +12,7 @@
 ]]
 
 --Build Id
-BuildId = "Alpha 1.1.0_03"
+BuildId = "Alpha 1.1.0_04_01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -411,8 +411,8 @@ function love.draw()
                         end
                     elseif Pl.totalEnergy < 30 then
                         love.graphics.setColor(1-(Pl.totalEnergy/33.3333),0.1+(Pl.totalEnergy/33.3333),0.3,1)
-                    elseif Pl.energy[1] > 15 then
-                        love.graphics.setColor(0.1,1.15-(Pl.energy[1]/100),-1.5+(Pl.energy[1]/10),1)
+                    elseif Pl.energy[1] > 5 then --if the lower bar is nearly full, make the energy bar blue
+                        love.graphics.setColor(0.1,1.025-(Pl.energy[1]/200),-0.25+(Pl.energy[1]/20),1)
                     else
                         love.graphics.setColor(0.1,1,0.3,1)
                     end

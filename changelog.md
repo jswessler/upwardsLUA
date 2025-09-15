@@ -1,5 +1,8 @@
 Release Log:
 
+a1.1.0_04_01
+- Changed energy bar colors
+
 a1.1.0_04
 - More sliding/fading animations
 
