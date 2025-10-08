@@ -5,14 +5,12 @@
 
     a1.1.1
     
-
     a1.1.2
     multiple levels
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
---Build Id
-BuildId = "Alpha 1.1.0_04_01"
+BuildId = "Alpha 1.1.0_04_02"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -41,32 +39,28 @@ function love.load()
     require "startup"
     require "heart"
 
-    --Initial loading routine
-    InitialLoad()
+    InitialLoad() --Initial Loading Routine
 
 end
 
 function love.update(dt)
-    UpdateST = love.timer.getTime()
     --Update counters
+    UpdateST = love.timer.getTime()
     FrameCounter = FrameCounter + dt
     UpdateCounter = UpdateCounter + 1
     SecondsCounter = round(FrameCounter)
 
-    --Update GlobalAnimations timers
-    if GlAni > 0 then GlAni = GlAni - dt end
+    if GlAni > 0 then GlAni = GlAni - dt end --Update the GlAni timer, for animations
     if GlAni < 0 then GlAni = 0 end
 
-    --Update mouse position
-    MouseX, MouseY = love.mouse.getPosition()
+    MouseX, MouseY = love.mouse.getPosition() --Update mouse position
 
     --Update Buttons
     for i,v in pairs(Buttons) do
         v:update(dt)
     end
 
-    --Gamemodes where physics is enabled
-    if StateVar.physics == 'on' then
+    if StateVar.physics == 'on' then --Gamemodes where physics is enabled
 
         --Update player physics & animation
         Pl:update(dt)
@@ -302,11 +296,11 @@ function love.draw()
 
         --Draw sensors
         if SensorInfo then
-            Pl.se:draw()
-            for i,v in pairs(Entities) do
+            Pl.se:draw() --Draw all player sensors
+            for i,v in pairs(Entities) do --Draw all entity sensors
                 v.se:draw()
             end
-            for i,v in pairs(Enemies) do
+            for i,v in pairs(Enemies) do --Draw all enemy sensors
                 v.se:draw()
             end
         end
@@ -333,7 +327,7 @@ function love.draw()
             --Draw Phone
             love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*PhoneScale,GameScale*PhoneScale)
             
-            --Hex
+            --Draw Hex
             love.graphics.setDefaultFilter("linear","linear",8)
             love.graphics.draw(HexImg,HudX,WindowHeight-(220*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
             love.graphics.setDefaultFilter("linear","nearest",4)
@@ -369,7 +363,7 @@ function love.draw()
                     end
                 end
 
-                --Draw crit flash
+                --Draw crit HP flash
                 if i == 1 and HeartFlashAmt > 0 then
                     local critimg = HpImages['crit']
                     love.graphics.setColor(1,1,1,HeartFlashAmt)
@@ -427,7 +421,7 @@ function love.draw()
             love.graphics.draw(EnergyCanvas,WindowWidth-(235*GameScale)+HudX,WindowHeight-(71.5*GameScale)+HudY,(4.289/57.19))
         end
 
-        --Text
+        --Textbox & Text
         if StateVar.state == 'phonecall' then
 
             --Border rectangle (white)
@@ -448,14 +442,12 @@ function love.draw()
             end
         end
 
-        --EVERYTHING ABOVE GETS SHADERS
+        -- EVERYTHING ABOVE GETS SHADERS
         -- love.graphics.setShader(blurShader)
         -- blurShader:send("radius",3)
 
         love.graphics.setColor(1,1,1,1)
-
-        --Debug block IDS
-        if love.keyboard.isDown("f9") then
+        if love.keyboard.isDown("f9") then --Show debug blocks IDS
             local Xl,Yl = getOnScreen()
             for i,x in ipairs(Xl) do
                 for o,y in ipairs(Yl) do
@@ -529,8 +521,7 @@ function love.draw()
             local pery = love.math.noise(FrameCounter/3+100)
             local perr = love.math.noise(FrameCounter/4-100)
 
-            --Aria follows your mouse a bit
-
+            --Draw
             love.graphics.draw(TitleImgAr,(perx-0.5)*18,((pery-0.5)*36)+50*math.pow(1.5-math.min(1.5,FrameCounter),2.5),(perr-0.5)/20,WindowHeight/2160,WindowHeight/2160)
             love.graphics.pop()
         end
@@ -677,12 +668,12 @@ function RenderOne()
 end
 
 function RenderTwo()
-    local dir = 0
+    local numDTiles = 0
 
     --Update Dirty Tiles
     love.graphics.setCanvas(TileCanvas)
     for i,v in pairs(DirtyTiles) do
-        dir = dir + 1
+        numDTiles = numDTiles + 1
         local bl = LevelData[i]
         local x = split(i,"-")[1]
         local y = split(i,"-")[2]
@@ -712,7 +703,7 @@ function RenderTwo()
 
     --Draw Background
     love.graphics.draw(TileCanvas,LevelWidth-(CameraX*GameScale)-100,LevelHeight-(CameraY*GameScale)-100,0,GameScale,GameScale)
-    return dir
+    return numDTiles
 end
 
 function love.resize()
@@ -731,15 +722,15 @@ function love.resize()
         BgRectCanvas = love.graphics.newCanvas(WindowWidth+100,WindowHeight,{msaa=4})
         love.graphics.setCanvas(BgRectCanvas)
         for i=-100,210,1 do
-            local hei = math.min(40,(math.sqrt(210-i)*8.944))
+            local hei = math.min(40,(math.sqrt(210-i)*8.944)) --Slope down smoothly at the end of the bar
             love.graphics.rectangle('fill',WindowWidth-(50*GameScale)-i*GameScale,WindowHeight-(60*GameScale)-(i/13.333333*GameScale),1*GameScale,hei*GameScale)
         end
 
         --Energy bar Canvas
         EnergyCanvas = love.graphics.newCanvas(238*GameScale,35*GameScale,{msaa=4})
 
-        love.graphics.setCanvas()
         --Initialize Level Canvas
+        love.graphics.setCanvas()
         DirtyTiles = {}
         TileCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32,{msaa=2})
 
@@ -758,12 +749,12 @@ function love.resize()
                 end
             end
         end
-        love.graphics.setCanvas()
+        love.graphics.setCanvas() --reset canvas
     end
 end
 
 function love.keypressed(key, scancode, isrepeat)
-    local x = split(StateVar.substate,'-')
+    local x = split(StateVar.substate,'-') --If you're currently changing a keybind
     if x[2] == 'CS' then
         KeyBinds[x[1]] = love.keyboard.getScancodeFromKey(key)
         StateVar.state = 'controlsmenu'
