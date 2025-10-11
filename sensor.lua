@@ -53,6 +53,7 @@ function Sensor:detectEnemy(x,y,loc)
             end
         end
     end
+    table.insert(self.locations,{0,xp,yp})
     return {false,nil}
 end
 
@@ -69,9 +70,8 @@ function Sensor:draw()
             love.graphics.setColor(0,0.5,1,1) --blue if you detected a non-solid block
         elseif v[1] == 3 then
             love.graphics.setColor(0,1,0.25,1) --green if you detected an enemy
-        
         else
-            love.graphics.setColor(0.3,0.3,0.3,1)
+            love.graphics.setColor(0.3,0.3,0.3,1) --gray if you detected nothing
         end
         love.graphics.circle('fill',(v[2]-CameraX)*GameScale,(v[3]-CameraY)*GameScale,3)
     end

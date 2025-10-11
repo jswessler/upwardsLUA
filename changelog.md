@@ -1,5 +1,14 @@
 Release Log:
 
+a1.1.1
+* Major additions&reworks
+- New pixel art set
+- Changed hex art
+- Added a spin attack
+- Changed platforming: Dive and spin are mutually exclusive per airtime, dive jump removed, you get your double jump back after diving
+- Physics adjustments
+- Animation adjustments
+
 a1.1.0_04_01
 - Changed energy bar colors
 

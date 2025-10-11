@@ -10,17 +10,16 @@ require "lib.playerCollision"
 local plStats = {
     singleJump = 0.55, --yv
     jumpExt = 21, --*dt
-    hoverMul = 0.00014, --^dt
-    dblJumpY = 55, --*dt
+    hoverMul = 0.00015, --^dt, yv mult when hovering
+    dblJumpY = 3.125, --yv
     dblJumpX = 1.2, --xv increase when double jump
-    diveJump = 77.5, --*dt
-    jCounterG = 0.475, --gravity multiplier when in jcounter
+    jCounterG = 0.3, --gravity multiplier when in jcounter
     wallSlide = 0.1375, --^dt
     wallJumpY = -3.6, --yv
     wallJumpX = 2.875, --xv
     diveInitX = 4, --initial xv on dive press
     diveInitY = -0.75, --initial yv on dive press
-    diveConY = 5.5, --*dt
+    diveConY = 1.5, --*dt
     groundAcc = 18, --*dt*speedMult
     airAcc = 4.375, --*dt
     slideAcc = 18, --*dt*slideMult
@@ -45,7 +44,8 @@ function Player:new(x,y)
     --variables
     self.gravity = 1
     self.jCounter = 0
-    self.abilities = {4,15,0,2,2}
+    self.spinnyTimer = 0
+    self.abilities = {jump=1,jumpext=15,djump=0,dive=2,spinny=2}
     self.wallClimb = false
     self.timeOnGround = 0
     self.onGround = true
@@ -131,6 +131,7 @@ function Player:animate(dt)
     --Ground Animations
 
     elseif self.onGround then
+        self.nextAni = 'none'
 
         --Slide loop
         if self.animation == 'slide' and math.abs(self.xv) > 0.5 then
@@ -157,14 +158,14 @@ function Player:animate(dt)
         elseif self.animation == 'run' or math.abs(self.xv) > 0.5 then
             if self.aniTimer < 0 then
                 self.aniFrame = self.aniFrame + 1
-                if self.aniFrame == 18 then
+                if self.aniFrame == 12 then
                     self.aniFrame = 1
                     table.insert(Particles,Particle(self.xpos,self.ypos,'run',self.dFacing))
                 end
-                if self.aniFrame == 9 then
+                if self.aniFrame == 6 then
                     table.insert(Particles,Particle(self.xpos,self.ypos,'run',self.dFacing))
                 end
-                self.aniTimer = math.max(2,(5.5-math.abs(self.xv)))
+                self.aniTimer = math.max(4,(7-math.abs(self.xv)))
             end
 
             --Grab correct frame
@@ -182,7 +183,7 @@ function Player:animate(dt)
             else
                 self.img = love.graphics.newImage("Images/Aria/idle4.png")
             end
-            self.imgPos = {-26,-100}
+            self.imgPos = {-26,-108}
         end
     
     --Air Animations
@@ -191,28 +192,16 @@ function Player:animate(dt)
         --Hover
         if self.animation == 'hover' then
             self.nextAni = 'low'
-            self.aniiTimer = 13
+            self.aniiTimer = 11
             self.animation = 'none'
             if self.aniTimer < 0 then
                 self.aniFrame = self.aniFrame + 1
                 self.aniTimer = 6
             end
-            if self.aniFrame > 6 then
+            if self.aniFrame > 2 then
                 self.aniFrame = 1
             end
-            if self.totalEnergy > 30 then
-                if math.abs(self.xv) < 0.5 then
-                    self.img = love.graphics.newImage("Images/Aria/hovern"..self.aniFrame..".png")
-                else    
-                    self.img = love.graphics.newImage("Images/Aria/hoverr"..self.aniFrame..".png")
-                end
-            else
-                if math.abs(self.xv) < 0.5 then
-                    self.img = love.graphics.newImage("Images/Aria/hovernl"..self.aniFrame..".png")
-                else    
-                    self.img = love.graphics.newImage("Images/Aria/hoverrl"..self.aniFrame..".png")
-                end
-            end
+            self.img = love.graphics.newImage("Images/Aria/hovern"..self.aniFrame..".png") 
             self.imgPos = {-31,-102}
     
 
@@ -224,23 +213,18 @@ function Player:animate(dt)
                 self.aniiTimer = 13
             end
             if self.nextAni == 'high' then
-                if self.aniiTimer < 0 then
+                if self.aniiTimer < 2 then
                     self.nextAni = 'none'
                     self.animation = 'falling'
                 end
                 --after 3 frames, go to standard falling animation
-                self.img = love.graphics.newImage("Images/Aria/jumptrans"..math.floor((18-self.aniiTimer)/5)..".png")
-                self.imgPos = {-31,-100}
-
-
-            --mid transition after double jump
-            elseif self.nextAni == 'mid' then
-                if self.aniiTimer < 0 then
-                    self.nextAni = 'none'
-                    self.animation = 'falling'
+                if self.aniiTimer > 7 then
+                    self.img = love.graphics.newImage("Images/Aria/jumptrans1.png")
+                    self.imgPos = {-33,-108}
+                else
+                    self.img = love.graphics.newImage("Images/Aria/jumptrans2.png")
+                    self.imgPos = {-33,-116}
                 end
-                self.img = love.graphics.newImage("Images/Aria/lowtrans2.png")
-                self.imgPos = {-31,-100}
 
             --low transition after hover or dive jump
             elseif self.nextAni == 'low' then
@@ -248,8 +232,14 @@ function Player:animate(dt)
                     self.nextAni = 'none'
                     self.animation = 'falling'
                 end
-                self.img = love.graphics.newImage("Images/Aria/lowtrans"..math.floor((18-self.aniiTimer)/5)..".png")
-                self.imgPos = {-31,-100}
+                --after 3 frames, go to standard falling animation
+                if self.aniiTimer > 7 then
+                    self.img = love.graphics.newImage("Images/Aria/lowtrans1.png")
+                    self.imgPos = {-29,-106}
+                else
+                    self.img = love.graphics.newImage("Images/Aria/lowtrans2.png")
+                    self.imgPos = {-31,-112}
+                end
             end
             if self.aniiTimer < 0 then
                 self.aniiTimer = 13
@@ -275,45 +265,13 @@ function Player:animate(dt)
             end
 
             --Double Jump
-            if self.nextAni == 'djump' then
-                self.animation = 'falling'
+            if self.animation == 'djump' then
                 if self.aniTimer < 0 then
-                    self.aniFrame = self.aniFrame + 1
-                    self.aniTimer = 3.5
-                end
-                if self.aniFrame > 5 then
-                    self.nextAni = 'mid'
+                    self.nextAni = 'low'
                     self.aniiTimer = 13
                 end
-                self.img = love.graphics.newImage("Images/Aria/djump"..math.min(3,self.aniFrame)..".png")
-                self.imgPos = {-85,-101}
-
-
-            --Djump transition (when moving up)
-            elseif self.animation == 'djumpup' then
-                if self.aniTimer < 0 then
-                    self.aniFrame = self.aniFrame + 1
-                    self.aniTimer = 4
-                end
-                if self.aniFrame > 3 then
-                    self.nextAni = 'djump'
-                    self.animation = 'none'
-                end
-                self.img = love.graphics.newImage("Images/Aria/djumpup"..math.min(2,self.aniFrame)..".png")
-                self.imgPos = {-32,-125}
-            
-            --Djump transition (when moving down)
-            elseif self.animation == 'djumpdown' then
-                if self.aniTimer < 0 then
-                    self.aniFrame = self.aniFrame + 1
-                    self.aniTimer = 4
-                end
-                if self.aniFrame > 3 then
-                    self.nextAni = 'djump'
-                    self.animation = 'none'
-                end
-                self.img = love.graphics.newImage("Images/Aria/djumpdown"..math.min(2,self.aniFrame)..".png")
-                self.imgPos = {-31,-104}
+                self.img = love.graphics.newImage("Images/Aria/djump.png")
+                self.imgPos = {-31,-106}
             
             --Single Jump
             elseif self.animation == 'jump' then
@@ -325,7 +283,7 @@ function Player:animate(dt)
                 else
                     self.img = love.graphics.newImage("Images/Aria/jumpup2.png")
                 end
-                self.imgPos = {-31,-100}
+                self.imgPos = {-31,-106}
 
             --Dive
 
@@ -336,9 +294,9 @@ function Player:animate(dt)
             elseif self.nextAni == 'fastfall' then
                 if self.aniTimer < 0 then
                     self.aniFrame = self.aniFrame + 1
-                    self.aniTimer = math.floor(19-(1.5*self.yv))
+                    self.aniTimer = math.floor(14-(1*self.yv))
                 end
-                if self.aniFrame > 4 then
+                if self.aniFrame > 3 then
                     self.aniFrame = 1
                 end
                 self.img = love.graphics.newImage("Images/Aria/flail"..self.aniFrame..".png")
@@ -365,7 +323,7 @@ function Player:animate(dt)
                     self.animation = 'none'
                 end
                 self.img = love.graphics.newImage("Images/Aria/falling"..self.aniFrame..".png")
-                self.imgPos = {-31,-116}
+                self.imgPos = {-41,-152}
             end
         end
     end
@@ -381,14 +339,31 @@ function Player:animate(dt)
             self.img = love.graphics.newImage("Images/Aria/kunaithrow1-1.png")
         end
     end
+
+    --Spinny
+    if self.animation == 'spinny' or self.nextAni == 'spinny' then
+        self.nextAni = 'spinny'
+        if self.aniTimer < 0 then
+            self.nextAni = 'low'
+            self.animation = 'falling'
+            self.aniiTimer = 4
+        end
+        if self.aniTimer >= 10 then
+            self.img = love.graphics.newImage("Images/Aria/spinnyR.png")
+        elseif self.aniTimer >= 5 then
+            self.img = love.graphics.newImage("Images/Aria/spinnyB.png")
+        else
+            self.img = love.graphics.newImage("Images/Aria/spinnyL.png")
+        self.imgPos = {-36,-100}
+        end
+    end
 end
 
 function Player:update(dt)
     self.saveDt = dt
     
-    --reduce jCounter
-    if self.jCounter > 0 then
-        self.jCounter = self.jCounter - (dt*10)
+    if self.spinnyTimer > 0 then
+        self.spinnyTimer = self.spinnyTimer - (dt*10)
     end
 
     --Prevent energy from going out of bounds
@@ -418,7 +393,7 @@ function Player:update(dt)
             --Hitbox for getting hurt
             elseif FrameCounter > self.iFrame then
                 local e = self.se:detectEnemy(j,i,'hurt')
-                if e[1] then
+                if e[1] and e[2].deathMode == 0 then
                     self.xv = self.xv * -1.25
                     self.yv = love.math.random()-3
                     --Hurt player
@@ -450,10 +425,10 @@ function Player:update(dt)
             if e[1] and e[2].health > 0 and FrameCounter > self.iFrame then
                 self.animation = 'jump'
                 self.nextAni = 'high'
-                self.abilities[2] = 0
-                self.abilities[3] = 0
+                self.abilities['jumpext'] = 0
+                self.abilities['djump'] = 0
                 self.xv = self.xv * 0.9
-                self.jCounter = 13 --highest jCounter
+                self.jCounter = 8 --highest jCounter
 
                 --Bounce off enemy
                 if love.keyboard.isDown(KeyBinds['Slide']) then
@@ -482,10 +457,11 @@ function Player:update(dt)
             self.eRegen[1] = math.max(0.008,(22.5-self.energy[1])/25)
         end
 
+        --Main energy
         if self.energy[2] < 4 then
             self.eRegen[2] = self.energy[2]/50
         elseif self.energy[2] < 60 then
-            self.eRegen[2] = 0.08
+            self.eRegen[2] = 0.095
         else
             self.eRegen[2] = math.max(0.012,(75-self.energy[2])/187.5)
         end
@@ -543,11 +519,10 @@ function Player:update(dt)
         end
         self.yv = 0
         self.gravity = 0
-        self.abilities[1] = 1 --jump
-        self.abilities[2] = 15 --jump extension
-        self.abilities[3] = 4 --double jump
-        self.abilities[4] = 2 --dive
-        self.abilities[5] = 2 --dive jump
+        self.abilities['jump'] = 1 --jump
+        self.abilities['jumpext'] = 15 --jump extension
+        self.abilities['djump'] = 4 --double jump
+        self.abilities['dive'] = 2 --dive
 
         --Add to energy while on ground (not 1st frame)
         self.energy[1] = self.energy[1] + (150*dt*(self.eRegen[1]))+0.001
@@ -565,7 +540,7 @@ function Player:update(dt)
         --slide off an edge
         if self.slide > 0 then
             self.slide = 0
-            self.jCounter = 4
+            self.jCounter = 5
             self.nextAni = 'low'
         end
 
@@ -651,12 +626,12 @@ function Player:update(dt)
     --keybinds & actions
     if love.keyboard.isDown(KeyBinds['Jump']) then
         --main single jump
-        if self.abilities[1] > 0 then
+        if self.abilities['jump'] > 0 then
             if self.slide >= 190 and self.slideBoost == 0 then
                 self.slideBoost = (90-self.slide-190)^2
             end
-            self.abilities[1] = 0
-            self.jCounter = 7
+            self.abilities['jump'] = 0
+            self.jCounter = 6
             self.yv = self.yv - plStats.singleJump
             if self.slideBoost ~= 0 then
                 self.xv = self.xv * (1+self.slideBoost/250000)
@@ -666,12 +641,12 @@ function Player:update(dt)
         end
 
         --jump extension
-        if not self.onGround and self.abilities[1]<=0 and self.abilities[2]>0 and self.totalEnergy > 0.2 then
+        if not self.onGround and self.abilities['jump']<=0 and self.abilities['jumpext']>0 and self.totalEnergy > 0.2 then
             self.yv = self.yv - (dt*plStats.jumpExt) - dt*math.abs(self.xv)
-            if self.abilities[2] < 12.5 then
+            if self.abilities['jumpext'] < 12.5 then
                 self.energyQueue = self.energyQueue + (30*dt)
             end
-            self.abilities[2] = self.abilities[2] - (120*dt)
+            self.abilities['jumpext'] = self.abilities['jumpext'] - (120*dt)
         end
 
         --hover
@@ -679,9 +654,9 @@ function Player:update(dt)
             if self.totalEnergy > 0.1 then
                 self.yv = self.yv * 0.02^dt
                 self.yv = self.yv - 30*dt
-                self.abilities[4] = 2
+                self.abilities['dive'] = 2
                 self.maxSpd = 6
-                self.jCounter = 10
+                self.jCounter = 7
                 self.energyQueue = self.energyQueue + (100-self.energyQueue)*(dt*16)
                 self.animation = 'jump'
                 self.aniTimer = 6
@@ -702,43 +677,33 @@ function Player:update(dt)
 
 
         --double jump
-        if (self.abilities[3] > 0 and self.abilities[3] < 4) and not self.onGround and not self.wallClimb and self.abilities[1]<=0 and self.abilities[4]==2 and self.totalEnergy > 1 then
+        if (self.abilities['djump'] > 0 and self.abilities['djump'] < 4) and not self.onGround and not self.wallClimb and self.abilities['jump']<=0 and self.totalEnergy > 10 and not love.keyboard.isDown(KeyBinds['Dive']) then
             --cancel out some momentum to normalize double jump height
             if self.yv > 0 then
-                self.yv = self.yv - 150*dt
+                self.yv = 0
             end
-            if self.yv < -3 then
-                self.yv = self.yv + 10*dt
+            if self.yv < -0.5 then
+                self.yv = self.yv - (0.6*self.yv)
             end
-            self.yv = self.yv - (dt*plStats.dblJumpY) - plStats.dblJumpX*dt*math.abs(self.xv)
-            self.maxSpd = math.max(self.maxSpd,2.6)
-            self.xv = self.xv * (10^dt)
-            self.abilities[3] = self.abilities[3] - (70*dt)
-            self.energyQueue = self.energyQueue - (250*dt)
-            self.jCounter = 9
+            self.yv = self.yv - (plStats.dblJumpY)
+            if self.abilities['dive'] ~= 2 then --slowdown if you jump after dive
+                self.xv = self.xv * 0.65
+                self.yv = self.yv * 0.4
+                self.maxSpd = 1.9
+            else
+                self.xv = self.xv * 1.05
+                self.maxSpd = math.max(self.maxSpd,2.6)
+            end
+            self.abilities['djump'] = 0
+            self.energyQueue = self.energyQueue - 9
+            self.jCounter = 4
             self.aniFrame = 1
 
             --adjust animation
-            if self.animation ~= 'djumpdown' and self.animation ~= 'djumpup' then
-                if self.yv > 0 then
-                    self.animation = 'djumpdown'
-                else
-                    self.animation = 'djumpup'
-                end
+            if self.animation ~= 'djump' then
+                self.animation = 'djump'
+                self.aniTimer = 8
             end
-        end
-
-        --jump out of dive
-        if self.abilities[5] > 0 and self.abilities[4] == 0 and not self.onGround and self.abilities[1] <= 0 and self.abilities[4] ~= 2 and self.totalEnergy > 5 then
-            self.yv = self.yv - plStats.diveJump*dt
-            self.xv = self.xv * 0.000001^dt
-            self.abilities[5] = self.abilities[5] - (60*dt)
-            self.abilities[4] = 0
-            self.energyQueue = self.energyQueue - (60*dt)
-            self.jCounter = 8
-
-            --animation
-            self.animation = 'hover'
         end
 
     --logic when not pressing space
@@ -746,20 +711,20 @@ function Player:update(dt)
         self.slideBoost = 0
 
         --lose single jump if you let go of space
-        if self.abilities[1] > 0 and self.abilities[1] < 4 and not self.onGround then 
-            self.abilities[1] = 0
-            self.abilities[2] = 0
+        if self.abilities['jump'] > 0 and self.abilities['jump'] < 4 and not self.onGround then 
+            self.abilities['jump'] = 0
+            self.abilities['jumpext'] = 0
         end
 
         --activate double jump once you let go of space after normal jump
-        if self.abilities[1] <= 0 and self.abilities[3] == 4 then 
-            self.abilities[3] = 3
-            self.abilities[2] = 0
+        if self.abilities['jump'] <= 0 and self.abilities['djump'] == 4 then 
+            self.abilities['djump'] = 3
+            self.abilities['jumpext'] = 0
         end
 
         --lose double jump if you let go early
-        if self.abilities[3] > 0 and self.abilities[3] < 3 then
-            self.abilities[3] = 0
+        if self.abilities['djump'] > 0 and self.abilities['djump'] < 3 then
+            self.abilities['djump'] = 0
         end
 
         --hop off wall
@@ -789,7 +754,7 @@ function Player:update(dt)
                 self.yv = self.yv - (self.yv-3)/180
             end
 
-            self.jCounter = 3
+            self.jCounter = 2
             self.wallClimb = true
             self.animation = 'wallslide'
             self.nextAni = 'none'
@@ -805,43 +770,128 @@ function Player:update(dt)
         if self.wallClimb and self.totalEnergy > 6 and (((love.keyboard.isDown(KeyBinds['Left'])) and self.onWall == 1 and self.WJEnabled == 1) or ((love.keyboard.isDown(KeyBinds['Right'])) and self.onWall == -1 and self.WJEnabled == -1)) then
             self.yv = self.yv * 0.25
             self.yv = plStats.wallJumpY
-            self.jCounter = 10
+            self.jCounter = 6
             self.xv = -self.onWall * plStats.wallJumpX
             self.xpos = self.xpos + self.dFacing * -6
             self.ypos = self.ypos - 1
             self.energyQueue = self.energyQueue - 6
             self.wallClimb = false
-            self.abilities[4] = 2
-            self.abilities[5] = 2
+            self.abilities['dive'] = 2
+            self.abilities['divejump'] = 2
             self.animation = 'jump' --change to walljump later
         end
     end
 
+    --Spinny
+    if self.abilities['spinny'] >= 1 and love.keyboard.isDown(KeyBinds['Spin']) and self.totalEnergy > 10 then
+        --Aerial Spinny
+        if not self.onGround then
+            if self.abilities['spinny'] == 2 then --main spinny
+                self.yv = (self.yv * 0.5) - 2.25
+                self.xv = self.xv * 0.5
+                self.abilities['spinny'] = 0
+                self.jCounter = 15
+                self.spinnyTimer = 8
+                for i=1,12,1 do
+                    table.insert(Particles,Particle(self.xpos+math.random(-80,80),self.ypos+math.random(-30,30),'sparkle',self.dFacing))
+                end
+                self.energyQueue = self.energyQueue - 10
+                self.animation = 'spinny'
+                self.aniTimer = 15
+
+            end
+            if self.abilities['spinny'] == 1 then --sub spinny
+                self.yv = (self.yv * 0.75) - 0.75
+                self.xv = self.xv * 0.75
+                self.abilities['spinny'] = 0
+                self.jCounter = 5
+                self.spinnyTimer = 4
+                self.energyQueue = self.energyQueue - 5
+                self.animation = 'spinny'
+                self.aniTimer = 15
+
+            end
+            self.abilities['dive'] = 0
+            self.abilities['djump'] = 0
+        
+        --Grounded spinny
+        elseif math.abs(self.xv) < 1.25 then
+            self.xv = self.xv * 0.4
+            self.jCounter = 15
+            self.abilities['spinny'] = 0
+            self.spinnyTimer = 4
+            self.energyQueue = self.energyQueue - 7.5
+            self.animation = 'spinny'
+            self.aniTimer = 15
+
+        end
+    end
+
+
+
+    --Spinny Recharge
+    if self.onGround then
+        if self.abilities['spinny'] < 1.5 then
+            self.abilities['spinny'] = self.abilities['spinny'] + dt*1.25
+        elseif self.abilities['spinny'] >= 1.5 and self.abilities['spinny'] < 2 then
+            table.insert(Particles,Particle(self.xpos,self.ypos,'hiccup',1,8))
+            self.abilities['spinny'] = -10
+        end
+    else
+        if self.abilities['spinny'] < 0.5 then
+            self.abilities['spinny'] = self.abilities['spinny'] + dt*0.75
+        else
+            if self.abilities['spinny'] >= 0.5 and self.abilities['spinny'] < 1 then
+                self.abilities['spinny'] = 1
+            end
+        end
+    end
+
+    --Spinny Hitbox
+    if self.spinnyTimer > 0 then
+        for i = -120,120,20 do
+            for j = self.col[2],self.col[1],20 do
+                local e = self.se:detectEnemy(i,j,'top')
+                if e[1] and e[2].health > 0 then
+                    self.xv = self.xv * 0.9
+                    self.yv = self.yv - 0.25
+                    self.jCounter = self.jCounter + 1
+                    e[2].health = 0
+                    e[2].deathMode = 'kicked'
+                end
+            end
+        end
+    end
+
+
+    
+
     --dive
-    if love.keyboard.isDown(KeyBinds['Dive']) and self.onWall == 0 and self.abilities[2] < 5 and self.totalEnergy > 5 and not self.onGround and self.timeOffWall > 0.25 then
-        if self.abilities[4] > 0 and self.abilities[1] <= 0 and self.totalEnergy > 1 and self.onWall == 0 then
-            if self.abilities[4] == 2 then
+    if love.keyboard.isDown(KeyBinds['Dive']) and self.onWall == 0 and self.abilities['jumpext'] < 5 and self.totalEnergy > 5 and not self.onGround and self.timeOffWall > 0.25 then
+        if self.abilities['dive'] > 0 and self.abilities['jump'] <= 0 and self.totalEnergy > 1 and self.onWall == 0 then
+            if self.abilities['dive'] == 2 then
                 self.energyQueue = self.energyQueue - 4
-                self.yv = plStats.diveInitY + (self.yv*0.1)
+                self.yv = (self.yv+plStats.diveInitY) * 0.975
                 self.diveDir = self.dFacing
             end
             --Adjust stats
             self.xv = self.diveDir * plStats.diveInitX
             self.dFacing = self.diveDir
-            self.yv = self.yv * 0.5^dt
+            self.yv = self.yv * 0.4^dt
             self.yv = self.yv - plStats.diveConY*dt
-            self.abilities[3] = 0
-            self.abilities[4] = 1
-            self.maxSpd = plStats.diveInitX + 0.1
-            self.energyQueue = self.energyQueue - (20*dt)
+            self.abilities['djump'] = 3
+            self.abilities['dive'] = 1
+            self.abilities['spinny'] = math.min(1,self.abilities['spinny']) --can't fully spinny after a dive
+            self.maxSpd = plStats.diveInitX + 0.05
+            self.energyQueue = self.energyQueue - (19*dt)
             self.animation = 'jump' --change to dive later
             self.aniiTimer = 6
             self.aniTimer = 6
         end
     else
         self.diveDir = 0
-        if self.abilities[4] == 1 then
-            self.abilities[4] = 0
+        if self.abilities['dive'] == 1 then
+            self.abilities['dive'] = 0
         end
     end
 
@@ -901,32 +951,59 @@ function Player:update(dt)
 
     --high traction on the ground
     if self.onGround then    
-        --Move left on ground
-        if love.keyboard.isDown(KeyBinds['Left']) and self.onWall~=-1 then
-            self.xv = self.xv - plStats.groundAcc*dt*self.speedMult*(self.maxSpd/2.9)
-            self.facing = -1
-            self.animation = 'run'
-            if self.maxSpd < 2.2*self.speedMult and self.xv < -0.9*self.maxSpd then
-                self.maxSpd = self.maxSpd + 0.5*dt*self.speedMult
-            end
-            self.lastDir[1] = 'left'
-            self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
-            self.speedMult = math.min(1.4,self.speedMult+(dt/2))
 
-        --Move right on ground
-        elseif love.keyboard.isDown(KeyBinds['Right']) and self.onWall~=1 then
-            self.xv = self.xv + plStats.groundAcc*dt*self.speedMult*(self.maxSpd/2.9)
-            self.facing = 1
-            self.animation = 'run'
-            if self.maxSpd < 2.2*self.speedMult and self.xv > 0.9*self.maxSpd then
-                self.maxSpd = self.maxSpd + 0.5*dt*self.speedMult
+        --Walk
+        if love.keyboard.isDown(KeyBinds['Dive']) then
+            self.speedMult = 1.4
+            --Walk left on ground
+            if love.keyboard.isDown(KeyBinds['Left']) and self.onWall~=-1 then
+                self.xv = self.xv - plStats.groundAcc*dt*0.75
+                self.facing = -1
+                self.animation = 'run' --walk
+                self.maxSpd = 1.3
+                self.lastDir[1] = 'left'
+                self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt/2)
+
+            --Run right on ground
+            elseif love.keyboard.isDown(KeyBinds['Right']) and self.onWall~=1 then
+                self.xv = self.xv + plStats.groundAcc*dt*0.75
+                self.facing = 1
+                self.animation = 'run' --walk
+                self.maxSpd = 1.3
+                self.lastDir[1] = 'right'
+                self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt/2)
             end
-            self.lastDir[1] = 'right'
-            self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
-            self.speedMult = math.min(1.4,self.speedMult+(dt/2))
+        
+        --Run
         else
-            self.speedMult = 1
+            --Run left on ground
+            if love.keyboard.isDown(KeyBinds['Left']) and self.onWall~=-1 then
+                self.xv = self.xv - plStats.groundAcc*dt*self.speedMult*(self.maxSpd/2.9)
+                self.facing = -1
+                self.animation = 'run'
+                if self.maxSpd < 2.2*self.speedMult and self.xv < -0.9*self.maxSpd then
+                    self.maxSpd = self.maxSpd + 0.5*dt*self.speedMult
+                end
+                self.lastDir[1] = 'left'
+                self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
+                self.speedMult = math.min(1.4,self.speedMult+(dt/2))
+
+            --Run right on ground
+            elseif love.keyboard.isDown(KeyBinds['Right']) and self.onWall~=1 then
+                self.xv = self.xv + plStats.groundAcc*dt*self.speedMult*(self.maxSpd/2.9)
+                self.facing = 1
+                self.animation = 'run'
+                if self.maxSpd < 2.2*self.speedMult and self.xv > 0.9*self.maxSpd then
+                    self.maxSpd = self.maxSpd + 0.5*dt*self.speedMult
+                end
+                self.lastDir[1] = 'right'
+                self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)
+                self.speedMult = math.min(1.4,self.speedMult+(dt/2))
+            else
+                self.speedMult = 1
+            end
         end
+        
 
         --slide (1st case is for continuing slide, 2nd case is for starting slide)
 
@@ -1029,7 +1106,9 @@ function Player:update(dt)
 
     --stop if you're very slow & change animation
     if math.abs(self.xv)<0.4 and self.onGround and self.animation~='landed' and self.animation~='hardlanded' then
-        self.animation = 'none'
+        if self.spinnyTimer <= 0 then
+            self.animation = 'none'
+        end
         self.saveAni = 'none'
     end
     if math.abs(self.xv)<0.04 and self.onGround then

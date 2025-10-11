@@ -54,10 +54,10 @@ function InitialLoad()
         ['Slide'] = love.keyboard.getScancodeFromKey('s'),
         ['Dive'] = love.keyboard.getScancodeFromKey('lctrl'),
         ['Pause'] = love.keyboard.getScancodeFromKey('escape'),
-        ['Call'] = love.keyboard.getScancodeFromKey('q'),
+        ['Spin'] = love.keyboard.getScancodeFromKey('lshift'),
         ['Throw'] = love.keyboard.getScancodeFromKey('e'),
         ['Skip'] = love.keyboard.getScancodeFromKey('return'),
-        ['Fast'] = love.keyboard.getScancodeFromKey('lshift'),
+        ['Fast'] = love.keyboard.getScancodeFromKey('l'),
     }
 
 end

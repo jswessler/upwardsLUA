@@ -4,13 +4,21 @@
 --[[ todo
 
     a1.1.1
+    - New double jump animation (hands down, air emitting)
+    - Spin animation (spin)
+    - Mario galaxy spin (gives you lift and a lot of jcounter, but removes your dive. recharges after 1s on the ground. if yo uuse while uncharged, it just slows your fall a bit)
+    - enemies cant hit you if they're in their death animation
+
+    a1.1.2
+    - Scroll to zoom
+    - 
     
     a1.1.2
     multiple levels
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
-BuildId = "Alpha 1.1.0_04_02"
+BuildId = "Alpha 1.1.1"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -329,7 +337,7 @@ function love.draw()
             
             --Draw Hex
             love.graphics.setDefaultFilter("linear","linear",8)
-            love.graphics.draw(HexImg,HudX,WindowHeight-(220*GameScale)+HudY,(-4.289/57.19),0.25*GameScale,0.25*GameScale)
+            love.graphics.draw(HexImg,HudX-(2*GameScale),WindowHeight-(215*GameScale)+HudY,0,0.25*GameScale,0.26*GameScale)
             love.graphics.setDefaultFilter("linear","nearest",4)
 
             --Draw Hearts (Hearts are only updated on draw)
@@ -474,7 +482,7 @@ function love.draw()
             local stats = love.graphics.getStats()
             simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." BL: "..math.floor(Pl.xpos/32).." / "..math.floor(Pl.ypos/32).." Ve: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
             simpleText(round(love.timer.getFPS(),1).." fps "..(love.window.getVSync() and "V" or "").." Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2),16,10*GameScale,60*GameScale)
-            simpleText("PL: "..round(Pl.abilities[1],1).."/"..round(Pl.abilities[2],1).."/"..round(Pl.abilities[3],1).."/"..round(Pl.abilities[4],1).."/"..round(Pl.abilities[5],1).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy[1],1).."/"..round(Pl.energy[2],1).." RE: "..round(Pl.remEnergy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
+            simpleText("PL: "..round(Pl.abilities['jump'],1).."/"..round(Pl.abilities['jumpext'],1).."/"..round(Pl.abilities['djump'],1).."/"..round(Pl.abilities['dive'],1).."/"..round(Pl.abilities['spinny'],2).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy[1],1).."/"..round(Pl.energy[2],1).." RE: "..round(Pl.remEnergy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
             simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
             simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
             simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/(1024*1024),1).."MB Im: "..round(stats.images)..(HighGraphics and " Fancy" or " Fast"),16,10*GameScale,140*GameScale)
