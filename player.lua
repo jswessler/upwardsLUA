@@ -345,16 +345,23 @@ function Player:animate(dt)
         self.nextAni = 'spinny'
         if self.aniTimer < 0 then
             self.nextAni = 'low'
-            self.animation = 'falling'
+            if self.onGround then --fix to end the animation earlier when grounded
+                self.animation = 'none'
+            else
+                self.animation = 'falling'
+            end
             self.aniiTimer = 4
         end
         if self.aniTimer >= 10 then
             self.img = love.graphics.newImage("Images/Aria/spinnyR.png")
+            self.imgPos = {-36,-106}
         elseif self.aniTimer >= 5 then
             self.img = love.graphics.newImage("Images/Aria/spinnyB.png")
+            self.imgPos = {-36,-108}
         else
             self.img = love.graphics.newImage("Images/Aria/spinnyL.png")
-        self.imgPos = {-36,-100}
+            self.imgPos = {-36,-106}
+
         end
     end
 end
@@ -631,7 +638,7 @@ function Player:update(dt)
                 self.slideBoost = (90-self.slide-190)^2
             end
             self.abilities['jump'] = 0
-            self.jCounter = 6
+            self.jCounter = 4
             self.yv = self.yv - plStats.singleJump
             if self.slideBoost ~= 0 then
                 self.xv = self.xv * (1+self.slideBoost/250000)
@@ -732,8 +739,8 @@ function Player:update(dt)
 
         --slight hover at the end of jumps (burns jCounter)
         if self.yv > -1 and self.jCounter > 0 then
-            self.energyQueue = self.energyQueue - (2.5*dt)
-            self.jCounter = self.jCounter - (30*dt)
+            self.energyQueue = self.energyQueue - (3*dt)
+            self.jCounter = self.jCounter - (36*dt)
             self.gravity = plStats.jCounterG
         end
 
@@ -770,7 +777,7 @@ function Player:update(dt)
         if self.wallClimb and self.totalEnergy > 6 and (((love.keyboard.isDown(KeyBinds['Left'])) and self.onWall == 1 and self.WJEnabled == 1) or ((love.keyboard.isDown(KeyBinds['Right'])) and self.onWall == -1 and self.WJEnabled == -1)) then
             self.yv = self.yv * 0.25
             self.yv = plStats.wallJumpY
-            self.jCounter = 6
+            self.jCounter = 4
             self.xv = -self.onWall * plStats.wallJumpX
             self.xpos = self.xpos + self.dFacing * -6
             self.ypos = self.ypos - 1
@@ -783,24 +790,24 @@ function Player:update(dt)
     end
 
     --Spinny
-    if self.abilities['spinny'] >= 1 and love.keyboard.isDown(KeyBinds['Spin']) and self.totalEnergy > 10 then
+    if self.abilities['spinny'] > 0.5 and love.keyboard.isDown(KeyBinds['Spin']) and self.totalEnergy > 10 then
         --Aerial Spinny
         if not self.onGround then
             if self.abilities['spinny'] == 2 then --main spinny
                 self.yv = (self.yv * 0.5) - 2.25
                 self.xv = self.xv * 0.5
                 self.abilities['spinny'] = 0
-                self.jCounter = 15
+                self.jCounter = 16
                 self.spinnyTimer = 8
-                for i=1,12,1 do
-                    table.insert(Particles,Particle(self.xpos+math.random(-80,80),self.ypos+math.random(-30,30),'sparkle',self.dFacing))
-                end
                 self.energyQueue = self.energyQueue - 10
                 self.animation = 'spinny'
                 self.aniTimer = 15
+                for i=1,13,1 do --particles
+                    table.insert(Particles,Particle(self.xpos+math.random(-80,80),self.ypos+math.random(-150,50),'sparkle',self.dFacing))
+                end
 
             end
-            if self.abilities['spinny'] == 1 then --sub spinny
+            if self.abilities['spinny'] > 0.5 and self.abilities['spinny'] < 1.5 then --sub spinny
                 self.yv = (self.yv * 0.75) - 0.75
                 self.xv = self.xv * 0.75
                 self.abilities['spinny'] = 0
@@ -817,12 +824,15 @@ function Player:update(dt)
         --Grounded spinny
         elseif math.abs(self.xv) < 1.25 then
             self.xv = self.xv * 0.4
-            self.jCounter = 15
+            self.jCounter = 10
             self.abilities['spinny'] = 0
             self.spinnyTimer = 4
             self.energyQueue = self.energyQueue - 7.5
             self.animation = 'spinny'
             self.aniTimer = 15
+            for i=1,8,1 do --particles
+                    table.insert(Particles,Particle(self.xpos+math.random(-80,80),self.ypos+math.random(-140,20),'sparkle',self.dFacing))
+            end
 
         end
     end
@@ -855,7 +865,7 @@ function Player:update(dt)
                 if e[1] and e[2].health > 0 then
                     self.xv = self.xv * 0.9
                     self.yv = self.yv - 0.25
-                    self.jCounter = self.jCounter + 1
+                    self.jCounter = self.jCounter + 3
                     e[2].health = 0
                     e[2].deathMode = 'kicked'
                 end
@@ -1059,12 +1069,12 @@ function Player:update(dt)
 
         --air movement
         if love.keyboard.isDown(KeyBinds['Left']) then
-            self.xv = self.xv - plStats.airAcc*dt
+            self.xv = self.xv - plStats.airAcc*dt * (self.spinnyTimer>0 and 1.41 or self.jCounter>0 and 1.1 or 1)
             self.facing = -1
             self.lastDir[1] = 'left'
             self.lastDir[2] = math.max(-0.25,self.lastDir[2] - dt)
         elseif love.keyboard.isDown(KeyBinds['Right']) then
-            self.xv = self.xv + plStats.airAcc*dt
+            self.xv = self.xv + plStats.airAcc*dt * (self.spinnyTimer>0 and 1.41 or self.jCounter>0 and 1.1 or 1)
             self.facing = 1
             self.lastDir[1] = 'right'
             self.lastDir[2] = math.min(0.25,self.lastDir[2] + dt)

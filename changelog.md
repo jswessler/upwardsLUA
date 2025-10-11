@@ -1,5 +1,8 @@
 Release Log:
 
+a1.1.1_01
+- Bug fixes
+
 a1.1.1
 * Major additions&reworks
 - New pixel art set

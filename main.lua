@@ -3,22 +3,15 @@
 
 --[[ todo
 
-    a1.1.1
-    - New double jump animation (hands down, air emitting)
-    - Spin animation (spin)
-    - Mario galaxy spin (gives you lift and a lot of jcounter, but removes your dive. recharges after 1s on the ground. if yo uuse while uncharged, it just slows your fall a bit)
-    - enemies cant hit you if they're in their death animation
-
     a1.1.2
     - Scroll to zoom
-    - 
     
-    a1.1.2
+    a1.2.0
     multiple levels
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
-BuildId = "Alpha 1.1.1"
+BuildId = "Alpha 1.1.1_01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
