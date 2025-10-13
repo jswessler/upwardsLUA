@@ -12,8 +12,9 @@ function PlColDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
     if blMain == 4 and blSub < 3 then
         Pl.abilities['djump'] = 4
         Pl.abilities['dive'] = 2
-        Pl.abilities['spinny'] = 1
-        local totEnergy = 10 + (Pl.remEnergy-Pl.totalEnergy)/2
+        Pl.abilities['spinny'] = math.min(1,Pl.abilities['spinny'])
+        Pl.airSpinnies = math.max(Pl.airSpinnies-1, 1)
+        local totEnergy = 15 + (Pl.remEnergy-Pl.totalEnergy)/1.75
         Pl.energy[1] = Pl.energy[1] + 0.25*totEnergy
         Pl.energy[2] = Pl.energy[2] + 0.75*totEnergy
         DirtyTiles[pB] = true

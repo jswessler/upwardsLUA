@@ -45,6 +45,7 @@ function Player:new(x,y)
     self.gravity = 1
     self.jCounter = 0
     self.spinnyTimer = 0
+    self.airSpinnies = 0
     self.abilities = {jump=1,jumpext=15,djump=0,dive=2,spinny=2}
     self.wallClimb = false
     self.timeOnGround = 0
@@ -178,7 +179,7 @@ function Player:animate(dt)
                 self.img = love.graphics.newImage("Images/Aria/idle1.png")
             elseif self.counter%60 < 31 then
                 self.img = love.graphics.newImage("Images/Aria/idle2.png")
-            elseif self.counter%60 < 47 then
+            elseif self.counter%60 < 46 then
                 self.img = love.graphics.newImage("Images/Aria/idle3.png")
             else
                 self.img = love.graphics.newImage("Images/Aria/idle4.png")
@@ -511,6 +512,7 @@ function Player:update(dt)
                     dmgAmt = Health[i]:takeDmg(dmgAmt)
                 end
             end
+            self.airSpinnies = 0 --reset increasing spinny cost in the air
         end
         self.onGround = true
         self.timeOnGround = self.timeOnGround + dt
@@ -797,7 +799,7 @@ function Player:update(dt)
                 self.yv = (self.yv * 0.5) - 2.25
                 self.xv = self.xv * 0.5
                 self.abilities['spinny'] = 0
-                self.jCounter = 16
+                self.jCounter = 20
                 self.spinnyTimer = 8
                 self.energyQueue = self.energyQueue - 10
                 self.animation = 'spinny'
@@ -805,6 +807,10 @@ function Player:update(dt)
                 for i=1,13,1 do --particles
                     table.insert(Particles,Particle(self.xpos+math.random(-80,80),self.ypos+math.random(-150,50),'sparkle',self.dFacing))
                 end
+                --End of routine
+                self.airSpinnies = self.airSpinnies + 1
+                self.abilities['dive'] = 0
+                self.abilities['djump'] = 0
 
             end
             if self.abilities['spinny'] > 0.5 and self.abilities['spinny'] < 1.5 then --sub spinny
@@ -813,21 +819,24 @@ function Player:update(dt)
                 self.abilities['spinny'] = 0
                 self.jCounter = 5
                 self.spinnyTimer = 4
-                self.energyQueue = self.energyQueue - 5
+                self.energyQueue = self.energyQueue - (7.5 + self.airSpinnies*2.5)
                 self.animation = 'spinny'
-                self.aniTimer = 15
+                self.aniTimer = 14
+                
+                --End of routine
+                self.airSpinnies = self.airSpinnies + 1
+                self.abilities['dive'] = 0
+                self.abilities['djump'] = 0
 
             end
-            self.abilities['dive'] = 0
-            self.abilities['djump'] = 0
         
         --Grounded spinny
-        elseif math.abs(self.xv) < 1.25 then
+        elseif self.abilities['spinny'] == 2 and math.abs(self.xv) < 1 then
             self.xv = self.xv * 0.4
             self.jCounter = 10
             self.abilities['spinny'] = 0
             self.spinnyTimer = 4
-            self.energyQueue = self.energyQueue - 7.5
+            self.energyQueue = self.energyQueue - 12.5
             self.animation = 'spinny'
             self.aniTimer = 15
             for i=1,8,1 do --particles
@@ -842,14 +851,14 @@ function Player:update(dt)
     --Spinny Recharge
     if self.onGround then
         if self.abilities['spinny'] < 1.5 then
-            self.abilities['spinny'] = self.abilities['spinny'] + dt*1.25
+            self.abilities['spinny'] = self.abilities['spinny'] + dt*1.5
         elseif self.abilities['spinny'] >= 1.5 and self.abilities['spinny'] < 2 then
             table.insert(Particles,Particle(self.xpos,self.ypos,'hiccup',1,8))
             self.abilities['spinny'] = -10
         end
     else
         if self.abilities['spinny'] < 0.5 then
-            self.abilities['spinny'] = self.abilities['spinny'] + dt*0.75
+            self.abilities['spinny'] = self.abilities['spinny'] + dt*0.625
         else
             if self.abilities['spinny'] >= 0.5 and self.abilities['spinny'] < 1 then
                 self.abilities['spinny'] = 1
@@ -963,7 +972,7 @@ function Player:update(dt)
     if self.onGround then    
 
         --Walk
-        if love.keyboard.isDown(KeyBinds['Dive']) then
+        if love.keyboard.isDown(KeyBinds['Spin']) then
             self.speedMult = 1.4
             --Walk left on ground
             if love.keyboard.isDown(KeyBinds['Left']) and self.onWall~=-1 then

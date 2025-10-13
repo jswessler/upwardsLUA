@@ -11,7 +11,7 @@
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
-BuildId = "Alpha 1.1.1_01"
+BuildId = "Alpha 1.2.1"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
