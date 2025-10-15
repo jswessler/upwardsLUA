@@ -8,7 +8,7 @@
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
-BuildId = "Alpha 1.2.2"
+BuildId = "Alpha 1.2.3"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -21,8 +21,6 @@ function love.load()
     require "lib.playerCollision"
 
     require "Images.animation"
-    
-    require "shader.gaussianblur"
 
     require "entity.kunai"
     require "entity.coin"
@@ -167,8 +165,13 @@ function love.update(dt)
 
         --States where ESC quits the game
         elseif StateVar.genstate == 'title' then
-            GlAni = 0.5
-            StateVar.ani = 'quitting'
+            if StateVar.substate == 'options' then
+                TitleScreen(false)
+            else
+                GlAni = 0.5
+                StateVar.ani = 'quitting'
+            end
+
         end
     end
     GlobalDt = dt
@@ -186,7 +189,8 @@ end
 
 function love.draw()
     DrawCounter = DrawCounter + 1
-    local drawST = love.timer.getTime()
+    love.graphics.setCanvas(ScreenCanvas)
+    love.graphics.clear()
 
 
     --Background color
@@ -206,7 +210,7 @@ function love.draw()
     end
 
     --Things to draw when the game is running
-    if StateVar.physics ~= 'off' then
+    if StateVar.physics ~= 'off' and StateVar.genstate == 'game' then
 
         --Update Zoom
         local tz = ZoomBase+ZoomScroll
@@ -415,7 +419,7 @@ function love.draw()
                 end
             end
             love.graphics.setColor(1,1,1,1)
-            love.graphics.setCanvas()
+            love.graphics.setCanvas(ScreenCanvas)
             love.graphics.draw(EnergyCanvas,WindowWidth-(235*GameScale)+HudX,WindowHeight-(71.5*GameScale)+HudY,(4.289/57.19))
         end
 
@@ -439,10 +443,6 @@ function love.draw()
                 simpleText(v,32,60*GameScale,WindowHeight-(330*GameScale)+(i*GameScale*50))
             end
         end
-
-        -- EVERYTHING ABOVE GETS SHADERS
-        -- love.graphics.setShader(blurShader)
-        -- blurShader:send("radius",3)
 
         love.graphics.setColor(1,1,1,1)
         if love.keyboard.isDown("f9") then --Show debug blocks IDS
@@ -498,7 +498,7 @@ function love.draw()
                 end
                 love.graphics.draw(LogoImg,0,0,0,WindowWidth/1382,WindowWidth/1382)
                 if FrameCounter > 3.5 or love.keyboard.isDown(KeyBinds['Jump']) then
-                    TitleScreen()
+                    TitleScreen(true)
                 end
             else
                 FrameCounter = 0
@@ -525,6 +525,7 @@ function love.draw()
             --Draw
             love.graphics.draw(TitleImgAr,(perx-0.5)*18,((pery-0.5)*36)+50*math.pow(1.5-math.min(1.5,FrameCounter),2.5),(perr-0.5)/20,WindowHeight/2160,WindowHeight/2160)
             love.graphics.pop()
+
         end
 
         --Load Level Draws
@@ -597,7 +598,7 @@ function love.draw()
     end
 
     --Reset sensors (probably remove this before 1.0 release (as well as sensor location tracking))
-    if StateVar.physics ~= 'off' then
+    if StateVar.physics ~= 'off' and StateVar.genstate == 'game' then
         for i,v in ipairs(Entities) do
             v.se:reset()
         end
@@ -622,6 +623,10 @@ function love.draw()
         end
         love.timer.sleep(Next_Time - cur_time)
     end
+
+    --flip display
+    love.graphics.setCanvas()
+    love.graphics.draw(ScreenCanvas)
 end
 
 
@@ -699,7 +704,7 @@ function RenderTwo()
     end
 
     --Reset canvas to the screen
-    love.graphics.setCanvas()
+    love.graphics.setCanvas(ScreenCanvas)
     DirtyTiles = {}
 
     --Draw Background
@@ -711,6 +716,9 @@ function love.resize()
 
     --Set window width & height
     WindowWidth, WindowHeight = love.graphics.getDimensions()
+
+    --Remake screencanvas
+    ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight)
 
     --From love2d wiki
     GameScale = WindowHeight/800
@@ -731,7 +739,7 @@ function love.resize()
         EnergyCanvas = love.graphics.newCanvas(238*GameScale,35*GameScale,{msaa=4})
 
         --Initialize Level Canvas
-        love.graphics.setCanvas()
+        love.graphics.setCanvas(ScreenCanvas)
         DirtyTiles = {}
         TileCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32,{msaa=2})
 
@@ -750,7 +758,7 @@ function love.resize()
                 end
             end
         end
-        love.graphics.setCanvas() --reset canvas
+        love.graphics.setCanvas(ScreenCanvas) --reset canvas
     end
 end
 

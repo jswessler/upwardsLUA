@@ -94,7 +94,7 @@ function GlobalAnimate() --run once per frame at the very end of love.draw(), sh
     if StateVar.ani == 'totitle' then
         love.graphics.setColor(0,0,0,1)
         love.graphics.rectangle('fill', 0, 0, WindowWidth, WindowHeight*(0.5-GlAni)*2,20,20)
-        if GlAni <= 0 then TitleScreen() StateVar.ani = 'none' end
+        if GlAni <= 0 then TitleScreen(true) StateVar.ani = 'none' end
         love.graphics.setColor(1,1,1,1)
     end
 

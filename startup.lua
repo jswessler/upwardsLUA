@@ -14,7 +14,6 @@ function InitialLoad()
     UpdateCounter = 0
     DrawCounter = 0
     UpdateTime = 0
-
     FrameTime = {}
     GlobalDt = 0
 
@@ -39,9 +38,13 @@ function InitialLoad()
     TitleImgAr = love.graphics.newImage("Images/FMV/titlear.png")
     FrameCounter = -1
 
+    --Canvas
+    ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight)
+
+    --State variable
     StateVar = {genstate = 'initialload', state = 'initialload', substate = 'N/A', ani = 'N/A', physics = 'off'}
 
-    GlAni = 0.1 --general purpose timers for global animation. Both of these will count down by 1 per frame
+    GlAni = 0.01 --general purpose timer for global animation. This counts down by dt
 
 
     --Variables
@@ -62,6 +65,9 @@ function InitialLoad()
         ['Skip'] = love.keyboard.getScancodeFromKey('return'),
         ['Fast'] = love.keyboard.getScancodeFromKey('l'),
     }
+
+    --Other stuff
+    StepSize = 4 --Quarterstep size for entities
 
 end
 
@@ -119,7 +125,6 @@ function LoadLevel(level)
     HighGraphics = true --If the "fancy" graphics are selected
     CreativeMode = false --If the player is in creative mode
     DrawDT = 0 --IDK
-    StepSize = 4 --Quarterstep size for entities
     HeartFlashCounter = -10000 --Timer for low HP flashing
     HeartFlashAmt = 0 --Opacity of heart flashing
     HeartJumpCounter = -10000 --Timer for heart jumping (randomly)

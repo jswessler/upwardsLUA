@@ -42,7 +42,7 @@ function Particle:update(dt) --return true if the particle should die
     end
 
     if self.type == 'hiccup' then
-        self.frame = math.floor(self.timeAlive*22)+1
+        self.frame = math.min(8,math.floor(self.timeAlive*22)+1)
         self.xOffset = Pl.xpos-self.xpos - 122
         if self.info == 8 then
             self.yOffset = Pl.ypos-self.ypos - 123 - 5*(-self.frame^2 + 8*self.frame)

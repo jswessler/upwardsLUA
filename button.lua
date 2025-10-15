@@ -10,13 +10,12 @@ function PauseGame()
     Buttons = {}
     MouseWheelY = 0 --Reset zoom
     ZoomScroll = 0
-    print(MouseWheelY)
     StateVar.state = 'menu'
     StateVar.substate = 'none'
     StateVar.physics = 'display'
-    Buttons['resume'] = Button(10,50,200,50,"Resume",ResumeGame,0)
-    Buttons['options'] = Button(10,120,200,50,"Options",OptionsMenu,0.1)
-    Buttons['quit'] = Button(10,190,200,50,"Quit",SureQuit,0.2)
+    Buttons['Resume'] = Button(10,50,200,50,"Resume",ResumeGame,0)
+    Buttons['Options'] = Button(10,120,200,50,"Options",OptionsMenu,0.1)
+    Buttons['Quit'] = Button(10,190,200,50,"Quit",SureQuit,0.2)
 end
 
 function ResumeGame()
@@ -38,30 +37,30 @@ function OptionsMenu()
     Buttons = {}
     StateVar.substate = 'options'
     StateVar.physics = 'display'
-    Buttons['graphics'] = Button(10, 50, 300, 50, "Graphics", GraphicsMenu, 0)
-    Buttons['performance'] = Button(10, 120, 300, 50, "Performance", PerformanceMenu, 0.05)
-    Buttons['controls'] = Button(10, 190, 300, 50, "Controls", ControlsMenu, 0.1)
-    Buttons['audio'] = Button(10, 260, 300, 50, "Audio", AudioMenu, 0.15)
-    Buttons['creative'] = Button(10, 330, 300, 50, function() local x = 'Off' if CreativeMode then x = 'On' end return "Creative: "..x end, function() CreativeMode = not CreativeMode end, 0.2)
-    Buttons['back'] = Button(10, 400, 200, 50, "Back", PauseGame, 0.25)
+    Buttons['Graphics'] = Button(10, 50, 300, 50, "Graphics", GraphicsMenu, 0)
+    Buttons['Performance'] = Button(10, 120, 300, 50, "Performance", PerformanceMenu, 0.05)
+    Buttons['Controls'] = Button(10, 190, 300, 50, "Controls", ControlsMenu, 0.1)
+    Buttons['Audio'] = Button(10, 260, 300, 50, "Audio", AudioMenu, 0.15)
+    Buttons['CMode'] = Button(10, 330, 300, 50, function() local x = 'Off' if CreativeMode then x = 'On' end return "Creative: "..x end, function() CreativeMode = not CreativeMode end, 0.2)
+    Buttons['Back'] = Button(10, 400, 200, 50, "Back", function() if StateVar.genstate == 'game' then PauseGame() else TitleScreen(false) end end, 0.25)
 end
 
 function GraphicsMenu()
     Buttons = {}
     StateVar.substate = 'graphics'
-    Buttons['fullscreen'] = Button(10, 50, 300, 50, function() local x = 'Off' if love.window.getFullscreen() then x = 'On' end return "Fullscreen: "..x end, function() love.window.setFullscreen(not love.window.getFullscreen()) end, 0)
-    Buttons['vsync'] = Button(10, 120, 300, 50, function() local x = 'Adaptive' if love.window.getVSync()==1 then x = 'Single' end return "Vsync: "..x end, function() love.window.setVSync(0 - love.window.getVSync()) end, 0.05)
-    Buttons['renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Canvas' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.1)
-    Buttons['graphics'] = Button(10, 260, 300, 50, function() local x = 'Fast' if HighGraphics then x = 'Fancy' end return "Graphics: "..x end, function() HighGraphics = not HighGraphics end, 0.15)
-    Buttons['back'] = Button(10, 330, 200, 50, "Back", OptionsMenu, 0.3)
+    Buttons['Fullscreen'] = Button(10, 50, 300, 50, function() local x = 'Off' if love.window.getFullscreen() then x = 'On' end return "Fullscreen: "..x end, function() love.window.setFullscreen(not love.window.getFullscreen()) end, 0)
+    Buttons['VSync'] = Button(10, 120, 300, 50, function() local x = 'Adaptive' if love.window.getVSync()==1 then x = 'Single' end return "Vsync: "..x end, function() love.window.setVSync(0 - love.window.getVSync()) end, 0.05)
+    Buttons['Renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Canvas' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.1)
+    Buttons['GrQuality'] = Button(10, 260, 300, 50, function() local x = 'Fast' if HighGraphics then x = 'Fancy' end return "Graphics: "..x end, function() HighGraphics = not HighGraphics end, 0.15)
+    Buttons['Back'] = Button(10, 330, 200, 50, "Back", OptionsMenu, 0.3)
 end
 
 function PerformanceMenu()
     Buttons = {}
     StateVar.substate = 'performance'
-    Buttons['stepsize'] = Button(10, 50, 350, 50, function() return "Step Size: "..StepSize end,nil,0,nil,function(x) StepSize = x end,2,16,function() StepSize = 4 end)
-    Buttons['fps'] = Button(10, 120, 350, 50, function() if FpsLimit == 0 then return "Max FPS: Unlimited" else return "Max FPS: "..FpsLimit end end,nil,0.1,nil,function(x) FpsLimit = x end,30,144,function() FpsLimit = 0 end)
-    Buttons['back'] = Button(10, 190, 200, 50, "Back", OptionsMenu, 0.2)
+    Buttons['StepSize'] = Button(10, 50, 350, 50, function() return "Step Size: "..StepSize end,nil,0,nil,function(x) StepSize = x end,2,16,function() StepSize = 4 end)
+    Buttons['FPS'] = Button(10, 120, 350, 50, function() if FpsLimit == 0 then return "Max FPS: Unlimited" else return "Max FPS: "..FpsLimit end end,nil,0.1,nil,function(x) FpsLimit = x end,30,144,function() FpsLimit = 0 end)
+    Buttons['Back'] = Button(10, 190, 200, 50, "Back", OptionsMenu, 0.2)
 end
 
 function ControlsMenu()
@@ -79,20 +78,28 @@ function ControlsMenu()
     Buttons['Skip'] = Button(250*GameScale, 250, 200, 40, function() return "Next Text: "..KeyBinds['Skip'] end, function() StateVar.substate = 'Skip-CS' end, 0.1, "Skip")
     Buttons['Fast'] = Button(10*GameScale, 300, 200, 40, function() return "Skip Text: "..KeyBinds['Fast'] end, function() StateVar.substate = 'Fast-CS' end, 0.375, "Fast")
 
-    Buttons['back'] = Button(10, 350, 200, 50, 'Back', OptionsMenu, 0.3)
+    Buttons['Back'] = Button(10, 350, 200, 50, 'Back', OptionsMenu, 0.3)
 end
 
 function AudioMenu()
+    Buttons = {}
+    StateVar.substate = 'audio'
+    Buttons['Back'] = Button(10, 50, 300, 50, "Back (not implemented)", OptionsMenu, 0)
 end
 
-function TitleScreen()
-    love.graphics.setDefaultFilter("linear","linear",4)
-    FrameCounter = 0
+--Main menu
+function TitleScreen(reset)
+    if reset then
+        love.graphics.setDefaultFilter("linear","linear",4)
+        FrameCounter = 0
+    end
     Buttons = {}
     StateVar.genstate = 'title'
     StateVar.physics = 'off'
-    Buttons['Play'] = Button(70, 570, 400, 130, "Play", function() StateVar.ani = 'levelloadtrans' GlAni = 0.6 end, 0)
-    Buttons['Quit'] = Button(70, 720, 400, 50, "Quit", function() GlAni = 0.5 StateVar.ani = 'quitting' end, 0)
+    Buttons['New Game'] = Button(30, 570, 240, 130, "New Game", function() StateVar.ani = 'levelloadtrans' GlAni = 0.6 end, 0)
+    Buttons['Continue'] = Button(290, 570, 240, 130, "Continue", function() StateVar.ani = 'levelloadtrans' GlAni = 0.6 end, 0) --TODO: Save screen
+    Buttons['Options'] = Button(60, 720, 180, 50, "Options", OptionsMenu, 0)
+    Buttons['Quit'] = Button(320, 720, 180, 50, "Quit", function() GlAni = 0.5 StateVar.ani = 'quitting' end, 0)
 end
 
 
