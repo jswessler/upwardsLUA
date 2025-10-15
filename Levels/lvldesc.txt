@@ -19,3 +19,9 @@
 10-1\Spent 1-Time Use Block
 10-1\Blood Heart
 11-1\Phone Call
+13-0\Camera Control
+16-0\Enemy Spawn
+19-0\Enemy Generator
+32-1\Upwards Spring
+32-2\Right Spring
+32-3\Left Spring

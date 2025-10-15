@@ -34,18 +34,23 @@ function Sensor:detectEnemy(x,y,loc)
     local xp = math.min(LevelWidth*32,math.max(0,self.owner.xpos+x+self.owner.xv))
     local yp = math.min(LevelHeight*32,math.max(0,self.owner.ypos+y+self.owner.yv))
     for i,e in ipairs(Enemies) do
+
+        --Check the entire enemy hitbox
         if loc == 'all' then
             if xp > e.xpos and xp < e.xpos+e.width and yp > e.ypos and yp < e.ypos+e.height then
                 table.insert(self.locations,{3,xp,yp})
                 return {true,e}
             end
         end
+
+        --Only check the top of the enemy
         if loc == 'top' then
-            if xp > e.xpos and xp < e.xpos+e.width and yp > e.ypos and yp < e.ypos+4 then
+            if xp > e.xpos and xp < e.xpos+e.width and yp > e.ypos and yp < e.ypos+8 then
                 table.insert(self.locations,{3,xp,yp})
                 return {true,e}
             end
         end
+        --Only check the bottom half of the enemy (hurtbox)
         if loc == 'hurt' then
             if xp > e.xpos and xp < e.xpos+e.width and yp > e.ypos+e.height/2 and yp < e.ypos+e.height then
                 table.insert(self.locations,{3,xp,yp})

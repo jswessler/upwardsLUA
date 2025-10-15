@@ -6,7 +6,7 @@ require "lib.extraFunc"
 require "startup"
 
 function PauseGame()
-    DebugInfo = 0
+    DebugInfo = false
     Buttons = {}
     MouseWheelY = 0 --Reset zoom
     ZoomScroll = 0
@@ -29,7 +29,7 @@ function SureQuit()
     Buttons = {}
     StateVar.substate = 'surequit'
     Buttons['Back'] = Button(10, 50, 200, 50, "Back", PauseGame, 0)
-    Buttons['Title'] = Button(10, 120, 200, 50, "To Title", function() StateVar.genstate = 'title' GlAni = 0.5 StateVar.ani = 'totitle' end, 0.1)
+    Buttons['Title'] = Button(10, 120, 200, 50, "To Title", function() GlAni = 0.5 StateVar.ani = 'totitle' end, 0.1)
     Buttons['Quit'] = Button(10, 190, 200, 50, "Exit Game", function() GlAni = 0.5 StateVar.ani = 'quitting' end, 0.2)
 end
 
@@ -96,8 +96,8 @@ function TitleScreen(reset)
     Buttons = {}
     StateVar.genstate = 'title'
     StateVar.physics = 'off'
-    Buttons['New Game'] = Button(30, 570, 240, 130, "New Game", function() StateVar.ani = 'levelloadtrans' GlAni = 0.6 end, 0)
-    Buttons['Continue'] = Button(290, 570, 240, 130, "Continue", function() StateVar.ani = 'levelloadtrans' GlAni = 0.6 end, 0) --TODO: Save screen
+    Buttons['New Game'] = Button(30, 570, 240, 130, "New Game (level 1)", function() StateVar.ani = 'levelloadtrans' StateVar.substate = 'lvl1' GlAni = 0.6 end, 0)
+    Buttons['Continue'] = Button(290, 570, 240, 130, "Continue (level 2)", function() StateVar.ani = 'levelloadtrans' StateVar.substate = 'lvl2' GlAni = 0.6 end, 0) --TODO: Save screen
     Buttons['Options'] = Button(60, 720, 180, 50, "Options", OptionsMenu, 0)
     Buttons['Quit'] = Button(320, 720, 180, 50, "Quit", function() GlAni = 0.5 StateVar.ani = 'quitting' end, 0)
 end

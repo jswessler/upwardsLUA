@@ -8,7 +8,7 @@
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
-BuildId = "Alpha 1.2.3"
+BuildId = "Alpha 1.2.4"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -102,7 +102,6 @@ function love.update(dt)
             end
         end
 
-
         --Update Entities
         for i,v in ipairs(Entities) do
             if v:update(dt) then
@@ -111,14 +110,12 @@ function love.update(dt)
             end
         end
 
-
         --Update particles
         for i,v in ipairs(Particles) do
             if v:update(dt) then
                 table.remove(Particles,i)
             end
         end
-
 
         --Update total health
         TotalHealth = 0
@@ -167,11 +164,10 @@ function love.update(dt)
         elseif StateVar.genstate == 'title' then
             if StateVar.substate == 'options' then
                 TitleScreen(false)
-            else
-                GlAni = 0.5
-                StateVar.ani = 'quitting'
             end
-
+        else
+            GlAni = 0.5
+            StateVar.ani = 'quitting'
         end
     end
     GlobalDt = dt
@@ -569,10 +565,17 @@ function love.draw()
                 local progress = love.thread.getChannel('status'):pop()
                 if progress then
                     love.thread.getChannel('status'):clear()
-                    love.graphics.setColor(0.333,0.333,0.333,1) love.graphics.rectangle('fill',WindowWidth-375,WindowHeight-25,350,10,5,5) --bg rect
-                    love.graphics.setColor(1,1,1,1) love.graphics.rectangle('fill', WindowWidth-375,WindowHeight-25,350*progress[2],10,5,5) --main rect
-                    simpleText(progress[1],20,WindowWidth-175,WindowHeight-60)
+                    love.graphics.setColor(0.333,0.333,0.333,1) 
+                    love.graphics.rectangle('fill',WindowWidth-475,WindowHeight-25,350,10,5,5) --bg rect
+                    love.graphics.setColor(1,1,1,1) 
+                    love.graphics.rectangle('fill', WindowWidth-475,WindowHeight-25,350*progress[2],10,5,5) --main rect
+                    simpleText(progress[1],20,WindowWidth-275,WindowHeight-60)
                 end
+
+                --Show aria running animation
+                local frame = math.floor((FrameCounter*30)%11)+1
+                local img = love.graphics.newImage("Images/Aria/run"..frame..".png")
+                love.graphics.draw(img,WindowWidth-120,WindowHeight-120,0,2,2)
             end
         end
     end
@@ -708,7 +711,7 @@ function RenderTwo()
     DirtyTiles = {}
 
     --Draw Background
-    love.graphics.draw(TileCanvas,LevelWidth-(CameraX*GameScale)-100,LevelHeight-(CameraY*GameScale)-100,0,GameScale,GameScale)
+    love.graphics.draw(TileCanvas,LevelWidth-(CameraX*GameScale)-(LevelWidth),LevelHeight-(CameraY*GameScale)-(LevelHeight),0,GameScale,GameScale)
     return numDTiles
 end
 
@@ -739,7 +742,6 @@ function love.resize()
         EnergyCanvas = love.graphics.newCanvas(238*GameScale,35*GameScale,{msaa=4})
 
         --Initialize Level Canvas
-        love.graphics.setCanvas(ScreenCanvas)
         DirtyTiles = {}
         TileCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32,{msaa=2})
 

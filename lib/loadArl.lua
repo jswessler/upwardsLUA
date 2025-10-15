@@ -73,8 +73,6 @@ function LoadARL(filename)
                     table.insert(enemies,{x*32,y*32,(byte-16)*256+byte2+1}) --x, y, type
                 end
             end
-        else
-            status = 'Loading ARL Header'
         end
         counter = counter + 1
         cou = cou + 1
@@ -104,7 +102,7 @@ function LoadARL(filename)
             end
         end
     end
-    love.thread.getChannel('lvlLoadRet'):push({lvlData, ldTiles,lvlWid,lvlHei,enemies,sp}) --return all values, this also signals that the routine is done!
+    love.thread.getChannel('lvlLoadRet'):push({lvlData, ldTiles, lvlWid, lvlHei, enemies, sp}) --return all values, this also signals that the routine is done!
     --return lvlData, ldTiles, lvlWid, lvlHei
 
 end

@@ -86,7 +86,7 @@ function GlobalAnimate() --run once per frame at the very end of love.draw(), sh
         love.graphics.setColor(0,0,0,1)
         local sigmoid = 1 / (1+math.exp(5-GlAni*14))
         love.graphics.rectangle('fill',sigmoid*WindowWidth,0,WindowWidth,WindowHeight,20,20)
-        if GlAni <= 0 then LoadLevel("lvl1") end
+        if GlAni <= 0 then LoadLevel(StateVar.substate) end
         love.graphics.setColor(1,1,1,1)
     end
 

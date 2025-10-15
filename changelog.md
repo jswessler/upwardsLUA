@@ -1,5 +1,12 @@
 Release Log:
 
+a1.2.4
+- Second level test
+- Fixed renderer bugs with non-square levels
+- Animated loading screen
+- Animation fixes
+- Jumping on enemies is more consistent
+
 a1.2.3
 - Main menu options screen
 

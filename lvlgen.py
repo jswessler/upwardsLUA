@@ -4,7 +4,7 @@ import os
 path = os.getcwd()
 
 #Game build associated with level generator
-buildId = "id-l0.01"
+buildId = "a1.2.3"
 
 def saveARL(ls,ls2,dest):
     bitO = []
@@ -126,10 +126,13 @@ fps = pg.time.Clock()
 font = pg.font.SysFont('Comic Sans MS',16)
 
 #Initial stuff
-lvlWid = 100
-lvlHei = 100
-lvlNum = 1
-saveTo = 'lvl1.arl'
+
+#IMPORTANT----------------------------------
+lvlWid = 180
+lvlHei = 50
+lvlNum = 2
+saveTo = 'lvl2.arl'
+
 camerax = 0
 cameray = 0
 cpBuff = [0,0]
