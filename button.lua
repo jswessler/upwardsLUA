@@ -6,8 +6,11 @@ require "lib.extraFunc"
 require "startup"
 
 function PauseGame()
-    --DebugInfo = false
+    DebugInfo = 0
     Buttons = {}
+    MouseWheelY = 0 --Reset zoom
+    ZoomScroll = 0
+    print(MouseWheelY)
     StateVar.state = 'menu'
     StateVar.substate = 'none'
     StateVar.physics = 'display'
@@ -71,7 +74,7 @@ function ControlsMenu()
     Buttons['Slide'] = Button(10*GameScale, 250, 200, 40, function() return "Slide: "..KeyBinds['Slide'] end, function() StateVar.substate = 'Slide-CS' end, 0.35, "Slide")
     Buttons['Dive'] = Button(250*GameScale, 50, 200, 40, function() return "Dive: "..KeyBinds['Dive'] end, function() StateVar.substate = 'Dive-CS' end, 0, "Dive")
     Buttons['Pause'] = Button(250*GameScale, 100, 200, 40, function() return "Pause: "..KeyBinds['Pause'] end, function() StateVar.substate = 'Pause-CS' end, 0.025, "Pause")
-    Buttons['Call'] = Button(250*GameScale, 150, 200, 40, function() return "Take Call: "..KeyBinds['Call'] end, function() StateVar.substate = 'Call-CS' end, 0.05, "Call")
+    Buttons['Spin'] = Button(250*GameScale, 150, 200, 40, function() return "Spin: "..KeyBinds['Spin'] end, function() StateVar.substate = 'Spin-CS' end, 0.05, "Spin")
     Buttons['Throw'] = Button(250*GameScale, 200, 200, 40, function() return "Kunai: "..KeyBinds['Throw'] end, function() StateVar.substate = 'Throw-CS' end, 0.075, "Throw")
     Buttons['Skip'] = Button(250*GameScale, 250, 200, 40, function() return "Next Text: "..KeyBinds['Skip'] end, function() StateVar.substate = 'Skip-CS' end, 0.1, "Skip")
     Buttons['Fast'] = Button(10*GameScale, 300, 200, 40, function() return "Skip Text: "..KeyBinds['Fast'] end, function() StateVar.substate = 'Fast-CS' end, 0.375, "Fast")

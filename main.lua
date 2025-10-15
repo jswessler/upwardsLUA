@@ -2,16 +2,13 @@
 --Upwards!
 
 --[[ todo
-
-    a1.1.2
-    - Scroll to zoom
     
-    a1.2.0
+    a1.3.0
     multiple levels
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
-BuildId = "Alpha 1.2.1"
+BuildId = "Alpha 1.2.2"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -212,8 +209,8 @@ function love.draw()
     if StateVar.physics ~= 'off' then
 
         --Update Zoom
-        local tz = ZoomBase
-        if (HighGraphics and UpdateCounter%1==1 or UpdateCounter%4==1) and math.abs(Pl.xv) + math.abs(Pl.yv/2) >= 2 then
+        local tz = ZoomBase+ZoomScroll
+        if (HighGraphics and UpdateCounter%1==1 or UpdateCounter%4==1) and math.abs(Pl.xv) + math.abs(Pl.yv/2) >= 2 then --slightly zoom out when travelling at high speed
             tz = tz + ((5 - (math.abs(Pl.xv) + math.abs(Pl.yv/2)))/10)-0.3
         end
         Zoom = Zoom + (tz-Zoom)/(0.5/love.timer.getDelta())
@@ -482,6 +479,9 @@ function love.draw()
             simpleText(_VERSION.." G: "..round(collectgarbage("count")),16,10*GameScale,180*GameScale)
             simpleText("Love "..love.getVersion().." "..love.system.getOS().. " C: "..love.system.getProcessorCount(),16,10*GameScale,200*GameScale)
 
+            --show exact energy values
+            simpleText(round(Pl.energy[1],1),18,WindowWidth-50+HudX,WindowHeight-170+HudY)
+            simpleText(round(Pl.energy[2],1),18,WindowWidth-50+HudX,WindowHeight-150+HudY)
         end
     else
         --Non-game states
@@ -760,4 +760,9 @@ function love.keypressed(key, scancode, isrepeat)
         KeyBinds[x[1]] = love.keyboard.getScancodeFromKey(key)
         StateVar.state = 'controlsmenu'
     end
+end
+
+function love.wheelmoved(x,y)
+    MouseWheelY = math.max(-40,math.min(40,MouseWheelY + (y or 0)))
+    ZoomScroll = MouseWheelY/400
 end

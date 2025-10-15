@@ -9,19 +9,19 @@ require "lib.playerCollision"
 
 local plStats = {
     singleJump = 0.55, --yv
-    jumpExt = 21, --*dt
+    jumpExt = 22, --*dt
     hoverMul = 0.00015, --^dt, yv mult when hovering
-    dblJumpY = 3.125, --yv
-    dblJumpX = 1.2, --xv increase when double jump
-    jCounterG = 0.3, --gravity multiplier when in jcounter
-    wallSlide = 0.1375, --^dt
-    wallJumpY = -3.6, --yv
-    wallJumpX = 2.875, --xv
+    dblJumpY = 3.5, --yv
+    dblJumpX = 1.25, --xv increase when double jump
+    jCounterG = 0.25, --gravity multiplier when in jcounter
+    wallSlide = 0.125, --^dt
+    wallJumpY = -3.75, --yv
+    wallJumpX = 2.75, --xv
     diveInitX = 4, --initial xv on dive press
     diveInitY = -0.75, --initial yv on dive press
-    diveConY = 1.5, --*dt
-    groundAcc = 18, --*dt*speedMult
-    airAcc = 4.375, --*dt
+    diveConY = 1.75, --*dt
+    groundAcc = 17.5, --*dt*speedMult
+    airAcc = 4.5, --*dt
     slideAcc = 18, --*dt*slideMult
     slideMaxSpd = 3.6,
 
@@ -272,7 +272,7 @@ function Player:animate(dt)
                     self.aniiTimer = 13
                 end
                 self.img = love.graphics.newImage("Images/Aria/djump.png")
-                self.imgPos = {-31,-106}
+                self.imgPos = {-28,-106}
             
             --Single Jump
             elseif self.animation == 'jump' then
@@ -301,14 +301,14 @@ function Player:animate(dt)
                     self.aniFrame = 1
                 end
                 self.img = love.graphics.newImage("Images/Aria/flail"..self.aniFrame..".png")
-                self.imgPos = {-31,-116}
+                self.imgPos = {-31,-146}
 
             elseif self.nextAni == 'fftrans' then
                 if self.aniTimer < 0 then
                     self.nextAni = 'fastfall'
                 end
                 self.img = love.graphics.newImage("Images/Aria/fftrans.png")
-                self.imgPos = {-31,-116}
+                self.imgPos = {-31,-146}
 
             elseif self.animation == 'falling' then
                 if self.aniTimer < 0 then
@@ -1121,7 +1121,11 @@ function Player:update(dt)
     end
 
     --apply gravity
-    self.yv = self.yv + (self.gravity * dt * GlobalGravity)
+    if self.yv < 0 then
+        self.yv = self.yv + (self.gravity * dt * (GlobalGravity+1))
+    else
+        self.yv = self.yv + (self.gravity * dt * GlobalGravity)
+    end
 
     --stop if you're very slow & change animation
     if math.abs(self.xv)<0.4 and self.onGround and self.animation~='landed' and self.animation~='hardlanded' then

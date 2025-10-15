@@ -25,10 +25,13 @@ function InitialLoad()
     GameScale = 1
     Zoom = 1
     ZoomBase = 1
+    ZoomScroll = 0
     love.graphics.setDefaultFilter("linear","linear",8)
     ScreenshotText = 0
     XPadding = 0
     YPadding = 0
+
+    MouseWheelY = 0
 
     --Images
     LogoImg = love.graphics.newImage("Images/FMV/logo.png")
@@ -121,7 +124,7 @@ function LoadLevel(level)
     HeartFlashAmt = 0 --Opacity of heart flashing
     HeartJumpCounter = -10000 --Timer for heart jumping (randomly)
     TotalHealth = 8 --Total health of the player (placeholder, updated immediately)
-    GlobalGravity = 7.75 --global gravity multiplier
+    GlobalGravity = 7.5 --global gravity multiplier
 
     --Turn on debug with lshift
     if love.keyboard.isDown('lshift') then

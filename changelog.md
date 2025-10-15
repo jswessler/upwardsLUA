@@ -2,6 +2,7 @@ Release Log:
 
 a1.2.1
 - Physics adjustments & Bug fixes
+- Scroll to zoom
 
 a1.2_01 (labeled as 1.1.1_01)
 - Bug fixes
