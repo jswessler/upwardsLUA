@@ -1,5 +1,8 @@
 Release Log:
 
+a1.2.4_01
+- Bug fixes
+
 a1.2.4
 - Second level test
 - Fixed renderer bugs with non-square levels

@@ -40,6 +40,8 @@ function InitialLoad()
 
     --Canvas
     ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight)
+    HDMACanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
+    HDMATempCanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
 
     --State variable
     StateVar = {genstate = 'initialload', state = 'initialload', substate = 'N/A', ani = 'N/A', physics = 'off'}
@@ -100,6 +102,10 @@ function LoadLevel(level)
         ['blood'] = love.graphics.newImage("/Images/Hearts/blood.png"),
         ['crit'] = love.graphics.newImage("/Images/Hearts/red_crit.png")
     }
+
+    --setup HDMA
+    HDMAInit(1)
+
     --Setup Lists
     ThrownKunai = {}
     Entities = {}

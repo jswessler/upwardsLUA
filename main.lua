@@ -3,12 +3,19 @@
 
 --[[ todo
     
+    a1.2.5
+    - Lvlgen in LUA
+    - Level complete block. Touch it to go to next level
+    - HDMA style backgrounds
+    - 
+
+
     a1.3.0
     multiple levels
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
-BuildId = "Alpha 1.2.4"
+BuildId = "Alpha 1.2.4_01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -26,6 +33,8 @@ function love.load()
     require "entity.coin"
     require "entity.entity"
     require "entity.enemy"
+
+    require "hdma.hdma"
 
     require "player"
     require "sensor"
@@ -193,6 +202,14 @@ function love.draw()
     love.graphics.setColor(0.1,0.1,0.1,1)
     love.graphics.rectangle("fill",0,0,WindowWidth,WindowHeight)
     love.graphics.setColor(1,1,1,1)
+
+    --Draw HDMA background
+    if StateVar.genstate == 'game' then
+        --HDMA(1, FrameCounter)
+    end
+    if HDMACanvas then
+        love.graphics.draw(HDMACanvas,0,0,0,4,4)
+    end
 
     --Update WindowWidth & WindowHeight
     WindowWidth, WindowHeight = love.graphics.getDimensions()
@@ -722,6 +739,8 @@ function love.resize()
 
     --Remake screencanvas
     ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight)
+    HDMACanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
+    HDMATempCanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
 
     --From love2d wiki
     GameScale = WindowHeight/800

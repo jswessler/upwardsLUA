@@ -402,7 +402,7 @@ function Player:update(dt)
             elseif FrameCounter > self.iFrame then
                 local e = self.se:detectEnemy(j,i,'hurt')
                 if e[1] and e[2].deathMode == 0 then
-                    self.xv = self.xv * -1.25
+                    self.xv = (self.dFacing * -0.5) + (e[2].xv/1.25)
                     self.yv = love.math.random()-3
                     --Hurt player
                     --self.animation = 'hurt'
@@ -462,16 +462,16 @@ function Player:update(dt)
         elseif self.energy[1] < 17.5 then
             self.eRegen[1] = 0.2
         else
-            self.eRegen[1] = math.max(0.008,(22.5-self.energy[1])/25)
+            self.eRegen[1] = math.max(0.01,(22.5-self.energy[1])/25)
         end
 
         --Main energy
         if self.energy[2] < 4 then
-            self.eRegen[2] = self.energy[2]/50
+            self.eRegen[2] = self.energy[2]/45
         elseif self.energy[2] < 60 then
-            self.eRegen[2] = 0.095
+            self.eRegen[2] = 0.08
         else
-            self.eRegen[2] = math.max(0.012,(75-self.energy[2])/187.5)
+            self.eRegen[2] = math.max(0.01,(75-self.energy[2])/190)
         end
 
         --silver heart calculation
