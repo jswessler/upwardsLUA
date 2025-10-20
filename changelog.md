@@ -1,5 +1,9 @@
 Release Log:
 
+a1.2.6_02
+- Bug fixes
+- Fast vs Fancy does more stuff
+
 a1.2.6_01
 - Screenshots no longer show "Screenshot Taken" text
 

@@ -10,16 +10,6 @@ function InitialLoad()
     love.window.setMode(WindowWidth,WindowHeight, {resizable=true,vsync=1,minwidth=1280,minheight=720,msaa=4,highdpi=true,usedpiscale=true,fullscreen=false})
     love.window.setTitle("Upwards "..BuildId)
 
-    --Counters
-    FrameCounter = 0
-    SecondsCounter = 0
-    UpdateCounter = 0
-    DrawCounter = 0
-    UpdateTime = 0
-    FrameTime = {}
-    GlobalDt = 0
-    FadingText = {-1,''} --Opacity of screenshot text
-
     --Lists
     Buttons = {}
     
@@ -37,23 +27,11 @@ function InitialLoad()
     LogoImg = love.graphics.newImage("image/FMV/logo.png")
     TitleImgBg = love.graphics.newImage("image/FMV/titlebg.png")
     TitleImgAr = love.graphics.newImage("image/FMV/titlear.png")
-    FrameCounter = -1
 
     --Canvas
     ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight)
     HDMACanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
     HDMATempCanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
-
-    --State variable
-    StateVar = {genstate = 'initialload', state = 'initialload', substate = 'N/A', ani = 'N/A', physics = 'off'}
-
-    GlAni = 0.01 --general purpose timer for global animation. This counts down by dt
-
-
-    --Variables
-    FpsLimit = 0 --71 = 60FPS, 0 = Uncapped FPS
-    Next_Time = 0
-    BuildWid = 0 --for positioning screenshot text
     
     --Keyboard Constants
     KeyBinds = {
@@ -70,9 +48,21 @@ function InitialLoad()
         ['Fast'] = love.keyboard.getScancodeFromKey('l'),
     }
 
-    --Other stuff
+    --Variables
     StepSize = 4 --Quarterstep size for entities, isn't reset when going to title screen
     AutoStep = true --automatically set step size
+    DebugInfo = false --If the F3 menu is displayed
+    FpsLimit = 0 --71 = 60FPS, 0 = Uncapped FPS
+    Next_Time = 0 --Helper to keep track of frametime
+    GlAni = 0.01 --general purpose timer for global animation. This counts down by dt
+    StateVar = {genstate = 'initialload', state = 'initialload', substate = 'N/A', ani = 'N/A', physics = 'off'}
+    FrameCounter = -1 --Tracks real time
+    SecondsCounter = 0 --Floor of frametime
+    UpdateCounter = 0 --Ticks for each update
+    TileUpdateTime = 0 --Tracks tile updating
+    DrawCounter = 0 --Ticks for each frame
+    FadingText = {-1,''} --Opacity of screenshot text
+
 
 end
 
@@ -125,7 +115,6 @@ function LoadLevel(level)
     DiffCX = 0 --Camera diff X
     DiffCY = 0 --Camera diff Y
     DebugPressed = false --If you're pressing any debug keys
-    DebugInfo = false --If the F3 menu is displayed
     TileUpdates = 0 --Number of tile updates
     HudEnabled = true --If the HUD is enabled
     KunaiReticle = false --If the kunai reticle is displayed
@@ -139,6 +128,7 @@ function LoadLevel(level)
     TotalHealth = 8 --Total health of the player (placeholder, updated immediately)
     GlobalGravity = 7.5 --global gravity multiplier
     AutoSave = FrameCounter + 4 --autosave timer
+    LevelId = level --Set level id
 
     Zoom = 1
     ZoomBase = 1
@@ -167,9 +157,6 @@ function LoadLevel(level)
     --Load Level
     LoadThread:start(level..".arl") --start level loading thread
     StateVar.ani = 'none'
-
-    LevelId = level
-
 end
 
 function SaveGame()
@@ -183,7 +170,7 @@ function SaveGame()
         ab = Pl.abilities,
         level = LevelId,
     }
-    love.filesystem.write("savegame.ars", json.encode(state, { indent = true }))
+    love.filesystem.write("savegame.ars", json.encode(state, {indent=true}))
     FadingText = {150, "Game Saved"}
 end
 

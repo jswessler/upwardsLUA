@@ -108,11 +108,11 @@ end
 
 --Update on-screen tiles
 function TileProp(dt)
-    UpdateTime = UpdateTime + dt
-    if UpdateTime < 0.05 then return end
+    TileUpdateTime = TileUpdateTime + dt
+    if TileUpdateTime < 0.05 then return end
     
     --If it's time to update
-    UpdateTime = 0
+    TileUpdateTime = 0
     local Xl,Yl = GetOnScreen()
     --Update 15 on-screen tiles and 5 random tiles per 1/20 second
     for i=1,20,1 do

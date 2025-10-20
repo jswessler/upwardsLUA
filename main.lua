@@ -3,19 +3,16 @@
 
 --[[ todo
 
-    a1.2.6
-
     a1.2.7
-    - Loading saved games
-    - 
+    - More pixel art
+    - Fix phone calls (add portraits)
 
 
     a1.3.0
-    saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
-    - lvlgen in lua
+    - Lvlgen in lua
 ]]
 
-BuildId = "Alpha 1.2.6_01"
+BuildId = "Alpha 1.2.6_02"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -71,7 +68,7 @@ function love.update(dt)
 
         --Update player internal collision detection for non-solid objects
         for i=Pl.col[2]+8,Pl.col[1]-8,24 do
-            for j=Pl.col[4],Pl.col[3],27.5 do --Covers a region inside the player model
+            for j=Pl.col[4],Pl.col[3],27.5 do --Covers a region inside the player
 
                 --Nonsolid block detection
                 local ret = Pl.se:detect(j,i) --detect block Ids
@@ -120,7 +117,7 @@ function love.update(dt)
 
         --Update total health
         TotalHealth = 0
-        HeartFlashAmt = HeartFlashAmt - (dt*2.5)
+        HeartFlashAmt = HeartFlashAmt - (dt*2.5) --heart flash fades out
         for i,hp in ipairs(Health) do
             hp:update(dt)
             if hp.amt > 0 then
@@ -138,7 +135,7 @@ function love.update(dt)
         if FrameCounter > AutoSave then
             SaveGame()
             FadingText = {150, "Autosaving..."}
-            AutoSave = FrameCounter + 30
+            AutoSave = FrameCounter + 45
         end
     end
 
@@ -178,7 +175,6 @@ function love.update(dt)
             StateVar.ani = 'quitting'
         end
     end
-    GlobalDt = dt
 
     if FpsLimit ~= 0 then
         Next_Time = Next_Time + 1/FpsLimit
@@ -202,9 +198,9 @@ function love.update(dt)
 end
 
 function love.draw()
-    DrawCounter = DrawCounter + 1
+    DrawCounter = DrawCounter + 1 --debug count draw calls
     love.graphics.setCanvas(ScreenCanvas)
-    love.graphics.clear()
+    love.graphics.clear() --reset main canvas
 
 
     --Background color
@@ -213,12 +209,11 @@ function love.draw()
     love.graphics.setColor(1,1,1,1)
 
     --Draw HDMA background
-    if StateVar.genstate == 'game' then
-        --HDMA(1, FrameCounter)
-    end
-    if HDMACanvas then
-        love.graphics.draw(HDMACanvas,0,0,0,4,4)
-    end
+    
+
+
+
+
 
     --Update WindowWidth & WindowHeight
     WindowWidth, WindowHeight = love.graphics.getDimensions()
@@ -332,7 +327,7 @@ function love.draw()
         --Auto set step size if enabled
         if AutoStep then
             local f = love.timer.getFPS()
-            StepSize = clamp(round(360/f),2,16)
+            StepSize = clamp(round((HighGraphics and 360 or 240)/f),2,16)
         end
 
         --HUD Below this (Nonscaled elements)
@@ -575,12 +570,12 @@ function love.draw()
                     table.insert(Enemies,e)
                 end
                 
-                --Spawn Player
+                --Spawn player
                 Pl = Player(info[6][1],info[6][2]+1)
                 CameraX = Pl.xpos
                 CameraY = Pl.ypos
 
-                --change state
+                --Change state
                 StateVar.genstate = 'game'
                 StateVar.state = 'play'
                 StateVar.physics = 'on'
@@ -591,6 +586,8 @@ function love.draw()
                     --Set states
                     Pl.xpos = LoadState['xpos']
                     Pl.ypos = LoadState['ypos']
+                    CameraX = Pl.xpos
+                    CameraY = Pl.ypos
                     Pl.xv = LoadState['xv']
                     Pl.yv = LoadState['yv']
                     Health = {}
@@ -608,7 +605,8 @@ function love.draw()
                 if GlAni <= 0 then
                     love.graphics.clear(0,0,0,1)
                 end
-                --show progress bar
+
+                --Show progress bar
                 local progress = love.thread.getChannel('status'):pop()
                 if progress then
                     love.thread.getChannel('status'):clear()
@@ -667,7 +665,7 @@ function love.draw()
     --Draw BuildId
     SimpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
 
-    --flip display
+    --Flip display
     love.graphics.setCanvas()
     love.graphics.draw(ScreenCanvas)
 end
