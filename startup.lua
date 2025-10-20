@@ -18,7 +18,7 @@ function InitialLoad()
     UpdateTime = 0
     FrameTime = {}
     GlobalDt = 0
-    ScreenshotText = {-1,''} --Opacity of screenshot text
+    FadingText = {-1,''} --Opacity of screenshot text
 
     --Lists
     Buttons = {}
@@ -184,7 +184,7 @@ function SaveGame()
         level = LevelId,
     }
     love.filesystem.write("savegame.ars", json.encode(state, { indent = true }))
-    ScreenshotText = {150, "Game Saved"}
+    FadingText = {150, "Game Saved"}
 end
 
 function LoadGame()

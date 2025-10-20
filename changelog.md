@@ -1,5 +1,8 @@
 Release Log:
 
+a1.2.6_01
+- Screenshots no longer show "Screenshot Taken" text
+
 a1.2.6
 - Saving and loading (right now only loads player state and not level)
 - Autosave on an interval

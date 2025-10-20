@@ -15,7 +15,7 @@
     - lvlgen in lua
 ]]
 
-BuildId = "Alpha 1.2.6"
+BuildId = "Alpha 1.2.6_01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -137,7 +137,7 @@ function love.update(dt)
         --Autosave every 30s
         if FrameCounter > AutoSave then
             SaveGame()
-            ScreenshotText = {150, "Autosaving..."}
+            FadingText = {150, "Autosaving..."}
             AutoSave = FrameCounter + 30
         end
     end
@@ -228,7 +228,7 @@ function love.draw()
     if love.keyboard.isDown("f2") and not DebugPressed then
         DebugPressed = true
         love.graphics.captureScreenshot("Upwards-"..os.time()..".png")
-        ScreenshotText = {150, "Screenshot Taken"}
+        FadingText = {155, "Screenshot Taken"}
     end
 
     --Things to draw when the game is running
@@ -627,14 +627,16 @@ function love.draw()
         end
     end
 
-    --Screenshot Text
-    if ScreenshotText[1] > 0 then
-        love.graphics.setColor(1,1,1,math.min(1,ScreenshotText[1]/60))
-        local x = TextWidth("Upwards "..BuildId,20)
-        SimpleText(ScreenshotText[2],20,(x+20)*GameScale,10*GameScale)
-        ScreenshotText[1] = ScreenshotText[1] - 1
-    elseif ScreenshotText[1] > -1 then
-        ScreenshotText[1] = -1
+    --Fading Text
+    if FadingText[1] > 0 then
+        FadingText[1] = FadingText[1] - 1
+        if FadingText[1] <= 150 then
+            love.graphics.setColor(1,1,1,math.min(1,FadingText[1]/60))
+            local x = TextWidth("Upwards "..BuildId,20)
+            SimpleText(FadingText[2],20,(x+20)*GameScale,10*GameScale)
+        end
+    elseif FadingText[1] > -1 then
+        FadingText[1] = -1
     end
     love.graphics.setColor(1,1,1,1)
 
