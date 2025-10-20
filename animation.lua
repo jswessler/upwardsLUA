@@ -35,7 +35,7 @@ function PhoneAnimate(dt)
         end
 
         --Collide
-        if pointCollideRect(PhoneRect,MouseX,MouseY) then
+        if PointCollideRect(PhoneRect,MouseX,MouseY) then
             love.graphics.setColor(1,1,1,0.5)
             love.graphics.rectangle('fill',PhoneX,PhoneY,15*GameScale*PhoneScale,40*GameScale*PhoneScale)
             love.graphics.setColor(1,1,1,1)
@@ -53,7 +53,7 @@ function PhoneAnimate(dt)
         PhoneY = (10*GameScale)
 
         --If hovering over the phone when not active
-        if pointCollideRect(PhoneRect,MouseX,MouseY) then
+        if PointCollideRect(PhoneRect,MouseX,MouseY) then
             
             --Switch phone image
             PhoneImg = PausePhoneImg

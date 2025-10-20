@@ -24,7 +24,7 @@ end
 
 function Entity:update(dt)
     self.timeAlive = self.timeAlive + dt
-    local t = tanAngle(self.xv,self.yv)
+    local t = TanAngle(self.xv,self.yv)
     self.direction = t[3]
 
     --Drag & air drag

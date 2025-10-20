@@ -1,5 +1,13 @@
 Release Log:
 
+a1.2.6
+- Saving and loading (right now only loads player state and not level)
+- Autosave on an interval
+- Screenshot text popup is now for general use
+- Fix crash when changing target FPS
+- Better naming schemes
+- Option to autoset step size
+
 a1.2.5
 - Code fixes, optimization, cleanup
 - Starting work for saving game

@@ -1,6 +1,8 @@
 --!file: startup.lua
 --Loading routines for menu, level, etc
 
+local json = require "lib.dkjson"
+
 function InitialLoad()
     --Set up window & display
     WindowWidth = 1280
@@ -16,6 +18,7 @@ function InitialLoad()
     UpdateTime = 0
     FrameTime = {}
     GlobalDt = 0
+    ScreenshotText = {-1,''} --Opacity of screenshot text
 
     --Lists
     Buttons = {}
@@ -23,11 +26,12 @@ function InitialLoad()
     --Scaling
     GameScale = 1
     love.graphics.setDefaultFilter("linear","linear",8)
-    ScreenshotText = 0
     XPadding = 0
     YPadding = 0
 
     MouseWheelY = 0
+    LoadingGame = false
+    LevelId = nil
 
     --Images
     LogoImg = love.graphics.newImage("image/FMV/logo.png")
@@ -49,6 +53,7 @@ function InitialLoad()
     --Variables
     FpsLimit = 0 --71 = 60FPS, 0 = Uncapped FPS
     Next_Time = 0
+    BuildWid = 0 --for positioning screenshot text
     
     --Keyboard Constants
     KeyBinds = {
@@ -66,7 +71,8 @@ function InitialLoad()
     }
 
     --Other stuff
-    StepSize = 4 --Quarterstep size for entities
+    StepSize = 4 --Quarterstep size for entities, isn't reset when going to title screen
+    AutoStep = true --automatically set step size
 
 end
 
@@ -121,7 +127,6 @@ function LoadLevel(level)
     DebugPressed = false --If you're pressing any debug keys
     DebugInfo = false --If the F3 menu is displayed
     TileUpdates = 0 --Number of tile updates
-    ScreenshotText = -1 --Opacity of screenshot text
     HudEnabled = true --If the HUD is enabled
     KunaiReticle = false --If the kunai reticle is displayed
     NewRenderer = true --If the canvas renderer is used (instead of screen)
@@ -133,6 +138,7 @@ function LoadLevel(level)
     HeartJumpCounter = -10000 --Timer for heart jumping (randomly)
     TotalHealth = 8 --Total health of the player (placeholder, updated immediately)
     GlobalGravity = 7.5 --global gravity multiplier
+    AutoSave = FrameCounter + 4 --autosave timer
 
     Zoom = 1
     ZoomBase = 1
@@ -162,8 +168,38 @@ function LoadLevel(level)
     LoadThread:start(level..".arl") --start level loading thread
     StateVar.ani = 'none'
 
+    LevelId = level
+
 end
 
 function SaveGame()
-    
+    local state = {
+        xpos = Pl.xpos, 
+        ypos = Pl.ypos, 
+        xv = Pl.xv, 
+        yv = Pl.yv, 
+        health = Health, 
+        energy = Pl.energy, 
+        ab = Pl.abilities,
+        level = LevelId,
+    }
+    love.filesystem.write("savegame.ars", json.encode(state, { indent = true }))
+    ScreenshotText = {150, "Game Saved"}
+end
+
+function LoadGame()
+    if love.filesystem.getInfo("savegame.ars") then
+        local contents = love.filesystem.read("savegame.ars")
+        LoadState = json.decode(contents)
+        if LoadState then
+            LevelTrans(LoadState['level'])
+            LoadingGame = true
+        end
+    end
+end
+
+function LevelTrans(level)
+    StateVar.ani = 'levelloadtrans' 
+    StateVar.substate = level
+    GlAni = 0.6
 end

@@ -15,8 +15,9 @@ function PauseGame()
     StateVar.physics = 'display'
     Buttons['Resume'] = Button(10,50,200,50,"Resume",ResumeGame,0)
     Buttons['Options'] = Button(10,120,200,50,"Options",OptionsMenu,0.1)
-    Buttons['Save'] = Button(10,190,200,50,'Save Game',nil,0.2)
-    Buttons['Quit'] = Button(10,260,200,50,"Quit",SureQuit,0.3)
+    Buttons['Save'] = Button(10,190,200,50,'Save Game',SaveGame,0.2)
+    Buttons['Load'] = Button(10,260,200,50,'Load Game',LoadGame,0.3)
+    Buttons['Quit'] = Button(10,330,200,50,"Quit",SureQuit,0.4)
 end
 
 function ResumeGame()
@@ -59,7 +60,7 @@ end
 function PerformanceMenu()
     Buttons = {}
     StateVar.substate = 'performance'
-    Buttons['StepSize'] = Button(10, 50, 350, 50, function() return "Step Size: "..StepSize end,nil,0,nil,function(x) StepSize = x end,2,16,function() StepSize = 4 end)
+    Buttons['StepSize'] = Button(10, 50, 350, 50, function() if AutoStep then return "Step Size: Auto" else return "Step Size: "..StepSize end end,nil,0,nil,function(x) StepSize = x AutoStep = false end,2,16,function() AutoStep = true end)
     Buttons['FPS'] = Button(10, 120, 350, 50, function() if FpsLimit == 0 then return "Max FPS: Unlimited" else return "Max FPS: "..FpsLimit end end,nil,0.1,nil,function(x) FpsLimit = x end,30,144,function() FpsLimit = 0 end)
     Buttons['Back'] = Button(10, 190, 200, 50, "Back", OptionsMenu, 0.2)
 end
@@ -97,8 +98,8 @@ function TitleScreen(reset)
     Buttons = {}
     StateVar.genstate = 'title'
     StateVar.physics = 'off'
-    Buttons['New Game'] = Button(30, 570, 240, 130, "New Game (level 1)", function() StateVar.ani = 'levelloadtrans' StateVar.substate = 'lvl1' GlAni = 0.6 end, 0)
-    Buttons['Continue'] = Button(290, 570, 240, 130, "Continue (level 2)", function() StateVar.ani = 'levelloadtrans' StateVar.substate = 'lvl2' GlAni = 0.6 end, 0) --TODO: Save screen
+    Buttons['New Game'] = Button(30, 570, 240, 130, "New Game (level 1)", function() LevelTrans('lvl1') GlAni = 0.6 end, 0)
+    Buttons['Continue'] = Button(290, 570, 240, 130, "Continue (from save)", LoadGame, 0)
     Buttons['Options'] = Button(60, 720, 180, 50, "Options", OptionsMenu, 0)
     Buttons['Quit'] = Button(320, 720, 180, 50, "Quit", function() GlAni = 0.5 StateVar.ani = 'quitting' end, 0)
 end
@@ -177,20 +178,20 @@ function Button:draw()
     
     if self.slider ~= nil then
         --Draw line
-        love.graphics.rectangle('fill',self.xpos+5,self.ypos+self.height-10,self.width-10,2)
+        love.graphics.rectangle('fill',self.xpos+5,self.ypos+self.height-10,self.width-10,3)
     end
     
     --Outline
     love.graphics.setColor(0,0,0,1)
-    love.graphics.setLineWidth(4)
+    love.graphics.setLineWidth(4*GameScale)
     love.graphics.rectangle("line",self.xpos,self.ypos,self.width,self.height,10,10)
     love.graphics.setLineWidth(1)
 
     --Text
     if type(self.text) == 'string' then
-        simpleText(self.text, 22, self.xpos + self.width/2,self.ypos + self.height/2+2, 'center')
+        SimpleText(self.text, 22, self.xpos + self.width/2,self.ypos + self.height/2+2, 'center')
     else
-        simpleText(self.text(), 22, self.xpos + self.width/2,self.ypos + self.height/2+2, 'center')
+        SimpleText(self.text(), 22, self.xpos + self.width/2,self.ypos + self.height/2+2, 'center')
     end
 
     love.graphics.setColor(1,1,1,1)

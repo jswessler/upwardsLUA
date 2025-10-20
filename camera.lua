@@ -32,7 +32,7 @@ function normalCamera(mousex,mousey,dt,rxy)
     --Hud position
 end
 
-function hudSetup() 
+function HudSetup() 
     local hx = 0
     local hy = 0
     if StateVar.state == 'menu' then

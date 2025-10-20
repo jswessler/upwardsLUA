@@ -4,15 +4,18 @@
 --[[ todo
 
     a1.2.6
-    - Lvlgen in LUA
-    - HDMA style backgrounds
+
+    a1.2.7
+    - Loading saved games
+    - 
 
 
     a1.3.0
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
+    - lvlgen in lua
 ]]
 
-BuildId = "Alpha 1.2.5"
+BuildId = "Alpha 1.2.6"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -24,7 +27,7 @@ function love.load()
     require "lib.extraFunc"
     require "lib.playerCollision"
 
-    require "image.animation"
+    require "animation"
 
     require "entity.kunai"
     require "entity.coin"
@@ -47,7 +50,6 @@ end
 
 function love.update(dt)
     --Update counters
-    UpdateST = love.timer.getTime()
     FrameCounter = FrameCounter + dt
     UpdateCounter = UpdateCounter + 1
     SecondsCounter = round(FrameCounter)
@@ -131,6 +133,13 @@ function love.update(dt)
         if NextCall > 0 then
             handlePhone(NextCall,dt)
         end
+
+        --Autosave every 30s
+        if FrameCounter > AutoSave then
+            SaveGame()
+            ScreenshotText = {150, "Autosaving..."}
+            AutoSave = FrameCounter + 30
+        end
     end
 
     --Update Phone
@@ -180,6 +189,16 @@ function love.update(dt)
         collectgarbage('step', collectgarbage('count')/60)
     end
 
+    --Enforce FPS cap
+    if FpsLimit ~= 0 then
+        local cur_time = love.timer.getTime()
+        if Next_Time <= cur_time then
+            Next_Time = cur_time
+            return
+        end
+        love.timer.sleep(Next_Time - cur_time)
+    end
+
 end
 
 function love.draw()
@@ -209,7 +228,7 @@ function love.draw()
     if love.keyboard.isDown("f2") and not DebugPressed then
         DebugPressed = true
         love.graphics.captureScreenshot("Upwards-"..os.time()..".png")
-        ScreenshotText = 150
+        ScreenshotText = {150, "Screenshot Taken"}
     end
 
     --Things to draw when the game is running
@@ -310,7 +329,11 @@ function love.draw()
             end
         end
 
-
+        --Auto set step size if enabled
+        if AutoStep then
+            local f = love.timer.getFPS()
+            StepSize = clamp(round(360/f),2,16)
+        end
 
         --HUD Below this (Nonscaled elements)
         GameScale = GameScale / Zoom
@@ -327,7 +350,7 @@ function love.draw()
 
         --Draw HUD
         if HudEnabled then
-            HudX, HudY = hudSetup()
+            HudX, HudY = HudSetup()
 
             --Draw Phone
             love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*PhoneScale,GameScale*PhoneScale)
@@ -338,7 +361,6 @@ function love.draw()
             love.graphics.setDefaultFilter("linear","nearest",4)
 
             --Draw Hearts (Hearts are only updated on draw)
-
             --Remove depleted soul/silver/blood hearts
             for i,hp in ipairs(Health) do
                 if hp.amt <= 0 and hp.type ~= 1 then
@@ -441,15 +463,15 @@ function love.draw()
             love.graphics.setColor(1,1,1,1)
 
             --Text
-            simpleText(TextName,28,90*GameScale,WindowHeight-(380*GameScale))
+            SimpleText(TextName,28,90*GameScale,WindowHeight-(380*GameScale))
             for i,v in ipairs(CurrentText) do
-                simpleText(v,32,60*GameScale,WindowHeight-(330*GameScale)+(i*GameScale*50))
+                SimpleText(v,32,60*GameScale,WindowHeight-(330*GameScale)+(i*GameScale*50))
             end
         end
 
         love.graphics.setColor(1,1,1,1)
         if love.keyboard.isDown("f9") then --Show debug blocks IDS
-            local Xl,Yl = getOnScreen()
+            local Xl,Yl = GetOnScreen()
             for i,x in ipairs(Xl) do
                 for o,y in ipairs(Yl) do
                     local xt = math.floor(x/32)
@@ -461,9 +483,9 @@ function love.draw()
                     if LoadedTiles[bl]~= nil then
                         t = split(bl,"-")
                     end
-                    simpleText(t[1],8,(x-CameraX)*GameScale,(y-CameraY)*GameScale)
-                    simpleText(t[2],8,(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
-                    simpleText(xt.."/"..yt,8,(x-CameraX)*GameScale,20+(y-CameraY)*GameScale)
+                    SimpleText(t[1],8,(x-CameraX)*GameScale,(y-CameraY)*GameScale)
+                    SimpleText(t[2],8,(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
+                    SimpleText(xt.."/"..yt,8,(x-CameraX)*GameScale,20+(y-CameraY)*GameScale)
 
                 end
             end
@@ -473,18 +495,18 @@ function love.draw()
         --debug text
         if DebugInfo then
             local stats = love.graphics.getStats()
-            simpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." BL: "..math.floor(Pl.xpos/32).." / "..math.floor(Pl.ypos/32).." Ve: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
-            simpleText(round(love.timer.getFPS(),1).." fps "..(love.window.getVSync() and "V" or "").." Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2),16,10*GameScale,60*GameScale)
-            simpleText("PL: "..round(Pl.abilities['jump'],1).."/"..round(Pl.abilities['jumpext'],1).."/"..round(Pl.abilities['djump'],1).."/"..round(Pl.abilities['dive'],1).."/"..round(Pl.abilities['spinny'],2).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy[1],1).."/"..round(Pl.energy[2],1).." RE: "..round(Pl.remEnergy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
-            simpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
-            simpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
-            simpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/(1024*1024),1).."MB Im: "..round(stats.images)..(HighGraphics and " Fancy" or " Fast"),16,10*GameScale,140*GameScale)
-            simpleText(_VERSION.." G: "..round(collectgarbage("count")),16,10*GameScale,180*GameScale)
-            simpleText("Love "..love.getVersion().." "..love.system.getOS().. " C: "..love.system.getProcessorCount(),16,10*GameScale,200*GameScale)
+            SimpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." BL: "..math.floor(Pl.xpos/32).." / "..math.floor(Pl.ypos/32).." Ve: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
+            SimpleText(round(love.timer.getFPS(),1).." fps Ss: "..StepSize..(AutoStep and "A" or "").." Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2),16,10*GameScale,60*GameScale)
+            SimpleText("PL: "..round(Pl.abilities['jump'],1).."/"..round(Pl.abilities['jumpext'],1).."/"..round(Pl.abilities['djump'],1).."/"..round(Pl.abilities['dive'],1).."/"..round(Pl.abilities['spinny'],2).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy[1],1).."/"..round(Pl.energy[2],1).." RE: "..round(Pl.remEnergy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
+            SimpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
+            SimpleText("Sc: "..#Pl.se.locations.." Sh: "..SH,16,10*GameScale,120*GameScale)
+            SimpleText("Dc: "..round(stats.drawcalls).." Tm: "..round(stats.texturememory/(1024*1024),1).."MB Im: "..round(stats.images)..(HighGraphics and " Fancy" or " Fast"),16,10*GameScale,140*GameScale)
+            SimpleText(_VERSION.." G: "..round(collectgarbage("count")),16,10*GameScale,180*GameScale)
+            SimpleText("Love "..love.getVersion().." "..love.system.getOS().. " C: "..love.system.getProcessorCount(),16,10*GameScale,200*GameScale)
 
             --show exact energy values
-            simpleText(round(Pl.energy[1],1),18,WindowWidth-50+HudX,WindowHeight-170+HudY)
-            simpleText(round(Pl.energy[2],1),18,WindowWidth-50+HudX,WindowHeight-150+HudY)
+            SimpleText(round(Pl.energy[1],1),18,WindowWidth-50+HudX,WindowHeight-170+HudY)
+            SimpleText(round(Pl.energy[2],1),18,WindowWidth-50+HudX,WindowHeight-150+HudY)
         end
     else
         --Non-game states
@@ -515,25 +537,24 @@ function love.draw()
             love.graphics.setColor(1,1,1,math.min(1,FrameCounter*1.25)) --fade in
 
             --Title screen background moves slightly
-            local perx = love.math.noise(FrameCounter/3)
-            local pery = love.math.noise(FrameCounter/3+100)
-            local perr = love.math.noise(FrameCounter/4-100)
-            love.graphics.draw(TitleImgBg,(perx-0.5)*6,(pery-0.5)*6,(perr-0.5)/300,WindowHeight/(2160-math.min(10,FrameCounter*5)),WindowHeight/(2160-math.min(10,FrameCounter*5)))
+            local perlinX = love.math.noise(FrameCounter/3)
+            local perlinY = love.math.noise(FrameCounter/3+100)
+            local perlinR = love.math.noise(FrameCounter/4-100)
+            love.graphics.draw(TitleImgBg,(perlinX-0.5)*6,(perlinY-0.5)*6,(perlinR-0.5)/300,WindowHeight/(2160-math.min(10,FrameCounter*5)),WindowHeight/(2160-math.min(10,FrameCounter*5)))
             
             --Aria fades in from the bottom and moves around with perlin noise
-            local perx = love.math.noise(FrameCounter/3,love.math.getRandomSeed()*1000) --only the x is randomized like this because the default y has aria going down immediately after floating up and it looks nice
-            local pery = love.math.noise(FrameCounter/3+100)
-            local perr = love.math.noise(FrameCounter/4-100)
+            local perlinX = love.math.noise(FrameCounter/3,love.math.getRandomSeed()*1000) --only the x is randomized like this because the default y has aria going down immediately after floating up and it looks nice
+            local perlinY = love.math.noise(FrameCounter/3+100)
+            local perlinR = love.math.noise(FrameCounter/4-100)
 
             --Draw
-            love.graphics.draw(TitleImgAr,(perx-0.5)*18,((pery-0.5)*36)+50*math.pow(1.5-math.min(1.5,FrameCounter),2.5),(perr-0.5)/20,WindowHeight/2160,WindowHeight/2160)
+            love.graphics.draw(TitleImgAr,(perlinX-0.5)*18,((perlinY-0.5)*36)+50*math.pow(1.5-math.min(1.5,FrameCounter),2.5),(perlinR-0.5)/20,WindowHeight/2160,WindowHeight/2160)
             love.graphics.pop()
 
         end
 
         --Load Level Draws
         if StateVar.state == 'loadlevel' then
-
             --Check if the level loading routine is done
             local info = love.thread.getChannel("lvlLoadRet"):pop()
             if info then
@@ -547,6 +568,7 @@ function love.draw()
                     local i = love.graphics.newImage(v)
                     LoadedTiles[a] = i
                 end
+
                 --Spawn enemies
                 for i,v in pairs(info[5]) do
                     local e = Enemy(v[1],v[2],v[3])
@@ -563,6 +585,24 @@ function love.draw()
                 StateVar.state = 'play'
                 StateVar.physics = 'on'
                 love.resize()
+
+                --Move player and set variables if we're loading a save
+                if LoadingGame and LoadState then
+                    --Set states
+                    Pl.xpos = LoadState['xpos']
+                    Pl.ypos = LoadState['ypos']
+                    Pl.xv = LoadState['xv']
+                    Pl.yv = LoadState['yv']
+                    Health = {}
+                    for i,v in pairs(LoadState['health']) do
+                        table.insert(Health,Heart(v.type,v.amt))
+                    end
+                    Pl.energy = LoadState['energy']
+                    Pl.abilities = LoadState['ab']
+                    --Reset
+                    LoadState = nil
+                    LoadingGame = false
+                end
             else
                 --background if GlAni = 0
                 if GlAni <= 0 then
@@ -576,7 +616,7 @@ function love.draw()
                     love.graphics.rectangle('fill',WindowWidth-475,WindowHeight-25,350,10,5,5) --bg rect
                     love.graphics.setColor(1,1,1,1) 
                     love.graphics.rectangle('fill', WindowWidth-475,WindowHeight-25,350*progress[2],10,5,5) --main rect
-                    simpleText(progress[1],20,WindowWidth-275,WindowHeight-60)
+                    SimpleText(progress[1],20,WindowWidth-275,WindowHeight-60)
                 end
 
                 --Show aria running animation
@@ -588,12 +628,13 @@ function love.draw()
     end
 
     --Screenshot Text
-    if ScreenshotText > 0 then
-        love.graphics.setColor(1,1,1,math.min(1,ScreenshotText/60))
-        simpleText("Screenshot Saved",20,190*GameScale,10*GameScale)
-        ScreenshotText = ScreenshotText - 1
-    elseif ScreenshotText > -1 then
-        ScreenshotText = -1
+    if ScreenshotText[1] > 0 then
+        love.graphics.setColor(1,1,1,math.min(1,ScreenshotText[1]/60))
+        local x = TextWidth("Upwards "..BuildId,20)
+        SimpleText(ScreenshotText[2],20,(x+20)*GameScale,10*GameScale)
+        ScreenshotText[1] = ScreenshotText[1] - 1
+    elseif ScreenshotText[1] > -1 then
+        ScreenshotText[1] = -1
     end
     love.graphics.setColor(1,1,1,1)
 
@@ -622,17 +663,7 @@ function love.draw()
     GlobalAnimate()
 
     --Draw BuildId
-    simpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
-
-    --Enforce FPS cap
-    if FpsLimit ~= 0 then
-        local cur_time = love.timer.getTime()
-        if Next_Time <= cur_time then
-            Next_Time = cur_time
-            return
-        end
-        love.timer.sleep(Next_Time - cur_time)
-    end
+    SimpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
 
     --flip display
     love.graphics.setCanvas()
@@ -656,7 +687,7 @@ end
 
 function RenderOne()
     --draw blocks
-    Xl,Yl = getOnScreen()
+    Xl,Yl = GetOnScreen()
     for i,x in ipairs(Xl) do
         for o,y in ipairs(Yl) do
             local xt = math.floor(x/32)
@@ -676,7 +707,7 @@ function RenderOne()
 
             --Draw block text when pressing f9
             if love.keyboard.isDown("f9") and bl~= '0-0' then
-                simpleText(bl,14,16+(x-CameraX)*GameScale,16+(y-CameraY)*GameScale,'center')
+                SimpleText(bl,14,16+(x-CameraX)*GameScale,16+(y-CameraY)*GameScale,'center')
             end
         end
     end
