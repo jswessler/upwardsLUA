@@ -1,5 +1,11 @@
 Release Log:
 
+a1.2.5
+- Code fixes, optimization, cleanup
+- Starting work for saving game
+- End of level block, touch to go to the next level
+- Quarterstep updating for all player movement (instead of just downwards)
+
 a1.2.4_01
 - Bug fixes
 

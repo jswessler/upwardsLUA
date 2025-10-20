@@ -26,6 +26,14 @@ function PlColDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
         error("Forced Crash via 5-1 Tile")
     end
 
+    --Next level
+    if blMain == 5 and blSub == 2 then --this is pretty much an identical function to pressing "New Game" on the main menu
+        StateVar.ani = 'levelloadtrans' 
+        StateVar.substate = 'lvl2' 
+        GlAni = 0.6
+        LevelData[pB] = "0-0" --So you don't hit it every frame and reset the transition
+    end
+
     --Blue Heart
     if blMain == 7 and blSub <= 4 then
         if blSub == 0 then

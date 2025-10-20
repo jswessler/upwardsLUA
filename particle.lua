@@ -58,7 +58,7 @@ function Particle:update(dt) --return true if the particle should die
             return true
         end
     end
-    self.img = love.graphics.newImage("Images/Particles/"..self.type..self.frame..".png")
+    self.img = love.graphics.newImage("image/Particles/"..self.type..self.frame..".png")
     return false
 
 end

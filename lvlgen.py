@@ -4,7 +4,7 @@ import os
 path = os.getcwd()
 
 #Game build associated with level generator
-buildId = "a1.2.3"
+buildId = "a1.2.5"
 
 def saveARL(ls,ls2,dest):
     bitO = []
@@ -111,7 +111,7 @@ def loadARL(filename):
     setBlock = set(blocks)
     for i in setBlock:
         try:
-            loadedTiles[i] = pg.image.load(os.path.join(path,"Images", "Tiles", str(int(i/256)) + "-" + str(int(i%256)) + ".png"))
+            loadedTiles[i] = pg.image.load(os.path.join(path,"image", "Tiles", str(int(i/256)) + "-" + str(int(i%256)) + ".png"))
         except:
             pass
 
@@ -128,10 +128,10 @@ font = pg.font.SysFont('Comic Sans MS',16)
 #Initial stuff
 
 #IMPORTANT----------------------------------
-lvlWid = 180
-lvlHei = 50
+lvlWid = 100
+lvlHei = 100
 lvlNum = 2
-saveTo = 'lvl2.arl'
+saveTo = 'lvl1.arl'
 
 camerax = 0
 cameray = 0

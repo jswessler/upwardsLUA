@@ -2,20 +2,17 @@
 --Upwards!
 
 --[[ todo
-    
-    a1.2.5
+
+    a1.2.6
     - Lvlgen in LUA
-    - Level complete block. Touch it to go to next level
     - HDMA style backgrounds
-    - 
 
 
     a1.3.0
-    multiple levels
     saving & loading (save pos, vel, energy, don't save kunais (give you 5), level you're on)
 ]]
 
-BuildId = "Alpha 1.2.4_01"
+BuildId = "Alpha 1.2.5"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -27,7 +24,7 @@ function love.load()
     require "lib.extraFunc"
     require "lib.playerCollision"
 
-    require "Images.animation"
+    require "image.animation"
 
     require "entity.kunai"
     require "entity.coin"
@@ -56,7 +53,7 @@ function love.update(dt)
     SecondsCounter = round(FrameCounter)
 
     if GlAni > 0 then GlAni = GlAni - dt end --Update the GlAni timer, for animations
-    if GlAni < 0 then GlAni = 0 end
+    if GlAni < 0 then GlAni = 0 end --reset to 0 when done
 
     MouseX, MouseY = love.mouse.getPosition() --Update mouse position
 
@@ -70,43 +67,36 @@ function love.update(dt)
         --Update player physics & animation
         Pl:update(dt)
 
-        --Update player internal collision detection (non-solid objects)
+        --Update player internal collision detection for non-solid objects
         for i=Pl.col[2]+8,Pl.col[1]-8,24 do
-            for j=Pl.col[4],Pl.col[3],27.5 do
+            for j=Pl.col[4],Pl.col[3],27.5 do --Covers a region inside the player model
 
                 --Nonsolid block detection
-                local ret = Pl.se:detect(j,i)
-                PlColDetect(ret[2],ret[3],dt)
-
-                --Enemy detection
-                local en = Pl.se:detectEnemy(j,i)
+                local ret = Pl.se:detect(j,i) --detect block Ids
+                PlColDetect(ret[2],ret[3],dt) --see if those block Ids can collide with the player
             end
         end
 
 
         --Update Tiles
-        TileUpdates = 0
+        TileUpdates = 0 --debug count number of tile updates
         TileProp(dt)
 
         --Update enemies
         for i,v in ipairs(Enemies) do
             v:update(dt)
             if v.health == 0 then
-                if v:die() then
-                    --Remove enemy from list
-                    table.remove(Enemies,i)
-                end
+                v:die()
             end
 
             --Disappear at the end of death animations
             if FrameCounter > v.deathCounter and v.health == -1 then
-                
                 --Create coin if squished
-                if v.deathMode == 1 or v.deathMode == 'squish' then
+                if v.deathMode == 'squish' then
                     local coin = Coin(v.xpos,v.ypos,(love.math.random()-0.5)*5,(love.math.random()-1.5)*10)
                     table.insert(Entities,coin)
                 end
-                --Remove enemy from list
+                --Regardless, remove enemy from list
                 table.remove(Enemies,i)
             end
         end
@@ -591,7 +581,7 @@ function love.draw()
 
                 --Show aria running animation
                 local frame = math.floor((FrameCounter*30)%11)+1
-                local img = love.graphics.newImage("Images/Aria/run"..frame..".png")
+                local img = love.graphics.newImage("image/Aria/run"..frame..".png")
                 love.graphics.draw(img,WindowWidth-120,WindowHeight-120,0,2,2)
             end
         end
@@ -792,6 +782,6 @@ function love.keypressed(key, scancode, isrepeat)
 end
 
 function love.wheelmoved(x,y)
-    MouseWheelY = math.max(-40,math.min(40,MouseWheelY + (y or 0)))
-    ZoomScroll = MouseWheelY/400
+    MouseWheelY = math.max(-20,math.min(20,MouseWheelY + (y or 0)))
+    ZoomScroll = MouseWheelY/200
 end

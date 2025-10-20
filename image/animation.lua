@@ -8,7 +8,7 @@ function PhoneAnimate(dt)
 
         --Phone shakes (image)
         if UpdateCounter%2 == 0 then
-            PhoneImg = love.graphics.newImage("Images/Phone/phone"..round(1+(UpdateCounter%6)/2)..".png")
+            PhoneImg = love.graphics.newImage("image/Phone/phone"..round(1+(UpdateCounter%6)/2)..".png")
         end
 
         --Phone rings out at 8s

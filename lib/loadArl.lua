@@ -12,7 +12,7 @@ function LoadARL(filename)
     local sp = {} --Holds onto player spawnpoint
     local progress = {}
 
-    local contents, size = love.filesystem.read("/Levels/"..filename)
+    local contents, size = love.filesystem.read("/level/"..filename)
     local counter = 1
     local cou = 1
     local lvlWid = 10
@@ -89,13 +89,13 @@ function LoadARL(filename)
                 progress = {"Loading Tiles",c/(2*counter)}
                 love.thread.getChannel('status'):push(progress)
             end
-            local file = "Images/Tiles/"..v..".png"
+            local file = "image/Tiles/"..v..".png"
             if file ~= nil then
                 local f = io.open(file,'r')
                 if f ~= nil then
                     if ldTiles[v]~=nil then
                     else
-                        local i = "Images/Tiles/"..v..".png"
+                        local i = "image/Tiles/"..v..".png"
                         ldTiles[v] = i
                     end
                 end

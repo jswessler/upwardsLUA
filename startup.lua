@@ -22,9 +22,6 @@ function InitialLoad()
     
     --Scaling
     GameScale = 1
-    Zoom = 1
-    ZoomBase = 1
-    ZoomScroll = 0
     love.graphics.setDefaultFilter("linear","linear",8)
     ScreenshotText = 0
     XPadding = 0
@@ -33,9 +30,9 @@ function InitialLoad()
     MouseWheelY = 0
 
     --Images
-    LogoImg = love.graphics.newImage("Images/FMV/logo.png")
-    TitleImgBg = love.graphics.newImage("Images/FMV/titlebg.png")
-    TitleImgAr = love.graphics.newImage("Images/FMV/titlear.png")
+    LogoImg = love.graphics.newImage("image/FMV/logo.png")
+    TitleImgBg = love.graphics.newImage("image/FMV/titlebg.png")
+    TitleImgAr = love.graphics.newImage("image/FMV/titlear.png")
     FrameCounter = -1
 
     --Canvas
@@ -82,25 +79,25 @@ function LoadLevel(level)
     love.graphics.setDefaultFilter("linear","nearest",4)
 
     --Load Images
-    HexImg = love.graphics.newImage("Images/UI/hex.png")
-    KunaiImg = love.graphics.newImage("Images/UI/kunai.png")
-    DefaultPhoneImg = love.graphics.newImage("Images/Phone/normal1.png")
-    PausePhoneImg = love.graphics.newImage("Images/Phone/pause.png")
+    HexImg = love.graphics.newImage("image/UI/hex.png")
+    KunaiImg = love.graphics.newImage("image/UI/kunai.png")
+    DefaultPhoneImg = love.graphics.newImage("image/Phone/normal1.png")
+    PausePhoneImg = love.graphics.newImage("image/Phone/pause.png")
 
     HpImages = {
-        ['red0'] = love.graphics.newImage("/Images/Hearts/red0.png"),
-        ['red1'] = love.graphics.newImage("/Images/Hearts/red1.png"),
-        ['red2'] = love.graphics.newImage("/Images/Hearts/red2.png"),
-        ['red3'] = love.graphics.newImage("/Images/Hearts/red3.png"),
-        ['red4'] = love.graphics.newImage("/Images/Hearts/red4.png"),
-        ['blue1'] = love.graphics.newImage("/Images/Hearts/blue1.png"),
-        ['blue2'] = love.graphics.newImage("/Images/Hearts/blue2.png"),
-        ['blue3'] = love.graphics.newImage("/Images/Hearts/blue3.png"),
-        ['blue4'] = love.graphics.newImage("/Images/Hearts/blue4.png"),
-        ['silver1'] = love.graphics.newImage("/Images/Hearts/silver1.png"),
-        ['silver2'] = love.graphics.newImage("/Images/Hearts/silver2.png"),
-        ['blood'] = love.graphics.newImage("/Images/Hearts/blood.png"),
-        ['crit'] = love.graphics.newImage("/Images/Hearts/red_crit.png")
+        ['red0'] = love.graphics.newImage("/image/Hearts/red0.png"),
+        ['red1'] = love.graphics.newImage("/image/Hearts/red1.png"),
+        ['red2'] = love.graphics.newImage("/image/Hearts/red2.png"),
+        ['red3'] = love.graphics.newImage("/image/Hearts/red3.png"),
+        ['red4'] = love.graphics.newImage("/image/Hearts/red4.png"),
+        ['blue1'] = love.graphics.newImage("/image/Hearts/blue1.png"),
+        ['blue2'] = love.graphics.newImage("/image/Hearts/blue2.png"),
+        ['blue3'] = love.graphics.newImage("/image/Hearts/blue3.png"),
+        ['blue4'] = love.graphics.newImage("/image/Hearts/blue4.png"),
+        ['silver1'] = love.graphics.newImage("/image/Hearts/silver1.png"),
+        ['silver2'] = love.graphics.newImage("/image/Hearts/silver2.png"),
+        ['blood'] = love.graphics.newImage("/image/Hearts/blood.png"),
+        ['crit'] = love.graphics.newImage("/image/Hearts/red_crit.png")
     }
 
     --setup HDMA
@@ -137,6 +134,10 @@ function LoadLevel(level)
     TotalHealth = 8 --Total health of the player (placeholder, updated immediately)
     GlobalGravity = 7.5 --global gravity multiplier
 
+    Zoom = 1
+    ZoomBase = 1
+    ZoomScroll = 0
+
     --Turn on debug with lshift
     if love.keyboard.isDown('lshift') then
         DebugInfo = true
@@ -161,4 +162,8 @@ function LoadLevel(level)
     LoadThread:start(level..".arl") --start level loading thread
     StateVar.ani = 'none'
 
+end
+
+function SaveGame()
+    
 end

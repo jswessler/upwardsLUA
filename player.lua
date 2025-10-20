@@ -64,7 +64,7 @@ function Player:new(x,y)
     --Hitbox & iframes
     self.iFrame = 0
 
-    --image
+    --Images
     self.img = ''
     self.imgPos = {'',0}
 
@@ -108,7 +108,7 @@ function Player:animate(dt)
         if self.aniTimer < 0 then
             self.animation = 'none'
         end
-        self.img = love.graphics.newImage("Images/Aria/land.png")
+        self.img = love.graphics.newImage("image/Aria/land.png")
         self.imgPos = {-36,-94}
 
     --Hard landing (11 frame animation that must play out)
@@ -117,13 +117,13 @@ function Player:animate(dt)
             self.animation = 'none'
         end
         if self.aniTimer > 11 then
-            self.img = love.graphics.newImage("Images/Aria/hardland1.png")
+            self.img = love.graphics.newImage("image/Aria/hardland1.png")
             self.imgPos = {-34,-94}
         elseif self.aniTimer > 7 then
-            self.img = love.graphics.newImage("Images/Aria/hardland2.png")
+            self.img = love.graphics.newImage("image/Aria/hardland2.png")
             self.imgPos = {-32,-66}
         else
-            self.img = love.graphics.newImage("Images/Aria/hardland3.png")
+            self.img = love.graphics.newImage("image/Aria/hardland3.png")
             self.imgPos = {-26,-94}
         end
 
@@ -138,18 +138,18 @@ function Player:animate(dt)
         if self.animation == 'slide' and math.abs(self.xv) > 0.5 then
             if self.slide > 221 then
                 if self.counter%12 < 6 then
-                    self.img = love.graphics.newImage("Images/Aria/slide1.png")
+                    self.img = love.graphics.newImage("image/Aria/slide1.png")
                 else
-                    self.img = love.graphics.newImage("Images/Aria/slide2.png")
+                    self.img = love.graphics.newImage("image/Aria/slide2.png")
                 end
                 self.imgPos = {-36,-86}
             
             --slide exit transition
             else
                 if self.slide > 210 then
-                    self.img = love.graphics.newImage("Images/Aria/slideout1.png")
+                    self.img = love.graphics.newImage("image/Aria/slideout1.png")
                 elseif self.slide > 200 then
-                    self.img = love.graphics.newImage("Images/Aria/slideout2.png")
+                    self.img = love.graphics.newImage("image/Aria/slideout2.png")
                 end
                 self.imgPos = {-36,-86}
 
@@ -170,19 +170,19 @@ function Player:animate(dt)
             end
 
             --Grab correct frame
-            self.img = love.graphics.newImage("Images/Aria/run"..self.aniFrame..".png")
+            self.img = love.graphics.newImage("image/Aria/run"..self.aniFrame..".png")
             self.imgPos = {-36,-94}
 
         --Idle (4 frame loop)
         elseif self.animation == 'none' then
             if self.counter%60 < 16 then
-                self.img = love.graphics.newImage("Images/Aria/idle1.png")
+                self.img = love.graphics.newImage("image/Aria/idle1.png")
             elseif self.counter%60 < 31 then
-                self.img = love.graphics.newImage("Images/Aria/idle2.png")
+                self.img = love.graphics.newImage("image/Aria/idle2.png")
             elseif self.counter%60 < 46 then
-                self.img = love.graphics.newImage("Images/Aria/idle3.png")
+                self.img = love.graphics.newImage("image/Aria/idle3.png")
             else
-                self.img = love.graphics.newImage("Images/Aria/idle4.png")
+                self.img = love.graphics.newImage("image/Aria/idle4.png")
             end
             self.imgPos = {-26,-108}
         end
@@ -202,7 +202,7 @@ function Player:animate(dt)
             if self.aniFrame > 2 then
                 self.aniFrame = 1
             end
-            self.img = love.graphics.newImage("Images/Aria/hovern"..self.aniFrame..".png") 
+            self.img = love.graphics.newImage("image/Aria/hovern"..self.aniFrame..".png") 
             self.imgPos = {-31,-102}
     
 
@@ -220,10 +220,10 @@ function Player:animate(dt)
                 end
                 --after 3 frames, go to standard falling animation
                 if self.aniiTimer > 7 then
-                    self.img = love.graphics.newImage("Images/Aria/jumptrans1.png")
+                    self.img = love.graphics.newImage("image/Aria/jumptrans1.png")
                     self.imgPos = {-33,-108}
                 else
-                    self.img = love.graphics.newImage("Images/Aria/jumptrans2.png")
+                    self.img = love.graphics.newImage("image/Aria/jumptrans2.png")
                     self.imgPos = {-33,-116}
                 end
 
@@ -235,10 +235,10 @@ function Player:animate(dt)
                 end
                 --after 3 frames, go to standard falling animation
                 if self.aniiTimer > 7 then
-                    self.img = love.graphics.newImage("Images/Aria/lowtrans1.png")
+                    self.img = love.graphics.newImage("image/Aria/lowtrans1.png")
                     self.imgPos = {-29,-106}
                 else
-                    self.img = love.graphics.newImage("Images/Aria/lowtrans2.png")
+                    self.img = love.graphics.newImage("image/Aria/lowtrans2.png")
                     self.imgPos = {-31,-112}
                 end
             end
@@ -254,9 +254,9 @@ function Player:animate(dt)
             --Wallslide
             if self.animation == 'wallslide' then
                 if self.counter % 20 < 10 then
-                    self.img = love.graphics.newImage("Images/Aria/wallslide.png")
+                    self.img = love.graphics.newImage("image/Aria/wallslide.png")
                 else
-                    self.img = love.graphics.newImage("Images/Aria/wallslide2.png")
+                    self.img = love.graphics.newImage("image/Aria/wallslide2.png")
                 end
                 if self.dFacing == 1 then
                     self.imgPos = {-24,-102}
@@ -271,7 +271,7 @@ function Player:animate(dt)
                     self.nextAni = 'low'
                     self.aniiTimer = 13
                 end
-                self.img = love.graphics.newImage("Images/Aria/djump.png")
+                self.img = love.graphics.newImage("image/Aria/djump.png")
                 self.imgPos = {-28,-106}
             
             --Single Jump
@@ -280,9 +280,9 @@ function Player:animate(dt)
                 self.aniiTimer = 13
                 self.aniTimer = 6
                 if self.counter%30 < 16 then
-                    self.img = love.graphics.newImage("Images/Aria/jumpup1.png")
+                    self.img = love.graphics.newImage("image/Aria/jumpup1.png")
                 else
-                    self.img = love.graphics.newImage("Images/Aria/jumpup2.png")
+                    self.img = love.graphics.newImage("image/Aria/jumpup2.png")
                 end
                 self.imgPos = {-31,-106}
 
@@ -300,14 +300,14 @@ function Player:animate(dt)
                 if self.aniFrame > 3 then
                     self.aniFrame = 1
                 end
-                self.img = love.graphics.newImage("Images/Aria/flail"..self.aniFrame..".png")
+                self.img = love.graphics.newImage("image/Aria/flail"..self.aniFrame..".png")
                 self.imgPos = {-31,-146}
 
             elseif self.nextAni == 'fftrans' then
                 if self.aniTimer < 0 then
                     self.nextAni = 'fastfall'
                 end
-                self.img = love.graphics.newImage("Images/Aria/fftrans.png")
+                self.img = love.graphics.newImage("image/Aria/fftrans.png")
                 self.imgPos = {-31,-146}
 
             elseif self.animation == 'falling' then
@@ -323,7 +323,7 @@ function Player:animate(dt)
                     self.nextAni = 'fftrans'
                     self.animation = 'none'
                 end
-                self.img = love.graphics.newImage("Images/Aria/falling"..self.aniFrame..".png")
+                self.img = love.graphics.newImage("image/Aria/falling"..self.aniFrame..".png")
                 self.imgPos = {-41,-152}
             end
         end
@@ -335,9 +335,9 @@ function Player:animate(dt)
         if self.kunaiAni > 12 and self.kunaiAni < 14 then 
             self.nextAni = 'low'
         elseif self.kunaiAni > 4 then
-            self.img = love.graphics.newImage("Images/Aria/kunaithrow1-2.png")
+            self.img = love.graphics.newImage("image/Aria/kunaithrow1-2.png")
         elseif self.kunaiAni > 0 then
-            self.img = love.graphics.newImage("Images/Aria/kunaithrow1-1.png")
+            self.img = love.graphics.newImage("image/Aria/kunaithrow1-1.png")
         end
     end
 
@@ -354,13 +354,13 @@ function Player:animate(dt)
             self.aniiTimer = 4
         end
         if self.aniTimer >= 10 then
-            self.img = love.graphics.newImage("Images/Aria/spinnyR.png")
+            self.img = love.graphics.newImage("image/Aria/spinnyR.png")
             self.imgPos = {-36,-106}
         elseif self.aniTimer >= 5 then
-            self.img = love.graphics.newImage("Images/Aria/spinnyB.png")
+            self.img = love.graphics.newImage("image/Aria/spinnyB.png")
             self.imgPos = {-36,-108}
         else
-            self.img = love.graphics.newImage("Images/Aria/spinnyL.png")
+            self.img = love.graphics.newImage("image/Aria/spinnyL.png")
             self.imgPos = {-36,-106}
 
         end
@@ -416,45 +416,71 @@ function Player:update(dt)
         end
     end
 
-    --down collision detection
-    for j=1,2,1 do
-        self.xpos = self.xpos + self.xv*(dt*115) --230/2
-        self.ypos = self.ypos + self.yv*(dt*115)
-        self.colliderCount = 0
+    --Quarterstep Updating
+    self.colliderCount = {bottom = 0, left = 0, right = 0, up = 0}
+    for j=1,StepSize,1 do
+        self.xpos = self.xpos + self.xv*(dt*(240/StepSize)) --230/2
+        self.ypos = self.ypos + self.yv*(dt*(240/StepSize))
+
+        --Down collision Detection
         for i = -19, 27, 4 do
 
-            --Solid block
-            if self.se:detect(i, self.col[1])[1] then
-                self.colliderCount = self.colliderCount + 1
-            end
-
             --Enemy (jump on head)
-            local e = self.se:detectEnemy(i,self.col[1],'top')
-            if e[1] and e[2].health > 0 and FrameCounter > self.iFrame then
+            local e = self.se:detectEnemy(i,self.col[1],'top') --Check collision with the top of enemies
+            if e[1] and e[2].health > 0 and FrameCounter > self.iFrame then --Can't hit an enemy when you're in iframes
                 self.animation = 'jump'
                 self.nextAni = 'high'
                 self.abilities['jumpext'] = 0
                 self.abilities['djump'] = 0
-                self.xv = self.xv * 0.9
-                self.jCounter = 8 --highest jCounter
+                self.xv = self.xv * 0.875
+                self.jCounter = 8 --highest non-spinny jCounter, gives you time to maneuver in air
 
                 --Bounce off enemy
-                if love.keyboard.isDown(KeyBinds['Slide']) then
-                    self.yv = -2
-                else
-                    self.yv = -3.5
-                end
+                self.yv = -3.5
+                
+                --Kill enemy
                 e[2].health = 0
                 e[2].deathMode = 'squish'
+                break
+            end
+
+            --Solid block
+            if self.se:detect(i, self.col[1])[1] then
+                self.colliderCount['bottom'] = self.colliderCount['bottom'] + 1
             end
         end
-        if self.colliderCount > 0 and not self.onGround then
-            break
+
+        --Right detection
+        for i = self.col[2]+10, 0, 8 do
+            if self.se:detect(self.col[3],i)[1] then
+                self.colliderCount['right'] = self.colliderCount['right'] + 1
+            end
+        end
+
+        --Left Detection
+        for i = self.col[2]+10, 0, 8  do
+            if self.se:detect(self.col[4],i)[1] then
+                self.colliderCount['left'] = self.colliderCount['left'] + 1
+            end
+        end
+
+        --Up Detection
+        for i = -17, 25, 21 do
+            if self.se:detect(i, self.col[2])[1] then
+                self.colliderCount['up']= self.colliderCount['up'] + 1
+            end
+        end
+
+        --Stop quarterstepping if we hit something (also lets us count up right/left detectiosns for wall jumps)
+        for i,v in pairs(self.colliderCount) do
+            if v > 0 then
+                break
+            end
         end
     end
 
     --If you're on the ground
-    if self.colliderCount > 0 then
+    if self.colliderCount['bottom'] > 0 then
 
         --Energy Calculations (1 is LTO, 2 is Li-Ion)
         if self.energy[1] < 4 then
@@ -465,7 +491,6 @@ function Player:update(dt)
             self.eRegen[1] = math.max(0.01,(22.5-self.energy[1])/25)
         end
 
-        --Main energy
         if self.energy[2] < 4 then
             self.eRegen[2] = self.energy[2]/45
         elseif self.energy[2] < 60 then
@@ -474,7 +499,7 @@ function Player:update(dt)
             self.eRegen[2] = math.max(0.01,(75-self.energy[2])/190)
         end
 
-        --silver heart calculation
+        --Silver Heart calculation
         for i=1,#Health,1 do
             if Health[i].type == 3  then
                 self.eRegen[1] = self.eRegen[1] * 1+(0.02*Health[i].amt)
@@ -491,76 +516,75 @@ function Player:update(dt)
 
         --first frame on ground
         if self.onGround == false then
-            self.ypos = self.ypos + (dt*144)
+            self.ypos = self.ypos + (dt*120) --make sure we're actually touching the ground
+            self.airSpinnies = 0 --reset increasing spinny cost in the air
             self.energy[1] = self.energy[1] + (self.eRegen[1]+self.eRegen[2]) --restore a bit of energy when you first hit the ground
             if self.yv > 0.5 and self.yv < 4.5 then
                 self.animation = 'landed'
                 self.aniTimer = 1+math.floor(self.yv*2.5)
-            elseif self.yv > 4.5 then
+            elseif self.yv > 4.5 then --Deal fall damage at high speeds
                 self.aniTimer = 21
                 self.animation = 'hardlanded'
                 self.maxSpd = 1.5
                 local dmgAmt = 0
-                if self.yv > 7 then
+                if self.yv > 7.125 then
                     dmgAmt = 3
-                elseif self.yv > 6.25 then
+                elseif self.yv > 6.375 then
                     dmgAmt = 2
-                elseif self.yv > 5.25 then
+                elseif self.yv > 5.375 then
                     dmgAmt = 1
                 end
-                for i=#Health,1,-1 do
+                for i=#Health,1,-1 do --Actually do damage
                     dmgAmt = Health[i]:takeDmg(dmgAmt)
                 end
             end
-            self.airSpinnies = 0 --reset increasing spinny cost in the air
         end
+
         self.onGround = true
         self.timeOnGround = self.timeOnGround + dt
 
-        --Fix for falling off an edge with fastfall animation queued
+        --Fix for running off an edge with fastfall animation queued
         if self.nextAni == 'fftrans' or self.nextAni == 'fastfall' then
             self.nextAni = 'none'
         end
 
         --slowdown if you landed hard
         if self.animation == 'hardlanded' then
-            self.xv = self.xv * 0.008^dt
+            self.xv = self.xv * 0.0075^dt
         end
+
         self.yv = 0
         self.gravity = 0
+
+        --Reset abilities & jumps
         self.abilities['jump'] = 1 --jump
         self.abilities['jumpext'] = 15 --jump extension
         self.abilities['djump'] = 4 --double jump
         self.abilities['dive'] = 2 --dive
 
-        --Add to energy while on ground (not 1st frame)
+        --Add to energy while on ground based on eregen (not 1st frame)
         self.energy[1] = self.energy[1] + (150*dt*(self.eRegen[1]))+0.001
         self.energy[2] = self.energy[2] + (150*dt*(self.eRegen[2]))+0.001
+    
+    --If you're not on the ground
     else
-
         --Innacurate Knives while airborne
-        self.kunaiInnacuracy = math.max(self.kunaiInnacuracy,8)
+        self.kunaiInnacuracy = math.max(self.kunaiInnacuracy,9)
 
         --falling
         self.onGround = false
         self.timeOnGround = 0
-        self.gravity = 1
+        self.gravity = 1 --No jcounter if you run off an edge
 
         --slide off an edge
         if self.slide > 0 then
-            self.slide = 0
+            self.slide = 0 --cancel slide
             self.jCounter = 5
             self.nextAni = 'low'
         end
 
-        --up detection
-        self.colliderCount = 0
-        for i = -17, 25, 21 do
-            if self.se:detect(i, self.col[2])[1] then
-                self.colliderCount = self.colliderCount + 1
-            end
-        end
-        if self.colliderCount > 0 then
+        --Bonk your head on ceilings
+        if self.colliderCount['up'] > 0 then
             self.yv = 0.1
             self.ypos = self.ypos + 1
             self.jCounter = 4
@@ -570,6 +594,7 @@ function Player:update(dt)
     --Energy calculations
     self.totalEnergy = sum(self.energy)
     self.energyQueue = 0
+
     --Set remEnergy (light gray bar)
     if self.totalEnergy < self.remEnergy then
         self.remEnergy = self.remEnergy - (dt + (self.remEnergy-self.totalEnergy)/400)
@@ -582,15 +607,7 @@ function Player:update(dt)
     self.WJEnabled = 0
     self.timeOffWall = self.timeOffWall + dt
 
-    --Right detection
-    self.colliderCount = 0
-    for i = self.col[2]+10, 0, 8 do
-        if self.se:detect(self.col[3],i)[1] then
-            self.colliderCount = self.colliderCount + 1
-        end
-    end
-
-    --Push out of walls
+    --Push out of right walls
     for i=1,StepSize,1 do
         if self.se:detect(self.col[3]-0.5,math.random(-90,2))[1] then
             self.xpos = self.xpos - (2/StepSize)
@@ -598,24 +615,16 @@ function Player:update(dt)
     end
 
     --Collide right
-    if self.colliderCount > 0 then
+    if self.colliderCount['right'] > 0 then
         self.onWall = 1
         self.timeOffWall = 0
         self.xv = 0
-        if self.colliderCount > 6 then
+        if self.colliderCount['right'] > 6 then
             self.WJEnabled = 1
         end
     end
 
-    --Left Detection
-    self.colliderCount = 0
-    for i = self.col[2]+10, 0, 8  do
-        if self.se:detect(self.col[4],i)[1] then
-            self.colliderCount = self.colliderCount + 1
-        end
-    end
-
-    --Push out of walls
+    --Push out of left walls
     for i=1,StepSize,1 do
         if self.se:detect(self.col[4]+0.5,math.random(-90,2))[1] then
             self.xpos = self.xpos + (2/StepSize)
@@ -623,24 +632,24 @@ function Player:update(dt)
     end
 
     --Collide left
-    if self.colliderCount > 0 then
+    if self.colliderCount['left'] > 0 then
         self.onWall = -1
         self.timeOffWall = 0
         self.xv = 0
-        if self.colliderCount > 6 then
+        if self.colliderCount['left'] > 6 then
             self.WJEnabled = -1
         end
     end
 
-    --keybinds & actions
+    --Keybinds & Actions
     if love.keyboard.isDown(KeyBinds['Jump']) then
         --main single jump
         if self.abilities['jump'] > 0 then
-            if self.slide >= 190 and self.slideBoost == 0 then
+            if self.slide >= 190 and self.slideBoost == 0 then --jump higher while in slide
                 self.slideBoost = (90-self.slide-190)^2
             end
             self.abilities['jump'] = 0
-            self.jCounter = 4
+            self.jCounter = 5
             self.yv = self.yv - plStats.singleJump
             if self.slideBoost ~= 0 then
                 self.xv = self.xv * (1+self.slideBoost/250000)

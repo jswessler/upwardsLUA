@@ -34,7 +34,7 @@ function Enemy:new(x,y,typ)
 
     self.squishFactor = 1
     
-    self.img = love.graphics.newImage("Images/Enemy/enemy1.png") --change to something else later
+    self.img = love.graphics.newImage("image/Enemy/enemy1.png") --change to something else later
 end
 
 function Enemy:update(dt)
@@ -111,11 +111,11 @@ function Enemy:update(dt)
 
     --Death animations
 
-    if self.deathMode == 1 or self.deathMode == 'squish' then
+    if self.deathMode == 'squish' then
         self.squishFactor = self.squishFactor - (self.squishFactor-0.5) * (dt*20)
     end
 
-    if self.deathMode == 2 or self.deathMode == 'kicked' then
+    if self.deathMode == 'kicked' then
         self.rotation = self.rotation + (self.xv * dt * 3)
     end
 
@@ -126,34 +126,35 @@ function Enemy:draw()
     love.graphics.draw(self.img,(self.xpos-CameraX)*GameScale,((self.ypos-CameraY) + (1-self.squishFactor)*self.height)*GameScale,self.rotation,GameScale,GameScale*self.squishFactor)
 end
 
-function Enemy:die()
+function Enemy:die() --Handles death animations
     --Just disappear
-    if self.deathMode == 0 or self.health < 0 then
-        return true
+    if self.deathMode == 0 or self.health < 0 then --general case, all other cases should set health to -1 when the animation is done
+        self.health = -1
+        self.deathCounter = -1 --Die instantly
     end
 
     --Squish to death
-    if self.deathMode == 1 or self.deathMode == 'squish' then
+    if self.deathMode == 'squish' then
         self.health = -1
         self.deathCounter = FrameCounter + 0.5 --die after 0.5s of being squished
-        return false
+        return
     end
 
     --Kicked by a slide
-    if self.deathMode == 2 or self.deathMode == 'kicked' then
+    if self.deathMode == 'kicked' then
         self.health = -1
-        self.deathCounter = FrameCounter + 0.6 --die after 0.5s of being kicked
-        self.yv = -6
-        return false
+        self.deathCounter = FrameCounter + 0.6 --die after 0.6s of being kicked
+        self.yv = -6 --Go way up
+        return
     end
 
     --Hit by throwing knife
     if self.deathMode == 'struckr' or self.deathMode == 'struckl' then
         self.health = -1
         self.deathCounter = FrameCounter + 0.3 --die after 0.3s of being hit
-        self.xv = (self.deathMode == 'struckr' and 3 or -3)
-        self.yv = -1.6
-        return false
+        self.xv = (self.deathMode == 'struckr' and 3 or -3) --Go right if struckr, else go left
+        self.yv = -1.6 --Bounce up
+        return
     end
 
 end

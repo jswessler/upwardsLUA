@@ -10,7 +10,7 @@ Coin = Entity:extend()
 function Coin:new(xpos,ypos,xv,yv)
     self.super.new(self,xpos,ypos,xv,yv,"kunai")
     self.radius = 16
-    self.baseImage = love.graphics.newImage("Images/UI/coin.png")
+    self.baseImage = love.graphics.newImage("image/UI/coin.png")
     self.xOffset = 16
     self.yOffset = 16
 end

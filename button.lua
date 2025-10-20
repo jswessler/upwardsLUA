@@ -15,7 +15,8 @@ function PauseGame()
     StateVar.physics = 'display'
     Buttons['Resume'] = Button(10,50,200,50,"Resume",ResumeGame,0)
     Buttons['Options'] = Button(10,120,200,50,"Options",OptionsMenu,0.1)
-    Buttons['Quit'] = Button(10,190,200,50,"Quit",SureQuit,0.2)
+    Buttons['Save'] = Button(10,190,200,50,'Save Game',nil,0.2)
+    Buttons['Quit'] = Button(10,260,200,50,"Quit",SureQuit,0.3)
 end
 
 function ResumeGame()
@@ -187,23 +188,23 @@ function Button:draw()
 
     --Text
     if type(self.text) == 'string' then
-        simpleText(self.text,22,self.xpos + self.width/2,self.ypos + self.height/2+2,'center')
+        simpleText(self.text, 22, self.xpos + self.width/2,self.ypos + self.height/2+2, 'center')
     else
-        simpleText(self.text(),22,self.xpos + self.width/2,self.ypos + self.height/2+2,'center')
+        simpleText(self.text(), 22, self.xpos + self.width/2,self.ypos + self.height/2+2, 'center')
     end
 
     love.graphics.setColor(1,1,1,1)
 end
 
 function Button:click()
-    if self.slider ~= nil then
+    if self.slider ~= nil then --Slide around
         local x = (love.mouse.getX() - self.xpos) / self.width
         local y = round(x * (self.sliderMax - self.sliderMin) + self.sliderMin)
         self.slider(y)
-    elseif self.hover and not DebugPressed then
-        DebugPressed = true
+    elseif self.hover and not DebugPressed and self.action ~= nil then
         self.action()
     end
+    DebugPressed = true
 end
 
 function Button:rclick()

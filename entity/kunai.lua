@@ -10,7 +10,7 @@ Kunai = Entity:extend()
 function Kunai:new(xpos,ypos,xv,yv)
     self.super.new(self,xpos,ypos,xv,yv,"kunai")
     self.radius = 8
-    self.baseImage = love.graphics.newImage("Images/UI/pixelkunai.png")
+    self.baseImage = love.graphics.newImage("image/UI/pixelkunai.png")
     self.attachedTo = nil
 end
 

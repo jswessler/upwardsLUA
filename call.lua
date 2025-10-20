@@ -30,7 +30,7 @@ function handlePhone(num,dt)
         fullTextBox = true
         TBoxWidth = WindowWidth-100
         if #txt == 0 then
-            local t, size = love.filesystem.read("/Phone Calls/"..num..".txt")
+            local t, size = love.filesystem.read("/phone/"..num..".txt")
             for i=1,#t,1 do
                 table.insert(txt,t:sub(i,i))
             end

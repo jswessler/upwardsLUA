@@ -3,6 +3,7 @@
 4-0\Dash Crystal
 5-0\Spawn point
 5-1\Force Crash Tile
+5-2\Next Level
 6-0\Do Not Use
 7-0\Full Blue Heart
 7-1\Quarter Blue Heart
