@@ -52,6 +52,11 @@ function InitialLoad()
     StepSize = 4 --Quarterstep size for entities, isn't reset when going to title screen
     AutoStep = true --automatically set step size
     DebugInfo = false --If the F3 menu is displayed
+    CreativeMode = false --If the player is in creative mode
+    HudEnabled = true --If the HUD is enabled
+    KunaiReticle = false --If the kunai reticle is displayed
+    NewRenderer = true --If the canvas renderer is used (instead of screen)
+    HighGraphics = true --If the "fancy" graphics are selected
     FpsLimit = 0 --71 = 60FPS, 0 = Uncapped FPS
     Next_Time = 0 --Helper to keep track of frametime
     GlAni = 0.01 --general purpose timer for global animation. This counts down by dt
@@ -116,20 +121,16 @@ function LoadLevel(level)
     DiffCY = 0 --Camera diff Y
     DebugPressed = false --If you're pressing any debug keys
     TileUpdates = 0 --Number of tile updates
-    HudEnabled = true --If the HUD is enabled
-    KunaiReticle = false --If the kunai reticle is displayed
-    NewRenderer = true --If the canvas renderer is used (instead of screen)
-    HighGraphics = true --If the "fancy" graphics are selected
-    CreativeMode = false --If the player is in creative mode
     DrawDT = 0 --IDK
     HeartFlashCounter = -10000 --Timer for low HP flashing
     HeartFlashAmt = 0 --Opacity of heart flashing
     HeartJumpCounter = -10000 --Timer for heart jumping (randomly)
     TotalHealth = 8 --Total health of the player (placeholder, updated immediately)
-    GlobalGravity = 7.5 --global gravity multiplier
-    AutoSave = FrameCounter + 4 --autosave timer
+    GlobalGravity = 7.5 --global gravity multiplier. this can change per level!
+    AutoSave = FrameCounter + 10 --autosave timer
     LevelId = level --Set level id
 
+    --Camera parameters
     Zoom = 1
     ZoomBase = 1
     ZoomScroll = 0

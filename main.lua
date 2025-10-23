@@ -12,7 +12,7 @@
     - Lvlgen in lua
 ]]
 
-BuildId = "Alpha 1.2.6_02"
+BuildId = "Alpha 1.2.6_03"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -131,7 +131,7 @@ function love.update(dt)
             handlePhone(NextCall,dt)
         end
 
-        --Autosave every 30s
+        --Autosave every 45s
         if FrameCounter > AutoSave then
             SaveGame()
             FadingText = {150, "Autosaving..."}
@@ -171,7 +171,7 @@ function love.update(dt)
                 TitleScreen(false)
             end
         else
-            GlAni = 0.5
+            GlAni = 0.5 --Quit the game
             StateVar.ani = 'quitting'
         end
     end
@@ -210,9 +210,6 @@ function love.draw()
 
     --Draw HDMA background
     
-
-
-
 
 
     --Update WindowWidth & WindowHeight

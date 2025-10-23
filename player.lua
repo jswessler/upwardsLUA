@@ -392,8 +392,7 @@ function Player:update(dt)
             if self.slide > 180 and FrameCounter > self.iFrame then
                 local e = self.se:detectEnemy(j,i,'all')
                 if e[1] and e[2].health > 0 then
-                    self.slide = self.slide + 30 --extend slide time
-                    self.xv = self.xv * 0.75
+                    self.slide = self.slide + 60 --extend slide time
                     e[2].health = 0
                     e[2].deathMode = 'kicked'
                 end
@@ -671,11 +670,12 @@ function Player:update(dt)
         if CreativeMode then
             if self.totalEnergy > 0.1 then
                 self.yv = self.yv * 0.02^dt
-                self.yv = self.yv - 30*dt
+                self.yv = self.yv - 24*dt
+                self.xv = self.xv * math.exp(dt)
                 self.abilities['dive'] = 2
                 self.maxSpd = 6
                 self.jCounter = 7
-                self.energyQueue = self.energyQueue + (100-self.energyQueue)*(dt*16)
+                self.energyQueue = self.energyQueue + (100-self.energyQueue)*(dt*4)
                 self.animation = 'jump'
                 self.aniTimer = 6
                 self.aniiTimer = 6
@@ -801,12 +801,12 @@ function Player:update(dt)
     end
 
     --Spinny
-    if self.abilities['spinny'] > 0.5 and love.keyboard.isDown(KeyBinds['Spin']) and self.totalEnergy > 10 then
+    if self.abilities['spinny'] > 0.5 and love.keyboard.isDown(KeyBinds['Spin']) and self.totalEnergy > 12.5 and self.onWall == 0 then --can't spinny while sliding on a wall
         --Aerial Spinny
         if not self.onGround then
             if self.abilities['spinny'] == 2 then --main spinny
-                self.yv = (self.yv * 0.5) - 2.25
-                self.xv = self.xv * 0.5
+                self.yv = (self.yv * 0.5) - 2.325
+                self.xv = self.xv * 0.475
                 self.abilities['spinny'] = 0
                 self.jCounter = 20
                 self.spinnyTimer = 8
@@ -823,10 +823,10 @@ function Player:update(dt)
 
             end
             if self.abilities['spinny'] > 0.5 and self.abilities['spinny'] < 1.5 then --sub spinny
-                self.yv = (self.yv * 0.75) - 0.75
-                self.xv = self.xv * 0.75
+                self.yv = (self.yv * 0.875) - 0.875
+                self.xv = self.xv * 0.8
                 self.abilities['spinny'] = 0
-                self.jCounter = 5
+                self.jCounter = 6
                 self.spinnyTimer = 4
                 self.energyQueue = self.energyQueue - (7.5 + self.airSpinnies*2.5)
                 self.animation = 'spinny'
@@ -841,8 +841,8 @@ function Player:update(dt)
         
         --Grounded spinny
         elseif self.abilities['spinny'] == 2 and math.abs(self.xv) < 1 then
-            self.xv = self.xv * 0.4
-            self.jCounter = 10
+            self.xv = self.xv * 0.375
+            self.jCounter = 20
             self.abilities['spinny'] = 0
             self.spinnyTimer = 4
             self.energyQueue = self.energyQueue - 12.5
@@ -899,7 +899,7 @@ function Player:update(dt)
         if self.abilities['dive'] > 0 and self.abilities['jump'] <= 0 and self.totalEnergy > 1 and self.onWall == 0 then
             if self.abilities['dive'] == 2 then
                 self.energyQueue = self.energyQueue - 4
-                self.yv = (self.yv+plStats.diveInitY) * 0.975
+                self.yv = (self.yv+plStats.diveInitY) * 0.95
                 self.diveDir = self.dFacing
             end
             --Adjust stats

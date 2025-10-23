@@ -1,5 +1,8 @@
 Release Log:
 
+a1.2.6_03
+- Many things now don't reset when you start a level (graphics, settings)
+
 a1.2.6_02
 - Bug fixes
 - Fast vs Fancy does more stuff
