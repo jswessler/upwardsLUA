@@ -12,7 +12,7 @@
     - Lvlgen in lua
 ]]
 
-BuildId = "Alpha 1.2.6_03"
+BuildId = "Alpha 1.2.6_04"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -234,11 +234,6 @@ function love.draw()
         Zoom = Zoom + (tz-Zoom)/(0.5/love.timer.getDelta())
         GameScale = GameScale * Zoom
 
-        --Update Camera
-        if StateVar.physics == 'on' then
-            normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,2.5*(Pl.yv-2.5)))
-        end
-
         --F1: Toggle HUD
         if love.keyboard.isDown("f1") and not DebugPressed then
             DebugPressed = true
@@ -277,9 +272,12 @@ function love.draw()
             v:draw(GameScale)
         end
 
-        --Draw Player
+        --Draw Player & update camera
         if StateVar.physics == 'on' then
-            Pl:animate(Pl.saveDt)
+            if DrawCounter % (HighGraphics and 1 or 3) == 0 then
+                Pl:animate((HighGraphics and Pl.saveDt or Pl.saveDt*3.25))
+            end
+            normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,2.5*(Pl.yv-2.5)))
         end
         Pl:draw()
 
@@ -322,7 +320,7 @@ function love.draw()
         end
 
         --Auto set step size if enabled
-        if AutoStep then
+        if DrawCounter % (HighGraphics and 5 or 20)== 0 and AutoStep then
             local f = love.timer.getFPS()
             StepSize = clamp(round((HighGraphics and 360 or 240)/f),2,16)
         end
