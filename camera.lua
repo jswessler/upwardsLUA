@@ -1,7 +1,7 @@
 --!file: camera.lua
 --handles camera movement
 
-function normalCamera(mousex,mousey,dt,rxy)
+function NormalCamera(mousex,mousey,dt,rxy)
     --get mouse position
     local Camx = mousex
     local Camy = mousey

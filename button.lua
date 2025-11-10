@@ -17,7 +17,8 @@ function PauseGame()
     Buttons['Options'] = Button(10,120,200,50,"Options",OptionsMenu,0.1)
     Buttons['Save'] = Button(10,190,200,50,'Save Game',SaveGame,0.2)
     Buttons['Load'] = Button(10,260,200,50,'Load Game',LoadGame,0.3)
-    Buttons['Quit'] = Button(10,330,200,50,"Quit",SureQuit,0.4)
+    Buttons['Editor'] = Button(10,330,200,50, "Level Editor", function() StateVar.state = 'editor' Buttons = {} HudEnabled = false end, 0.35)
+    Buttons['Quit'] = Button(10,400,200,50,"Quit",SureQuit,0.4)
 end
 
 function ResumeGame()
@@ -79,7 +80,6 @@ function ControlsMenu()
     Buttons['Throw'] = Button(250*GameScale, 200, 200, 40, function() return "Kunai: "..KeyBinds['Throw'] end, function() StateVar.substate = 'Throw-CS' end, 0.075, "Throw")
     Buttons['Skip'] = Button(250*GameScale, 250, 200, 40, function() return "Next Text: "..KeyBinds['Skip'] end, function() StateVar.substate = 'Skip-CS' end, 0.1, "Skip")
     Buttons['Fast'] = Button(10*GameScale, 300, 200, 40, function() return "Skip Text: "..KeyBinds['Fast'] end, function() StateVar.substate = 'Fast-CS' end, 0.375, "Fast")
-
     Buttons['Back'] = Button(10, 350, 200, 50, 'Back', OptionsMenu, 0.3)
 end
 
@@ -87,6 +87,12 @@ function AudioMenu()
     Buttons = {}
     StateVar.substate = 'audio'
     Buttons['Back'] = Button(10, 50, 300, 50, "Back (not implemented)", OptionsMenu, 0)
+end
+
+function LoadEditor()
+    Buttons = {}
+    StateVar.genstate = 'editor' --start the level editor
+    StateVar.physics = 'off' --to guarentee the game doesn't run
 end
 
 --Main menu
@@ -99,9 +105,10 @@ function TitleScreen(reset)
     StateVar.genstate = 'title'
     StateVar.physics = 'off'
     Buttons['New Game'] = Button(30, 570, 240, 130, "New Game (level 1)", function() LevelTrans('lvl1') GlAni = 0.6 end, 0)
-    Buttons['Continue'] = Button(290, 570, 240, 130, "Continue (from save)", LoadGame, 0)
+    Buttons['Continue'] = Button(290, 570, 240, 130, "Load Save", LoadGame, 0)
     Buttons['Options'] = Button(60, 720, 180, 50, "Options", OptionsMenu, 0)
     Buttons['Quit'] = Button(320, 720, 180, 50, "Quit", function() GlAni = 0.5 StateVar.ani = 'quitting' end, 0)
+
 end
 
 

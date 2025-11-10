@@ -4,6 +4,9 @@
 --[[ todo
 
     a1.2.7
+    - 
+
+    a1.2.8
     - More pixel art
     - Fix phone calls (add portraits)
 
@@ -12,7 +15,7 @@
     - Lvlgen in lua
 ]]
 
-BuildId = "Alpha 1.2.6_04"
+BuildId = "Alpha 1.3 W"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -25,6 +28,7 @@ function love.load()
     require "lib.playerCollision"
 
     require "animation"
+    require "lvledit"
 
     require "entity.kunai"
     require "entity.coin"
@@ -170,10 +174,17 @@ function love.update(dt)
             if StateVar.substate == 'options' then
                 TitleScreen(false)
             end
+        elseif StateVar.genstate == 'editor' then
+            TitleScreen(true)
         else
             GlAni = 0.5 --Quit the game
             StateVar.ani = 'quitting'
         end
+    end
+
+    --Editor
+    if StateVar.state == 'editor' then
+        EditorUpdate(dt)
     end
 
     if FpsLimit ~= 0 then
@@ -224,7 +235,7 @@ function love.draw()
     end
 
     --Things to draw when the game is running
-    if StateVar.physics ~= 'off' and StateVar.genstate == 'game' then
+    if (StateVar.physics ~= 'off' and StateVar.genstate == 'game') or StateVar.state == 'editor' then
 
         --Update Zoom
         local tz = ZoomBase+ZoomScroll
@@ -277,7 +288,7 @@ function love.draw()
             if DrawCounter % (HighGraphics and 1 or 3) == 0 then
                 Pl:animate((HighGraphics and Pl.saveDt or Pl.saveDt*3.25))
             end
-            normalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,2.5*(Pl.yv-2.5)))
+            NormalCamera(MouseX,MouseY,math.min(0.04,1/love.timer.getFPS()),math.max(0,2.5*(Pl.yv-2.5)))
         end
         Pl:draw()
 
@@ -460,7 +471,7 @@ function love.draw()
         end
 
         love.graphics.setColor(1,1,1,1)
-        if love.keyboard.isDown("f9") then --Show debug blocks IDS
+        if StateVar.state == 'editor' or love.keyboard.isDown("f9") then --Show debug blocks IDS
             local Xl,Yl = GetOnScreen()
             for i,x in ipairs(Xl) do
                 for o,y in ipairs(Yl) do
@@ -658,7 +669,11 @@ function love.draw()
     GlobalAnimate()
 
     --Draw BuildId
-    SimpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
+    if StateVar.state == 'editor' then
+        SimpleText("Upwards Editor "..BuildId,20,10*GameScale,10*GameScale)
+    else
+        SimpleText("Upwards "..BuildId,20,10*GameScale,10*GameScale)
+    end
 
     --Flip display
     love.graphics.setCanvas()
@@ -701,7 +716,7 @@ function RenderOne()
             end
 
             --Draw block text when pressing f9
-            if love.keyboard.isDown("f9") and bl~= '0-0' then
+            if StateVar.state == 'editor' or (love.keyboard.isDown("f9") and bl~= '0-0') then
                 SimpleText(bl,14,16+(x-CameraX)*GameScale,16+(y-CameraY)*GameScale,'center')
             end
         end
