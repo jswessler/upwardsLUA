@@ -129,6 +129,7 @@ function LoadLevel(level)
     GlobalGravity = 7.5 --global gravity multiplier. this can change per level!
     AutoSave = FrameCounter + 10 --autosave timer
     LevelId = level --Set level id
+    EditorRem = {0,0} --Copy/paste in editor memory
 
     --Camera parameters
     Zoom = 1

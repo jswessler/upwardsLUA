@@ -15,7 +15,7 @@
     - Lvlgen in lua
 ]]
 
-BuildId = "Alpha 1.3 W"
+BuildId = "Alpha 1.3 LE"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -166,7 +166,9 @@ function love.update(dt)
             OptionsMenu()
             
         --States where ESC puts you back in the game
-        elseif StateVar.genstate == 'game' and StateVar.state == 'menu' then
+        elseif (StateVar.genstate == 'game' and StateVar.state == 'menu') or StateVar.state == 'editor' then
+            --saveARL --save the level on editor close
+            AutoSave = -1 --save immediately
             ResumeGame()
 
         --States where ESC quits the game
@@ -174,8 +176,6 @@ function love.update(dt)
             if StateVar.substate == 'options' then
                 TitleScreen(false)
             end
-        elseif StateVar.genstate == 'editor' then
-            TitleScreen(true)
         else
             GlAni = 0.5 --Quit the game
             StateVar.ani = 'quitting'
@@ -470,8 +470,23 @@ function love.draw()
             end
         end
 
-        love.graphics.setColor(1,1,1,1)
-        if StateVar.state == 'editor' or love.keyboard.isDown("f9") then --Show debug blocks IDS
+        if StateVar.state == 'editor' then --Show editor stuff
+            
+            --Highlight & do actions on the block the mouse is on
+            local xt = MouseX+CameraX
+            local yt = MouseY+CameraY
+            local x = xt - (xt%32)
+            local y = yt - (yt%32)
+            local bl = LevelData[math.floor(x/32).."-"..math.floor(y/32)]
+            love.graphics.setColor(0.7,0.7,0.7,0.5)
+            if love.keyboard.isDown('c') then --copy
+                EditorRem = bl
+                love.graphics.setColor(1,0.1,0,1)
+            end
+            love.graphics.rectangle('fill',x-CameraX,y-CameraY,32*GameScale,32*GameScale) 
+            love.graphics.setColor(1,1,1,1)
+
+            --Draw text
             local Xl,Yl = GetOnScreen()
             for i,x in ipairs(Xl) do
                 for o,y in ipairs(Yl) do
@@ -484,6 +499,8 @@ function love.draw()
                     if LoadedTiles[bl]~= nil then
                         t = split(bl,"-")
                     end
+
+                    --Show text
                     SimpleText(t[1],8,(x-CameraX)*GameScale,(y-CameraY)*GameScale)
                     SimpleText(t[2],8,(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
                     SimpleText(xt.."/"..yt,8,(x-CameraX)*GameScale,20+(y-CameraY)*GameScale)

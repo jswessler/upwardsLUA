@@ -1,17 +1,12 @@
 --!file: lvledit.lua
 -- Port of the PyGame-based level editor into lua, runs inline instead of seperately
 
-lvlWid = 100
-lvlHei = 100
-lvlNum = 2
-saveTo = 'lvl1.arl'
-
 function EditorUpdate(dt) --called during love.update()
     --Variables
     --Control speed
-    local speed = 300*dt   
+    local speed = 256*dt   
     if love.keyboard.isDown("lshift") then
-        speed = 1024*dt
+        speed = 1280*dt
     end
 
     --Move the camera
@@ -29,20 +24,6 @@ function EditorUpdate(dt) --called during love.update()
     end
 end
 
-function EditorDraw() --called during love.draw()
-    if EditorEnable then
-        RenderOne() --more compatible renderer
-        
-        --File handling
-        if love.keyboard.isDown('s') then
-            SaveARL(level, levelSub, saveTo)
-            love.graphics.setColor(0,1,0.4,1)
-            love.graphics.circle('fill',20,20,20)
-            love.graphics.setColor(1,1,1,1)
-        end
-    end
-end
-
 
 
 function SaveARL(ls,ls2,dest)
@@ -55,15 +36,15 @@ function SaveARL(ls,ls2,dest)
     table.insert(bitO, 0x6A) -- j
 
     -- Width (2 bytes: high, low)
-    table.insert(bitO, math.floor(lvlWid / 256))
-    table.insert(bitO, lvlWid % 256)
+    table.insert(bitO, math.floor(LevelWidth / 256))
+    table.insert(bitO, LevelWidth % 256)
 
     -- Height (2 bytes: high, low)
-    table.insert(bitO, math.floor(lvlHei / 256))
-    table.insert(bitO, lvlHei % 256)
+    table.insert(bitO, math.floor(LevelHeight / 256))
+    table.insert(bitO, LevelHeight % 256)
 
     -- Level number
-    table.insert(bitO, lvlNum)
+    table.insert(bitO, 1)
 
     -- Build ID bytes
     for i = 1, #BuildId do
