@@ -1,5 +1,8 @@
 Release Log:
 
+a1.3
+- Integrated level editor
+
 a1.2.6_03
 - Many things now don't reset when you start a level (graphics, settings)
 

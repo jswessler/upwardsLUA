@@ -3,19 +3,15 @@
 
 --[[ todo
 
-    a1.2.7
-    - 
+    a1.3
+    - levelgen in lua
 
-    a1.2.8
+    a1.3.1
     - More pixel art
     - Fix phone calls (add portraits)
-
-
-    a1.3.0
-    - Lvlgen in lua
 ]]
 
-BuildId = "Alpha 1.3 LE"
+BuildId = "Alpha 1.3 LE+"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -169,6 +165,7 @@ function love.update(dt)
         elseif (StateVar.genstate == 'game' and StateVar.state == 'menu') or StateVar.state == 'editor' then
             --saveARL --save the level on editor close
             AutoSave = -1 --save immediately
+            HudEnabled = true
             ResumeGame()
 
         --States where ESC quits the game
@@ -486,6 +483,11 @@ function love.draw()
             love.graphics.rectangle('fill',x-CameraX,y-CameraY,32*GameScale,32*GameScale) 
             love.graphics.setColor(1,1,1,1)
 
+            --save
+            if love.keyboard.isDown('s') then
+                SaveARL(LevelData,'lvl1.arl')
+            end
+
             --Draw text
             local Xl,Yl = GetOnScreen()
             for i,x in ipairs(Xl) do
@@ -495,16 +497,13 @@ function love.draw()
                     x = x - (x%32)
                     y = y - (y%32)
                     local bl = LevelData[xt.."-"..yt]
-                    local t = {0,0}
-                    if LoadedTiles[bl]~= nil then
-                        t = split(bl,"-")
+                    local t = split(bl,"-")
+                    if bl ~= "0-0" then
+                        --Show text
+                        SimpleText(t[1],8,(x-CameraX)*GameScale,(y-CameraY)*GameScale)
+                        SimpleText(t[2],8,(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
+                        SimpleText(xt.."/"..yt,8,(x-CameraX)*GameScale,20+(y-CameraY)*GameScale)
                     end
-
-                    --Show text
-                    SimpleText(t[1],8,(x-CameraX)*GameScale,(y-CameraY)*GameScale)
-                    SimpleText(t[2],8,(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
-                    SimpleText(xt.."/"..yt,8,(x-CameraX)*GameScale,20+(y-CameraY)*GameScale)
-
                 end
             end
         end

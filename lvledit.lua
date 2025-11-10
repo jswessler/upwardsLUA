@@ -26,8 +26,20 @@ end
 
 
 
-function SaveARL(ls,ls2,dest)
+function SaveARL(list,dest)
     local bitO = {}
+    local ls = {}
+    local ls2 = {}
+    local lenlist = 0
+
+    for x=0,LevelWidth do
+        for y=0,LevelWidth do
+            local t = split(list[x.."-"..y])
+            table.insert(ls, t[1])
+            table.insert(ls2, t[2])
+            lenlist = lenlist + 1
+        end
+    end
 
     -- Header bytes ("ARL" + "j")
     table.insert(bitO, 0x41) -- A
@@ -60,12 +72,14 @@ function SaveARL(ls,ls2,dest)
     -- Main encoding loop
     local counter = 1
     local run = 0
-    local l = #ls
+    local l = lenlist
 
     while true do
-        if counter > l then break end
-        local cur = ls[counter]
-        local cur2 = ls2[counter]
+        if counter > l+1 then 
+            break 
+        end
+        local cur = tonumber(ls[counter]) or 0
+        local cur2 = tonumber(ls2[counter] or 0)
 
         if cur == 0 then
             run = run + 1
@@ -100,7 +114,7 @@ function SaveARL(ls,ls2,dest)
     table.insert(bitO, c % 256)
 
     -- Write to binary file
-    local filename = path .. "/Levels/" .. tostring(dest)
+    local filename = "level/" .. tostring(dest)
     local f = assert(io.open(filename, "wb"))
 
     for i = 1, #bitO do
