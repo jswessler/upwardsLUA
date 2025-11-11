@@ -7,19 +7,19 @@ function NormalCamera(mousex,mousey,dt,rxy)
     local Camy = mousey
 
     --adjust cam parameters
-    local tx = Pl.xpos + (Pl.xv*70) + (Pl.dFacing*0) - (WindowWidth/(2*GameScale)) + (Camx-(WindowWidth/2))/(5*GameScale)
-    local ty = -(WindowHeight/10) + Pl.ypos + (Pl.yv*10*GameScale) - (WindowHeight/(2*GameScale)) + (Camy-(WindowHeight/2))/(5*GameScale)
+    local tx = Pl.xpos + (Pl.xv*80) + (Pl.dFacing*20) - (WindowWidth/(2*GameScale)) + (Camx-(WindowWidth/2))/(5*GameScale)
+    local ty = -(WindowHeight/10) + Pl.ypos + (Pl.yv*20) - (WindowHeight/(2*GameScale)) + (Camy-(WindowHeight/2))/(5*GameScale)
     
     --Move camera to the left or right when you move in that direction
     if Pl.lastDir[1] == 'left' then
-        tx = tx + math.min(200,math.max(-160,Pl.lastDir[2]*640))
+        tx = tx + math.min(160,math.max(-160,Pl.lastDir[2]*640))
     elseif Pl.lastDir[1] == 'right' then
-        tx = tx + math.max(-200,math.min(160,Pl.lastDir[2]*640))
+        tx = tx + math.max(-160,math.min(160,Pl.lastDir[2]*640))
     end
 
     --Move camera up if you hold up
     if love.keyboard.isDown(KeyBinds['Up']) then
-        ty = ty - 115*GameScale
+        ty = ty - 100*GameScale
     end
     
     local remcx = CameraX

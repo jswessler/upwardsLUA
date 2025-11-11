@@ -32,9 +32,9 @@ function SaveARL(list,dest)
     local ls2 = {}
     local lenlist = 0
 
-    for x=0,LevelWidth do
-        for y=0,LevelWidth do
-            local t = split(list[x.."-"..y])
+    for y=0,LevelWidth-1 do
+        for x=0,LevelWidth-1 do
+            local t = split(list[x.."-"..y],"-")
             table.insert(ls, t[1])
             table.insert(ls2, t[2])
             lenlist = lenlist + 1
@@ -122,5 +122,6 @@ function SaveARL(list,dest)
     end
 
     f:close()
+    return true
 
 end

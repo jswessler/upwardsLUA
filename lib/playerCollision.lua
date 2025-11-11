@@ -14,7 +14,7 @@ function PlColDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
         Pl.abilities['dive'] = 2
         Pl.abilities['spinny'] = math.max(1,Pl.abilities['spinny'])
         Pl.airSpinnies = math.max(Pl.airSpinnies-1, 1)
-        local totEnergy = 15 + (Pl.remEnergy-Pl.totalEnergy)/1.75
+        local totEnergy = 10 + (Pl.remEnergy-Pl.totalEnergy)/1.5
         Pl.energy[1] = Pl.energy[1] + 0.25*totEnergy
         Pl.energy[2] = Pl.energy[2] + 0.75*totEnergy
         DirtyTiles[pB] = true
@@ -66,12 +66,24 @@ function PlColDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
             healAmt = Health[i]:heal(healAmt)
         end
         HeartJumpCounter = -1000 --Jump hearts
+        LevelData[pB] = "0-0"
+        DirtyTiles[pB] = true
     end
 
     --Blood Heart
     if blMain == 10 and blSub == 1 then
         table.insert(Health,Heart(4,1))
         HeartJumpCounter = -1000 --Jump hearts
+        LevelData[pB] = "0-0"
+        DirtyTiles[pB] = true
+    end
+
+    --Gold Heart
+    if blMain == 10 and blSub == 2 then
+        table.insert(Health,Heart(5,1))
+        HeartJumpCounter = -1000 --Jump hearts
+        LevelData[pB] = "0-0"
+        DirtyTiles[pB] = true
     end
 
     --Phone Call
@@ -97,11 +109,11 @@ function PlColDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
         end
         if blSub == 2 then --to the right
             Pl.xv = (0.1*Pl.xv) + 3.5
-            Pl.yv = (0.75*Pl.yv) - 0.5
+            Pl.yv = (0.75*Pl.yv) - 0.25
         end
         if blSub == 3 then --to the left
             Pl.xv = (0.1*Pl.xv) - 3.5
-            Pl.yv = (0.75*Pl.yv) - 0.5
+            Pl.yv = (0.75*Pl.yv) - 0.25
         end
     end
 end

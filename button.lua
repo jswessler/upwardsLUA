@@ -14,11 +14,11 @@ function PauseGame()
     StateVar.substate = 'none'
     StateVar.physics = 'display'
     Buttons['Resume'] = Button(10,50,200,50,"Resume",ResumeGame,0)
-    Buttons['Options'] = Button(10,120,200,50,"Options",OptionsMenu,0.1)
-    Buttons['Save'] = Button(10,190,200,50,'Save Game',SaveGame,0.2)
-    Buttons['Load'] = Button(10,260,200,50,'Load Game',LoadGame,0.3)
-    Buttons['Editor'] = Button(10,330,200,50, "Level Editor", function() StateVar.state = 'editor' Buttons = {} HudEnabled = false end, 0.35)
-    Buttons['Quit'] = Button(10,400,200,50,"Quit",SureQuit,0.4)
+    Buttons['Options'] = Button(10,120,200,50,"Options",OptionsMenu,0.05)
+    Buttons['Save'] = Button(10,190,200,50,'Save Game',SaveGame,0.1)
+    Buttons['Load'] = Button(10,260,200,50,'Load Game',LoadGame,0.15)
+    Buttons['Editor'] = Button(10,330,200,50, "Level Editor", function() StateVar.state = 'editor' Buttons = {} HudEnabled = false end, 0.2)
+    Buttons['Quit'] = Button(10,400,200,50,"Quit",SureQuit,0.25)
 end
 
 function ResumeGame()
@@ -99,7 +99,7 @@ end
 function TitleScreen(reset)
     if reset then
         love.graphics.setDefaultFilter("linear","linear",4)
-        FrameCounter = 0
+        GameCounter = 0
     end
     Buttons = {}
     StateVar.genstate = 'title'

@@ -45,9 +45,9 @@ function Kunai:update(dt)
         for i=-self.radius,self.radius,self.radius do
             for j=-self.radius,self.radius,self.radius do
                 local e = self.se:detectEnemy(i,j,'all')
-                if e[1] and FrameCounter > e[2].iframe then
+                if e[1] and GameCounter > e[2].iframe then
                     e[2].health = e[2].health - 1
-                    e[2].iframe = FrameCounter + 0.2
+                    e[2].iframe = GameCounter + 0.2
                     if e[2].health == 0 then
                         if self.xv > 0 then
                             e[2].deathMode = 'struckr'

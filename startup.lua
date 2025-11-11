@@ -61,7 +61,7 @@ function InitialLoad()
     Next_Time = 0 --Helper to keep track of frametime
     GlAni = 0.01 --general purpose timer for global animation. This counts down by dt
     StateVar = {genstate = 'initialload', state = 'initialload', substate = 'N/A', ani = 'N/A', physics = 'off'}
-    FrameCounter = -1 --Tracks real time
+    GameCounter = -1 --Tracks real time
     SecondsCounter = 0 --Floor of frametime
     UpdateCounter = 0 --Ticks for each update
     TileUpdateTime = 0 --Tracks tile updating
@@ -97,7 +97,8 @@ function LoadLevel(level)
         ['blue4'] = love.graphics.newImage("/image/Hearts/blue4.png"),
         ['silver1'] = love.graphics.newImage("/image/Hearts/silver1.png"),
         ['silver2'] = love.graphics.newImage("/image/Hearts/silver2.png"),
-        ['blood'] = love.graphics.newImage("/image/Hearts/blood.png"),
+        ['blood1'] = love.graphics.newImage("/image/Hearts/blood1.png"),
+        ['gold1'] = love.graphics.newImage("/image/Hearts/gold1.png"),
         ['crit'] = love.graphics.newImage("/image/Hearts/red_crit.png")
     }
 
@@ -127,9 +128,12 @@ function LoadLevel(level)
     HeartJumpCounter = -10000 --Timer for heart jumping (randomly)
     TotalHealth = 8 --Total health of the player (placeholder, updated immediately)
     GlobalGravity = 7.5 --global gravity multiplier. this can change per level!
-    AutoSave = FrameCounter + 10 --autosave timer
+    AutoSave = GameCounter + 10 --autosave timer
     LevelId = level --Set level id
+
+    --a1.3
     EditorRem = {0,0} --Copy/paste in editor memory
+    
 
     --Camera parameters
     Zoom = 1

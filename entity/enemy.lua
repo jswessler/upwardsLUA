@@ -136,14 +136,14 @@ function Enemy:die() --Handles death animations
     --Squish to death
     if self.deathMode == 'squish' then
         self.health = -1
-        self.deathCounter = FrameCounter + 0.5 --die after 0.5s of being squished
+        self.deathCounter = GameCounter + 0.5 --die after 0.5s of being squished
         return
     end
 
     --Kicked by a slide
     if self.deathMode == 'kicked' then
         self.health = -1
-        self.deathCounter = FrameCounter + 0.6 --die after 0.6s of being kicked
+        self.deathCounter = GameCounter + 0.6 --die after 0.6s of being kicked
         self.yv = -6 --Go way up
         return
     end
@@ -151,7 +151,7 @@ function Enemy:die() --Handles death animations
     --Hit by throwing knife
     if self.deathMode == 'struckr' or self.deathMode == 'struckl' then
         self.health = -1
-        self.deathCounter = FrameCounter + 0.3 --die after 0.3s of being hit
+        self.deathCounter = GameCounter + 0.3 --die after 0.3s of being hit
         self.xv = (self.deathMode == 'struckr' and 3 or -3) --Go right if struckr, else go left
         self.yv = -1.6 --Bounce up
         return

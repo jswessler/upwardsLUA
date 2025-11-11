@@ -22,6 +22,9 @@ function Heart:new(typ,amt)
     elseif typ == 4 then
         self.fileExt = 'blood'
         self.maxHp = 1
+    elseif typ == 5 then
+        self.fileExt = 'gold'
+        self.maxHp = 1
     end
     self.img = ''
 end

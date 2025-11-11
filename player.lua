@@ -63,6 +63,7 @@ function Player:new(x,y)
 
     --Hitbox & iframes
     self.iFrame = 0
+    self.squished = {0,0,0} --number of squished enemies in a row, timer, cooldown
 
     --Images
     self.img = ''
@@ -389,7 +390,7 @@ function Player:update(dt)
             PlColDetect(ret[2],ret[3],dt)
 
             --Slide hitbox
-            if self.slide > 180 and FrameCounter > self.iFrame then
+            if self.slide > 180 and GameCounter > self.iFrame then
                 local e = self.se:detectEnemy(j,i,'all')
                 if e[1] and e[2].health > 0 then
                     self.slide = self.slide + 60 --extend slide time
@@ -398,7 +399,7 @@ function Player:update(dt)
                 end
 
             --Hitbox for getting hurt
-            elseif FrameCounter > self.iFrame then
+            elseif GameCounter > self.iFrame then
                 local e = self.se:detectEnemy(j,i,'hurt')
                 if e[1] and e[2].deathMode == 0 then
                     self.xv = (self.dFacing * -0.5) + (e[2].xv/1.25)
@@ -409,10 +410,15 @@ function Player:update(dt)
                     for x=#Health,1,-1 do
                         dmgAmt = Health[x]:takeDmg(dmgAmt)
                     end
-                    self.iFrame = FrameCounter + 1
+                    self.iFrame = GameCounter + 1
                 end
             end
         end
+    end
+
+    --Reset squish
+    if self.squished[2] < GameCounter then
+        self.squished[1] = 0
     end
 
     --Quarterstep Updating
@@ -426,7 +432,7 @@ function Player:update(dt)
 
             --Enemy (jump on head)
             local e = self.se:detectEnemy(i,self.col[1],'top') --Check collision with the top of enemies
-            if e[1] and e[2].health > 0 and FrameCounter > self.iFrame then --Can't hit an enemy when you're in iframes
+            if e[1] and e[2].health > 0 and GameCounter > self.iFrame then --Can't hit an enemy when you're in iframes
                 self.animation = 'jump'
                 self.nextAni = 'high'
                 self.abilities['jumpext'] = 0
@@ -440,6 +446,17 @@ function Player:update(dt)
                 --Kill enemy
                 e[2].health = 0
                 e[2].deathMode = 'squish'
+
+                --Set squishtimer
+                if self.squished[3] < GameCounter then
+                    self.squished[1] = self.squished[1] + 1
+                    self.squished[2] = GameCounter + 1.25
+                    if self.squished[1] >= 3 then
+                        table.insert(Health,Heart(5,1))
+                        HeartJumpCounter = -1000 --Jump hearts
+                        self.squished[3] = GameCounter + 6 --6 second cooldown between getting hearts this way
+                    end
+                end
                 break
             end
 
@@ -537,6 +554,8 @@ function Player:update(dt)
                     dmgAmt = Health[i]:takeDmg(dmgAmt)
                 end
             end
+            self.squished[1] = 0 --reset sequential squish
+            self.squished[2] = -1
         end
 
         self.onGround = true

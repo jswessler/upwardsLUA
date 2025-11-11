@@ -19,6 +19,7 @@
 9-4\Full Red Heart
 10-1\Spent 1-Time Use Block
 10-1\Blood Heart
+10-2\Gold Heart
 11-1\Phone Call
 13-0\Camera Control
 16-0\Enemy Spawn

@@ -11,7 +11,7 @@
     - Fix phone calls (add portraits)
 ]]
 
-BuildId = "Alpha 1.3 LE+"
+BuildId = "Alpha 1.3 RC1"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -47,9 +47,9 @@ end
 
 function love.update(dt)
     --Update counters
-    FrameCounter = FrameCounter + dt
+    GameCounter = GameCounter + dt
     UpdateCounter = UpdateCounter + 1
-    SecondsCounter = round(FrameCounter)
+    SecondsCounter = round(GameCounter)
 
     if GlAni > 0 then GlAni = GlAni - dt end --Update the GlAni timer, for animations
     if GlAni < 0 then GlAni = 0 end --reset to 0 when done
@@ -89,9 +89,9 @@ function love.update(dt)
             end
 
             --Disappear at the end of death animations
-            if FrameCounter > v.deathCounter and v.health == -1 then
+            if GameCounter > v.deathCounter and v.health == -1 then
                 --Create coin if squished
-                if v.deathMode == 'squish' then
+                if v.deathMode == 'squish' and love.math.random() > 0.5 then --50% chance
                     local coin = Coin(v.xpos,v.ypos,(love.math.random()-0.5)*5,(love.math.random()-1.5)*10)
                     table.insert(Entities,coin)
                 end
@@ -132,10 +132,10 @@ function love.update(dt)
         end
 
         --Autosave every 45s
-        if FrameCounter > AutoSave then
+        if GameCounter > AutoSave then
             SaveGame()
             FadingText = {150, "Autosaving..."}
-            AutoSave = FrameCounter + 45
+            AutoSave = GameCounter + 45
         end
     end
 
@@ -365,26 +365,33 @@ function love.draw()
                     table.remove(Health,i)
                 else
                     local img = HpImages[hp.fileExt..hp.amt]
+                    
                     --Draw hearts
                     love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
+                    --Fade in gold heart
+                    if i == #Health and Pl.squished[1] == 2 then
+                        love.graphics.setColor(1,1,1,love.math.random()*(Pl.squished[2]-GameCounter))
+                        love.graphics.draw(HpImages['gold1'],((120*GameScale)+(68*(i+1)*GameScale))+HudX,WindowHeight-(97*GameScale)-((i+1)*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
+                        love.graphics.setColor(1,1,1,1)
+                    end
                 end
 
                 --Heart jumping randomly
-                if HeartJumpCounter < FrameCounter - 0.1*i and not hp.move then
+                if HeartJumpCounter < GameCounter - 0.1*i and not hp.move then
                     hp.yv = -20
                     hp.move = true
                     if i == #Health then
-                        HeartJumpCounter = math.max(0.3*#Health,(love.math.random()+0.1)*12) + FrameCounter
+                        HeartJumpCounter = math.max(0.3*#Health,(love.math.random()+0.1)*12) + GameCounter
                     end
                 end
 
                 --Heart flash at low HP
-                if TotalHealth <= 2 and HeartFlashCounter<FrameCounter then
+                if TotalHealth <= 2 and HeartFlashCounter<GameCounter then
                     HeartFlashAmt = 1
                     if hp.amt == 2 then
-                        HeartFlashCounter = FrameCounter + 1.5
+                        HeartFlashCounter = GameCounter + 1.5
                     elseif hp.amt == 1 then
-                        HeartFlashCounter = FrameCounter + 0.5
+                        HeartFlashCounter = GameCounter + 0.5
                     end
                 end
 
@@ -468,6 +475,9 @@ function love.draw()
         end
 
         if StateVar.state == 'editor' then --Show editor stuff
+            --Reset Zoom
+            ZoomBase = 1
+            ZoomScroll = 0
             
             --Highlight & do actions on the block the mouse is on
             local xt = MouseX+CameraX
@@ -476,16 +486,57 @@ function love.draw()
             local y = yt - (yt%32)
             local bl = LevelData[math.floor(x/32).."-"..math.floor(y/32)]
             love.graphics.setColor(0.7,0.7,0.7,0.5)
+
+            --Keybinds
             if love.keyboard.isDown('c') then --copy
-                EditorRem = bl
-                love.graphics.setColor(1,0.1,0,1)
+                EditorRem = split(bl,'-') or "0-0"
+                love.graphics.setColor(0.8,1,0,1)
             end
+            if love.keyboard.isDown('v') then --paste
+                LevelData[math.floor(x/32).."-"..math.floor(y/32)] = EditorRem[1].."-"..EditorRem[2]
+                love.graphics.setColor(0.2,1,0.3,1)
+            end
+            if love.keyboard.isDown('z') then --reset to 0
+                LevelData[math.floor(x/32).."-"..math.floor(y/32)] = "0-0"
+                love.graphics.setColor(1,0,0,1)
+            end
+            if love.keyboard.isDown('q') then --reset view
+                love.resize()
+            end
+
+            if MouseWheelY ~= 0 then
+                local speed = 1
+                if love.keyboard.isDown('lshift') then
+                    speed = 8
+                end
+                if love.keyboard.isDown('lctrl') then --nightmare lines
+                    LevelData[math.floor(x/32).."-"..math.floor(y/32)] = split(LevelData[math.floor(x/32).."-"..math.floor(y/32)],"-")[1].."-"..split(LevelData[math.floor(x/32).."-"..math.floor(y/32)],"-")[2]+MouseWheelY*speed
+
+                else
+                    LevelData[math.floor(x/32).."-"..math.floor(y/32)] = split(LevelData[math.floor(x/32).."-"..math.floor(y/32)],"-")[1]+MouseWheelY*speed.."-"..split(LevelData[math.floor(x/32).."-"..math.floor(y/32)],"-")[2]
+                end
+                MouseWheelY = 0
+            end
+            
+            --Draw indicator rectangle
             love.graphics.rectangle('fill',x-CameraX,y-CameraY,32*GameScale,32*GameScale) 
             love.graphics.setColor(1,1,1,1)
 
+            --show clipboard
+            SimpleText("clipboard:",16,10,WindowHeight-100)
+            SimpleText(EditorRem[1],16,10,WindowHeight-80)
+            SimpleText(EditorRem[2],16,10,WindowHeight-60)
+
             --save
             if love.keyboard.isDown('s') then
-                SaveARL(LevelData,'lvl1.arl')
+                if assert(SaveARL(LevelData,'lvl1.arl')) then
+                    love.graphics.setColor(0,1,0,0.25)
+                else
+                    love.graphics.setColor(1,0.1,0,0.3)
+                end
+                love.graphics.rectangle('fill',0,0,WindowWidth,WindowHeight)
+                love.graphics.setColor(1,1,1,1)
+                love.resize() --reload the level
             end
 
             --Draw text
@@ -531,19 +582,19 @@ function love.draw()
         --Logo
         if StateVar.genstate == 'initialload' then
             if GlAni == 0 then --Wait a small amount before showing title screen
-                if FrameCounter < 0.25 then
-                    love.graphics.setColor(1,1,1,FrameCounter*4)
-                elseif FrameCounter < 2.75 then
+                if GameCounter < 0.25 then
+                    love.graphics.setColor(1,1,1,GameCounter*4)
+                elseif GameCounter < 2.75 then
                     love.graphics.setColor(1,1,1,1)
                 else
-                    love.graphics.setColor(1,1,1,(3.5-FrameCounter)*1.333)
+                    love.graphics.setColor(1,1,1,(3.5-GameCounter)*1.333)
                 end
                 love.graphics.draw(LogoImg,0,0,0,WindowWidth/1382,WindowWidth/1382)
-                if FrameCounter > 3.5 or love.keyboard.isDown(KeyBinds['Jump']) then
+                if GameCounter > 3.5 or love.keyboard.isDown(KeyBinds['Jump']) then
                     TitleScreen(true)
                 end
             else
-                FrameCounter = 0
+                GameCounter = 0
             end
         end
 
@@ -551,21 +602,21 @@ function love.draw()
         if StateVar.genstate == 'title' then
             love.graphics.push()
             love.graphics.translate(XPadding,YPadding) --center the title screen graphics
-            love.graphics.setColor(1,1,1,math.min(1,FrameCounter*1.25)) --fade in
+            love.graphics.setColor(1,1,1,math.min(1,GameCounter*1.25)) --fade in
 
             --Title screen background moves slightly
-            local perlinX = love.math.noise(FrameCounter/3)
-            local perlinY = love.math.noise(FrameCounter/3+100)
-            local perlinR = love.math.noise(FrameCounter/4-100)
-            love.graphics.draw(TitleImgBg,(perlinX-0.5)*6,(perlinY-0.5)*6,(perlinR-0.5)/300,WindowHeight/(2160-math.min(10,FrameCounter*5)),WindowHeight/(2160-math.min(10,FrameCounter*5)))
+            local perlinX = love.math.noise(GameCounter/3)
+            local perlinY = love.math.noise(GameCounter/3+100)
+            local perlinR = love.math.noise(GameCounter/4-100)
+            love.graphics.draw(TitleImgBg,(perlinX-0.5)*6,(perlinY-0.5)*6,(perlinR-0.5)/300,WindowHeight/(2160-math.min(10,GameCounter*5)),WindowHeight/(2160-math.min(10,GameCounter*5)))
             
             --Aria fades in from the bottom and moves around with perlin noise
-            local perlinX = love.math.noise(FrameCounter/3,love.math.getRandomSeed()*1000) --only the x is randomized like this because the default y has aria going down immediately after floating up and it looks nice
-            local perlinY = love.math.noise(FrameCounter/3+100)
-            local perlinR = love.math.noise(FrameCounter/4-100)
+            local perlinX = love.math.noise(GameCounter/3,love.math.getRandomSeed()*1000) --only the x is randomized like this because the default y has aria going down immediately after floating up and it looks nice
+            local perlinY = love.math.noise(GameCounter/3+100)
+            local perlinR = love.math.noise(GameCounter/4-100)
 
             --Draw
-            love.graphics.draw(TitleImgAr,(perlinX-0.5)*18,((perlinY-0.5)*36)+50*math.pow(1.5-math.min(1.5,FrameCounter),2.5),(perlinR-0.5)/20,WindowHeight/2160,WindowHeight/2160)
+            love.graphics.draw(TitleImgAr,(perlinX-0.5)*18,((perlinY-0.5)*36)+50*math.pow(1.5-math.min(1.5,GameCounter),2.5),(perlinR-0.5)/20,WindowHeight/2160,WindowHeight/2160)
             love.graphics.pop()
 
         end
@@ -593,9 +644,14 @@ function love.draw()
                 end
                 
                 --Spawn player
-                Pl = Player(info[6][1],info[6][2]+1)
-                CameraX = Pl.xpos
-                CameraY = Pl.ypos
+                if #info[6]>0 then
+                    Pl = Player(info[6][1],info[6][2]+1)
+                    
+                else
+                    Pl = Player(320,320)
+                end
+                CameraX = Pl.xpos-WindowWidth/2
+                CameraY = Pl.ypos-WindowWidth/2
 
                 --Change state
                 StateVar.genstate = 'game'
@@ -639,8 +695,8 @@ function love.draw()
                     SimpleText(progress[1],20,WindowWidth-275,WindowHeight-60)
                 end
 
-                --Show aria running animation
-                local frame = math.floor((FrameCounter*30)%11)+1
+                --Show aria running animation on bottom right
+                local frame = math.floor((GameCounter*30)%11)+1
                 local img = love.graphics.newImage("image/Aria/run"..frame..".png")
                 love.graphics.draw(img,WindowWidth-120,WindowHeight-120,0,2,2)
             end
