@@ -5,17 +5,21 @@ function NormalCamera(mousex,mousey,dt,rxy)
     --get mouse position
     local Camx = mousex
     local Camy = mousey
-
-    --adjust cam parameters
-    local tx = Pl.xpos + (Pl.xv*80) + (Pl.dFacing*20) - (WindowWidth/(2*GameScale)) + (Camx-(WindowWidth/2))/(5*GameScale)
-    local ty = -(WindowHeight/10) + Pl.ypos + (Pl.yv*20) - (WindowHeight/(2*GameScale)) + (Camy-(WindowHeight/2))/(5*GameScale)
     
+    --Adjust cam parameters
+    --When outside the box
+    local tx = 0
+    local ty = 0
+    tx = Pl.xpos + (Pl.xv*105) + (Pl.dFacing*20) - (WindowWidth/(2*GameScale)) + (Camx-(WindowWidth/2))/(8*GameScale)
+    ty = Pl.ypos + (Pl.yv*20) - (WindowHeight/10) - (WindowHeight/(2*GameScale)) + (Camy-(WindowHeight/2))/(8*GameScale)
     --Move camera to the left or right when you move in that direction
     if Pl.lastDir[1] == 'left' then
-        tx = tx + math.min(160,math.max(-160,Pl.lastDir[2]*640))
+        tx = tx + math.min(240,math.max(-200,Pl.lastDir[2]*960))
     elseif Pl.lastDir[1] == 'right' then
-        tx = tx + math.max(-160,math.min(160,Pl.lastDir[2]*640))
+        tx = tx + math.max(-240,math.min(200,Pl.lastDir[2]*960))
     end
+
+
 
     --Move camera up if you hold up
     if love.keyboard.isDown(KeyBinds['Up']) then
@@ -24,14 +28,18 @@ function NormalCamera(mousex,mousey,dt,rxy)
     
     local remcx = CameraX
     local remcy = CameraY
-    CameraX = CameraX + (tx-CameraX) * 6*dt + (0.007/dt)*rxy*GameScale*(love.math.random()-0.5)
-    CameraY = CameraY + (ty-CameraY) * 7*dt + (0.007/dt)*rxy*GameScale*(love.math.random()-0.5)
+
+    CameraX = CameraX + (tx-CameraX)*dt*4.5
+    CameraY = CameraY + (ty-CameraY)*dt*6.5
+
+
+    CameraX = CameraX + (0.007/dt)*rxy*GameScale*(love.math.random()-0.5)
+    CameraY = CameraY + (0.007/dt)*rxy*GameScale*(love.math.random()-0.5)
     DiffCX = CameraX-remcx
     DiffCY = CameraY-remcy
-
-    --Hud position
 end
 
+--Hud movement
 function HudSetup() 
     local hx = 0
     local hy = 0

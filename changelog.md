@@ -2,7 +2,7 @@ Release Log:
 
 a1.3
 - Integrated level editor
-- Changed camera properties
+- Camera adjustments
 - Added gold hearts
 
 a1.2.6_03

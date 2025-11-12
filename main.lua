@@ -11,7 +11,7 @@
     - Fix phone calls (add portraits)
 ]]
 
-BuildId = "Alpha 1.3 RC1"
+BuildId = "Alpha 1.3"
 
 if arg[2] == "debug" then
     require("lldebugger").start()

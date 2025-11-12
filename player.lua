@@ -68,6 +68,7 @@ function Player:new(x,y)
     --Images
     self.img = ''
     self.imgPos = {'',0}
+    self.camBox = nil --init position off the map
 
     --display characteristics
     self.dFacing = 1
@@ -816,6 +817,7 @@ function Player:update(dt)
             self.abilities['dive'] = 2
             self.abilities['divejump'] = 2
             self.animation = 'jump' --change to walljump later
+            self.lastDir[2] = self.lastDir[2]/4
         end
     end
 
@@ -1155,6 +1157,9 @@ function Player:update(dt)
         self.yv = self.yv + (self.gravity * dt * GlobalGravity)
     end
 
+    --Pan camera back to normal if you're stopped
+    self.lastDir[2] = self.lastDir[2] * math.min(1,math.max(0.07,(self.xv/2)+0.07))^dt
+
     --stop if you're very slow & change animation
     if math.abs(self.xv)<0.4 and self.onGround and self.animation~='landed' and self.animation~='hardlanded' then
         if self.spinnyTimer <= 0 then
@@ -1162,8 +1167,8 @@ function Player:update(dt)
         end
         self.saveAni = 'none'
     end
-    if math.abs(self.xv)<0.04 and self.onGround then
-        self.xv = self.xv * 6 * (self.xv)
+    if math.abs(self.xv)<0.05 and self.onGround then
+        self.xv = self.xv^2 * 6 --stop almost immediately
     end
 
     --cancel wall animations if on ground
@@ -1239,5 +1244,10 @@ function Player:draw()
         love.graphics.draw(self.img,(self.xpos-5-CameraX+self.imgPos[1])*GameScale,(self.ypos+10-CameraY+self.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
         love.graphics.setColor(1,1,1,1)
         love.graphics.draw(self.img,(self.xpos-CameraX+self.imgPos[1])*GameScale,(self.ypos-CameraY+self.imgPos[2])*GameScale,0,2*GameScale,2*GameScale,0,0)
+    end
+
+    --Define cam box
+    if self.camBox == nil and (math.abs(self.xv) < 0.2 and math.abs(self.yv) < 0.2) and self.onGround then
+        self.camBox = {self.xpos, self.ypos}
     end
 end
