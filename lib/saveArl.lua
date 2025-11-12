@@ -1,4 +1,4 @@
---!file: lvledit.lua
+--!file: saveArl.lua
 -- Port of the PyGame-based level editor into lua, runs inline instead of seperately
 
 function EditorUpdate(dt) --called during love.update()
@@ -123,5 +123,4 @@ function SaveARL(list,dest)
 
     f:close()
     return true
-
 end

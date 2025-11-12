@@ -3,15 +3,15 @@
 
 --[[ todo
 
-    a1.3
-    - levelgen in lua
-
     a1.3.1
+    - Jump buffer
+
+    a1.3.2
     - More pixel art
     - Fix phone calls (add portraits)
 ]]
 
-BuildId = "Alpha 1.3"
+BuildId = "Alpha 1.3_01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -24,7 +24,7 @@ function love.load()
     require "lib.playerCollision"
 
     require "animation"
-    require "lvledit"
+    require "lib.saveArl"
 
     require "entity.kunai"
     require "entity.coin"
@@ -202,7 +202,6 @@ function love.update(dt)
         end
         love.timer.sleep(Next_Time - cur_time)
     end
-
 end
 
 function love.draw()
@@ -210,15 +209,12 @@ function love.draw()
     love.graphics.setCanvas(ScreenCanvas)
     love.graphics.clear() --reset main canvas
 
-
     --Background color
     love.graphics.setColor(0.1,0.1,0.1,1)
     love.graphics.rectangle("fill",0,0,WindowWidth,WindowHeight)
     love.graphics.setColor(1,1,1,1)
 
     --Draw HDMA background
-    
-
 
     --Update WindowWidth & WindowHeight
     WindowWidth, WindowHeight = love.graphics.getDimensions()
@@ -368,6 +364,7 @@ function love.draw()
                     
                     --Draw hearts
                     love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
+                    
                     --Fade in gold heart
                     if i == #Health and Pl.squished[1] == 2 then
                         love.graphics.setColor(1,1,1,love.math.random()*(Pl.squished[2]-GameCounter))
@@ -376,7 +373,7 @@ function love.draw()
                     end
                 end
 
-                --Heart jumping randomly
+                --Hearts jumping randomly
                 if HeartJumpCounter < GameCounter - 0.1*i and not hp.move then
                     hp.yv = -20
                     hp.move = true
@@ -474,7 +471,8 @@ function love.draw()
             end
         end
 
-        if StateVar.state == 'editor' then --Show editor stuff
+        --Level Editor
+        if StateVar.state == 'editor' then
             --Reset Zoom
             ZoomBase = 1
             ZoomScroll = 0
@@ -560,7 +558,7 @@ function love.draw()
         end
 
 
-        --debug text
+        --Debug text
         if DebugInfo then
             local stats = love.graphics.getStats()
             SimpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." BL: "..math.floor(Pl.xpos/32).." / "..math.floor(Pl.ypos/32).." Ve: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
@@ -630,7 +628,7 @@ function love.draw()
                 LevelWidth = info[3]
                 LevelHeight = info[4]
 
-                --Create loadedtiles list
+                --Create LoadedTiles list
                 LoadedTiles = {}
                 for a,v in pairs(info[2]) do
                     local i = love.graphics.newImage(v)
@@ -679,7 +677,7 @@ function love.draw()
                     LoadingGame = false
                 end
             else
-                --background if GlAni = 0
+                --Black background while loading level
                 if GlAni <= 0 then
                     love.graphics.clear(0,0,0,1)
                 end
@@ -695,7 +693,7 @@ function love.draw()
                     SimpleText(progress[1],20,WindowWidth-275,WindowHeight-60)
                 end
 
-                --Show aria running animation on bottom right
+                --Show Aria running animation on bottom right
                 local frame = math.floor((GameCounter*30)%11)+1
                 local img = love.graphics.newImage("image/Aria/run"..frame..".png")
                 love.graphics.draw(img,WindowWidth-120,WindowHeight-120,0,2,2)

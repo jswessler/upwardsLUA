@@ -55,6 +55,7 @@ function Player:new(x,y)
 
     --self counter
     self.counter = 0
+    self.buffer = {0,0} --jump, slide
 
     --slide mechanics
     self.slide = 0
@@ -371,6 +372,8 @@ end
 
 function Player:update(dt)
     self.saveDt = dt
+    self.buffer[1] = self.buffer[1] - dt
+    self.buffer[2] = self.buffer[2] - dt
     
     if self.spinnyTimer > 0 then
         self.spinnyTimer = self.spinnyTimer - (dt*10)
@@ -661,7 +664,7 @@ function Player:update(dt)
     end
 
     --Keybinds & Actions
-    if love.keyboard.isDown(KeyBinds['Jump']) then
+    if love.keyboard.isDown(KeyBinds['Jump']) or self.buffer[1] > 0 then
         --main single jump
         if self.abilities['jump'] > 0 then
             if self.slide >= 190 and self.slideBoost == 0 then --jump higher while in slide
@@ -676,7 +679,6 @@ function Player:update(dt)
             self.animation = 'jump'
             self.onGround = false
         end
-
         --jump extension
         if not self.onGround and self.abilities['jump']<=0 and self.abilities['jumpext']>0 and self.totalEnergy > 0.2 then
             self.yv = self.yv - (dt*plStats.jumpExt) - dt*math.abs(self.xv)
@@ -685,8 +687,15 @@ function Player:update(dt)
             end
             self.abilities['jumpext'] = self.abilities['jumpext'] - (120*dt)
         end
+    end
 
-        --hover
+    if love.keyboard.isDown(KeyBinds['Jump']) then
+        --Jump buffer
+        if not self.onGround and self.buffer[1] < -0.8 then
+            self.buffer[1] = 0.2
+        end
+
+        --Creative hover
         if CreativeMode then
             if self.totalEnergy > 0.1 then
                 self.yv = self.yv * 0.02^dt
@@ -701,7 +710,7 @@ function Player:update(dt)
                 self.aniiTimer = 6
             end
                 
-        --normal hover
+        --Normal hover
         else
             if self.yv > 0 and self.totalEnergy > 0.1 and self.animation~='djumpdown' and self.diveDir == 0 then
                 self.yv = self.yv - 0.0125

@@ -1,5 +1,9 @@
 Release Log:
 
+a1.3_01
+- Jump buffer
+- Bug fixes
+
 a1.3
 - Integrated level editor
 - Camera adjustments
