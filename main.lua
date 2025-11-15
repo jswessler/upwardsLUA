@@ -3,15 +3,12 @@
 
 --[[ todo
 
-    a1.3.1
-    - Jump buffer
-
     a1.3.2
     - More pixel art
     - Fix phone calls (add portraits)
 ]]
 
-BuildId = "Alpha 1.3_01"
+BuildId = "Alpha 1.3.1"
 
 if arg[2] == "debug" then
     require("lldebugger").start()

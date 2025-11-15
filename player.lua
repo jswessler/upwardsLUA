@@ -55,11 +55,9 @@ function Player:new(x,y)
 
     --self counter
     self.counter = 0
-    self.buffer = {0,0} --jump, slide
 
     --slide mechanics
     self.slide = 0
-    self.slideBoost = 0
     self.slideMult = 0
 
     --Hitbox & iframes
@@ -372,8 +370,6 @@ end
 
 function Player:update(dt)
     self.saveDt = dt
-    self.buffer[1] = self.buffer[1] - dt
-    self.buffer[2] = self.buffer[2] - dt
     
     if self.spinnyTimer > 0 then
         self.spinnyTimer = self.spinnyTimer - (dt*10)
@@ -664,35 +660,31 @@ function Player:update(dt)
     end
 
     --Keybinds & Actions
-    if love.keyboard.isDown(KeyBinds['Jump']) or self.buffer[1] > 0 then
+    if love.keyboard.isDown(KeyBinds['Jump']) then
         --main single jump
         if self.abilities['jump'] > 0 then
-            if self.slide >= 190 and self.slideBoost == 0 then --jump higher while in slide
-                self.slideBoost = (90-self.slide-190)^2
-            end
             self.abilities['jump'] = 0
-            self.jCounter = 5
+            self.jCounter = 4.5
+
+            --Change YV
             self.yv = self.yv - plStats.singleJump
-            if self.slideBoost ~= 0 then
-                self.xv = self.xv * (1+self.slideBoost/250000)
+            if self.slide >= 190 then --jump higher while in slide, more towards the end of the window
+                self.yv = self.yv - 0.125 - (275-self.slide)^3 / 750000
+            end
+            if math.abs(self.lastDir[2]) > 0.075 and math.abs(self.xv) < 0.75 and math.sign(self.xv) == -self.facing then --jump higher when you counterstrafe properly
+                self.yv = self.yv - 0.675
+                self.jCounter = 12
             end
             self.animation = 'jump'
             self.onGround = false
         end
         --jump extension
         if not self.onGround and self.abilities['jump']<=0 and self.abilities['jumpext']>0 and self.totalEnergy > 0.2 then
-            self.yv = self.yv - (dt*plStats.jumpExt) - dt*math.abs(self.xv)
+            self.yv = self.yv - (dt*plStats.jumpExt) - dt*math.abs(self.xv)*1.5
             if self.abilities['jumpext'] < 12.5 then
                 self.energyQueue = self.energyQueue + (30*dt)
             end
             self.abilities['jumpext'] = self.abilities['jumpext'] - (120*dt)
-        end
-    end
-
-    if love.keyboard.isDown(KeyBinds['Jump']) then
-        --Jump buffer
-        if not self.onGround and self.buffer[1] < -0.8 then
-            self.buffer[1] = 0.2
         end
 
         --Creative hover
@@ -755,7 +747,6 @@ function Player:update(dt)
 
     --logic when not pressing space
     else
-        self.slideBoost = 0
 
         --lose single jump if you let go of space
         if self.abilities['jump'] > 0 and self.abilities['jump'] < 4 and not self.onGround then 
@@ -921,9 +912,6 @@ function Player:update(dt)
         end
     end
 
-
-    
-
     --dive
     if love.keyboard.isDown(KeyBinds['Dive']) and self.onWall == 0 and self.abilities['jumpext'] < 5 and self.totalEnergy > 5 and not self.onGround and self.timeOffWall > 0.25 then
         if self.abilities['dive'] > 0 and self.abilities['jump'] <= 0 and self.totalEnergy > 1 and self.onWall == 0 then
@@ -1062,20 +1050,17 @@ function Player:update(dt)
             end
         end
         
-
         --slide (1st case is for continuing slide, 2nd case is for starting slide)
-
         self.slide = math.max(-1,self.slide-(dt*240))
         --Start slide
-        if self.slide <= 0 and (self.xv<-1 or self.xv>1) and love.keyboard.isDown(KeyBinds['Slide']) then
-            self.slide = 280
-            self.xv = self.xv * 1.8
+        if (love.keyboard.isDown(KeyBinds['Slide']) and self.slide <= 0 and math.abs(self.xv)>1.125) then
+            self.slide = 275
+            self.xv = self.xv * 1.75
         end
 
         --Continue slide
-        if self.slide > 200 then
-            self.col = {12,-40,30,-25}
-            self.speedMult = 1.4
+        if self.slide > 200 and self.totalEnergy > 5 then
+            self.col = {12,-40,30,-25} --shorten hitbox
             self.slideMult = 1.5
             self.maxSpd = plStats.slideMaxSpd
             if self.xv > 0 and self.xv < self.maxSpd then
@@ -1088,7 +1073,7 @@ function Player:update(dt)
             if (self.se:detect(-19,-90)[1] or self.se:detect(27,-90)[1]) and self.totalEnergy > 1 then
                 self.slide = math.min(230,self.slide+(dt*600))
             else
-                self.energyQueue = self.energyQueue - (80*dt)
+                self.energyQueue = self.energyQueue - (80*dt) --drain energy
             end
             self.animation = 'slide'
         else

@@ -1,5 +1,10 @@
 Release Log:
 
+a1.3.1
+- Removed jump buffer, added slide buffer
+- Camera adjustments
+- Added a counterstrafe jump boost (Z + A in mario games basically)
+
 a1.3_01
 - Jump buffer
 - Bug fixes

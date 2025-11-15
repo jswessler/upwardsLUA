@@ -5,9 +5,16 @@ function NormalCamera(mousex,mousey,dt,rxy)
     --get mouse position
     local Camx = mousex
     local Camy = mousey
+
+    -- Camera center in world space
+    local camCenterX = CameraX + (WindowWidth/(2*GameScale))
+    local camCenterY = CameraY + (WindowHeight/(2*GameScale))
+
+    -- Distance from player to camera center
+    local dx = Pl.xpos - camCenterX
+    local dy = Pl.ypos - camCenterY
     
     --Adjust cam parameters
-    --When outside the box
     local tx = 0
     local ty = 0
     tx = Pl.xpos + (Pl.xv*105) + (Pl.dFacing*20) - (WindowWidth/(2*GameScale)) + (Camx-(WindowWidth/2))/(8*GameScale)
@@ -19,7 +26,10 @@ function NormalCamera(mousex,mousey,dt,rxy)
         tx = tx + math.max(-240,math.min(200,Pl.lastDir[2]*960))
     end
 
-
+    --Reduce sharp movements
+    local alpha = 0.9
+    tx = tx * alpha + CameraX * (1-alpha)
+    ty = ty * alpha + CameraY * (1-alpha)
 
     --Move camera up if you hold up
     if love.keyboard.isDown(KeyBinds['Up']) then
@@ -29,12 +39,15 @@ function NormalCamera(mousex,mousey,dt,rxy)
     local remcx = CameraX
     local remcy = CameraY
 
-    CameraX = CameraX + (tx-CameraX)*dt*4.5
-    CameraY = CameraY + (ty-CameraY)*dt*6.5
+    --Move camera smoothly
+    CameraX = CameraX + (tx-CameraX)*dt*(1+math.abs(Pl.xv))
+    CameraY = CameraY + (ty-CameraY)*dt*(1.5+math.abs(Pl.yv))
 
-
+    --Camera shake
     CameraX = CameraX + (0.007/dt)*rxy*GameScale*(love.math.random()-0.5)
     CameraY = CameraY + (0.007/dt)*rxy*GameScale*(love.math.random()-0.5)
+
+    --Hud movement variables
     DiffCX = CameraX-remcx
     DiffCY = CameraY-remcy
 end
