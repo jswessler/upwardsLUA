@@ -8,7 +8,7 @@
     - Fix phone calls (add portraits)
 ]]
 
-BuildId = "Alpha 1.3.1"
+BuildId = "Alpha 1.3.2"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -750,7 +750,6 @@ end
 
 
 
-
 local love_errorhandler = love.errorhandler
 function love.errorhandler(msg)
 ---@diagnostic disable-next-line: undefined-global
@@ -760,7 +759,6 @@ function love.errorhandler(msg)
         return love_errorhandler(msg)
     end
 end
-
 
 function RenderOne()
     --draw blocks

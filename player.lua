@@ -117,15 +117,12 @@ function Player:animate(dt)
         if self.aniTimer < 0 then
             self.animation = 'none'
         end
-        if self.aniTimer > 11 then
+        if self.aniTimer > 7 then
             self.img = love.graphics.newImage("image/Aria/hardland1.png")
             self.imgPos = {-34,-94}
-        elseif self.aniTimer > 7 then
-            self.img = love.graphics.newImage("image/Aria/hardland2.png")
-            self.imgPos = {-32,-66}
         else
-            self.img = love.graphics.newImage("image/Aria/hardland3.png")
-            self.imgPos = {-26,-94}
+            self.img = love.graphics.newImage("image/Aria/land.png")
+            self.imgPos = {-36,-94}
         end
 
     --Phone Call
@@ -137,22 +134,20 @@ function Player:animate(dt)
 
         --Slide loop
         if self.animation == 'slide' and math.abs(self.xv) > 0.5 then
-            if self.slide > 221 then
+            if self.slide > 216 then
                 if self.counter%12 < 6 then
                     self.img = love.graphics.newImage("image/Aria/slide1.png")
                 else
                     self.img = love.graphics.newImage("image/Aria/slide2.png")
                 end
-                self.imgPos = {-36,-86}
+                self.imgPos = {-36,-74}
             
             --slide exit transition
             else
-                if self.slide > 210 then
+                if self.slide > 193 then
                     self.img = love.graphics.newImage("image/Aria/slideout1.png")
-                elseif self.slide > 200 then
-                    self.img = love.graphics.newImage("image/Aria/slideout2.png")
                 end
-                self.imgPos = {-36,-86}
+                self.imgPos = {-36,-74}
 
             end
         
@@ -172,7 +167,13 @@ function Player:animate(dt)
 
             --Grab correct frame
             self.img = love.graphics.newImage("image/Aria/run"..self.aniFrame..".png")
-            self.imgPos = {-36,-94}
+            if math.abs(self.xv) < 2.8 then --bounce more at low speed
+                local sp = math.min(8,(2.8-math.abs(self.xv))*12)
+                local s = math.max(0,math.sin((self.aniFrame+4) * (math.pi/8)))
+                self.imgPos = {-36,math.floor(-96-(sp*s))}
+            else
+                self.imgPos = {-36, -94}
+            end
 
         --Idle (4 frame loop)
         elseif self.animation == 'none' then
@@ -254,15 +255,11 @@ function Player:animate(dt)
 
             --Wallslide
             if self.animation == 'wallslide' then
-                if self.counter % 20 < 10 then
-                    self.img = love.graphics.newImage("image/Aria/wallslide.png")
-                else
-                    self.img = love.graphics.newImage("image/Aria/wallslide2.png")
-                end
+                self.img = love.graphics.newImage("image/Aria/wallslide.png")
                 if self.dFacing == 1 then
-                    self.imgPos = {-24,-102}
-                else
                     self.imgPos = {-28,-102}
+                else
+                    self.imgPos = {-32,-102}
                 end
             end
 
@@ -671,9 +668,10 @@ function Player:update(dt)
             if self.slide >= 190 then --jump higher while in slide, more towards the end of the window
                 self.yv = self.yv - 0.125 - (275-self.slide)^3 / 750000
             end
-            if math.abs(self.lastDir[2]) > 0.075 and math.abs(self.xv) < 0.75 and math.sign(self.xv) == -self.facing then --jump higher when you counterstrafe properly
+            if math.abs(self.lastDir[2]) > 0.075 and math.abs(self.xv) < 0.5 and math.sign(self.xv) == -self.facing and self.onWall == 0 then --jump higher when you counterstrafe properly
                 self.yv = self.yv - 0.675
-                self.jCounter = 12
+                self.jCounter = 9 --double jcounter
+                self.energy[2] = math.min(75,self.energy[2] + 5) --refund 5 energy to 2
             end
             self.animation = 'jump'
             self.onGround = false
@@ -810,7 +808,7 @@ function Player:update(dt)
             self.yv = plStats.wallJumpY
             self.jCounter = 4
             self.xv = -self.onWall * plStats.wallJumpX
-            self.xpos = self.xpos + self.dFacing * -6
+            self.xpos = self.xpos + self.onWall * -6
             self.ypos = self.ypos - 1
             self.energyQueue = self.energyQueue - 6
             self.wallClimb = false

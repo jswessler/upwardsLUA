@@ -1,7 +1,12 @@
 Release Log:
 
+a1.3.2
+- More new pixel art, the game is now entirely on the new pixel art
+- Added animation bouncing when speeding up
+- No longer get bugged in walls if you try to walljump away while moving in
+
 a1.3.1
-- Removed jump buffer, added slide buffer
+- Removed jump buffer
 - Camera adjustments
 - Added a counterstrafe jump boost (Z + A in mario games basically)
 
