@@ -88,10 +88,11 @@ function PlColDetect(tile,pB,dt) --pB formatted as "0-0, 1-0" etc.
 
     --Phone Call
     if blMain == 11 then
-        NextCall = 0-blSub
+        NextCall = 0-blSub --set negative, when you pick up the phone it is negated into a positive ID
         TriggerPhone = true
-        LevelData[pB] = "2-"..blSub
-        DirtyTiles[pB] = true
+        LevelData[pB] = "0-0"
+        DirtyTiles[pB] = true --maybe not needed because nothing visually changes?
+        --Maybe add a line here to delete all of this specific tile on the level
     end
 
     --Camera Control

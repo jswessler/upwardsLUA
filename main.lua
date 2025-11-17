@@ -3,12 +3,11 @@
 
 --[[ todo
 
-    a1.3.2
-    - More pixel art
+    a1.3.3
     - Fix phone calls (add portraits)
 ]]
 
-BuildId = "Alpha 1.3.2"
+BuildId = "Alpha 1.3.3 R1"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -122,10 +121,9 @@ function love.update(dt)
             end
         end
 
-
         --Handle Phone Calls
         if NextCall > 0 then
-            handlePhone(NextCall,dt)
+            CallUpdate(dt)
         end
 
         --Autosave every 45s

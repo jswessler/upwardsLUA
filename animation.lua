@@ -40,8 +40,7 @@ function PhoneAnimate(dt)
             love.graphics.rectangle('fill',PhoneX,PhoneY,15*GameScale*PhoneScale,40*GameScale*PhoneScale)
             love.graphics.setColor(1,1,1,1)
             if (love.mouse.isDown(1)) or love.keyboard.isDown(KeyBinds['Throw']) then
-                TriggerPhone = false
-                NextCall = 0-NextCall
+                CallInit(NextCall)
             end
         end
     else

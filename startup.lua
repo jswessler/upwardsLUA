@@ -57,7 +57,7 @@ function InitialLoad()
     KunaiReticle = false --If the kunai reticle is displayed
     NewRenderer = true --If the canvas renderer is used (instead of screen)
     HighGraphics = true --If the "fancy" graphics are selected
-    FpsLimit = 0 --71 = 60FPS, 0 = Uncapped FPS
+    FpsLimit = 0 --0 = Vsync FPS
     Next_Time = 0 --Helper to keep track of frametime
     GlAni = 0.01 --general purpose timer for global animation. This counts down by dt
     StateVar = {genstate = 'initialload', state = 'initialload', substate = 'N/A', ani = 'N/A', physics = 'off'}
@@ -133,6 +133,9 @@ function LoadLevel(level)
 
     --a1.3
     EditorRem = {0,0} --Copy/paste in editor memory
+
+    --a1.3.3
+    PhoneText = {}
     
 
     --Camera parameters
