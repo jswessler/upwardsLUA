@@ -1,5 +1,11 @@
 Release Log:
 
+a1.3.3
+- Added dialog portraits & fixed the dialog system
+- Platforming changes, bug fixes
+- Levels can now have individual gravity multipliers
+- Level loading is much faster
+
 a1.3.2
 - More new pixel art, the game is now entirely on the new pixel art
 - Added animation bouncing when speeding up

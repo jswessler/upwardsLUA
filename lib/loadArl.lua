@@ -18,10 +18,18 @@ function LoadARL(filename)
     local lvlWid = 10
     local lvlHei = 10
     local byte = 0
+
+    --parameters
+    local gravity = 7.625
+
+
+    --main loop
     while cou<size-6 do
         progress = {"Reading Level Header",cou/64}
         love.thread.getChannel('status'):push(progress)
         byte = string.byte(contents,cou,cou)
+
+        --Level parameters
         if counter == 5 then
             lvlWid = lvlWid + (byte*256)
         end
@@ -34,10 +42,13 @@ function LoadARL(filename)
         if counter == 8 then
             lvlHei = lvlHei + byte
         end
-        if counter == 9 then
+        if counter == 9 then --fix level size, gravity
+            if byte == 0 then gravity = 7.625 else gravity = 1 + (byte / 28.333) end -- gravity can range from 1 to 10
             lvlWid = lvlWid - 10
             lvlHei = lvlHei - 10
         end
+
+        --Tiledata
         if counter > 64 then --level data
             progress = {"Reading Level Data",cou/size}
             love.thread.getChannel('status'):push(progress)
@@ -82,27 +93,29 @@ function LoadARL(filename)
 
     --Insert tile images into the level
     local c = 0
-    for i=1,2,1 do
+    for i=1,16,1 do
         for i,v in pairs(lvlData) do
             c = c + 1
-            if c%5 == 0 then
-                progress = {"Loading Tiles",c/(2*counter)}
+            if c%10 == 0 then
+                progress = {"Loading Tiles",c/(16*counter)}
                 love.thread.getChannel('status'):push(progress)
             end
-            local file = "image/Tiles/"..v..".png"
-            if file ~= nil then
-                local f = io.open(file,'r')
-                if f ~= nil then
-                    if ldTiles[v]~=nil then
-                    else
-                        local i = "image/Tiles/"..v..".png"
-                        ldTiles[v] = i
+            if v ~= '0-0' then
+                local file = "image/Tiles/"..v..".png"
+                if file ~= nil then
+                    local f = io.open(file,'r')
+                    if f ~= nil then
+                        if ldTiles[v]~=nil then
+                        else
+                            local i = "image/Tiles/"..v..".png"
+                            ldTiles[v] = i
+                        end
                     end
                 end
             end
         end
     end
-    love.thread.getChannel('lvlLoadRet'):push({lvlData, ldTiles, lvlWid, lvlHei, enemies, sp}) --return all values, this also signals that the routine is done!
+    love.thread.getChannel('lvlLoadRet'):push({data = lvlData, tiles = ldTiles, width = lvlWid, height = lvlHei, enemies = enemies, spawnpoint = sp, gravity = gravity}) --return all values, this also signals that the routine is done!
     --return lvlData, ldTiles, lvlWid, lvlHei
 
 end

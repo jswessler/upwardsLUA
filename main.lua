@@ -3,11 +3,11 @@
 
 --[[ todo
 
-    a1.3.3
-    - Fix phone calls (add portraits)
+    a1.3.4
+    - Add portrait fade in/out
 ]]
 
-BuildId = "Alpha 1.3.3 R1"
+BuildId = "Alpha 1.3.3"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -122,7 +122,7 @@ function love.update(dt)
         end
 
         --Handle Phone Calls
-        if NextCall > 0 then
+        if NextCall > 0 then -- >0 means the call is initialized
             CallUpdate(dt)
         end
 
@@ -346,7 +346,7 @@ function love.draw()
             
             --Draw Hex
             love.graphics.setDefaultFilter("linear","linear",8)
-            love.graphics.draw(HexImg,HudX-(2*GameScale),WindowHeight-(215*GameScale)+HudY,0,0.25*GameScale,0.26*GameScale)
+            love.graphics.draw(HexImg,HudX+(6*GameScale),WindowHeight-(215*GameScale)+HudY,0,0.25*GameScale,0.26*GameScale)
             love.graphics.setDefaultFilter("linear","nearest",4)
 
             --Draw Hearts (Hearts are only updated on draw)
@@ -358,19 +358,19 @@ function love.draw()
                     local img = HpImages[hp.fileExt..hp.amt]
                     
                     --Draw hearts
-                    love.graphics.draw(img,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
+                    love.graphics.draw(img,((130*GameScale)+(66*i*GameScale))+HudX,WindowHeight-(82*GameScale)-(i*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
                     
                     --Fade in gold heart
                     if i == #Health and Pl.squished[1] == 2 then
                         love.graphics.setColor(1,1,1,love.math.random()*(Pl.squished[2]-GameCounter))
-                        love.graphics.draw(HpImages['gold1'],((120*GameScale)+(68*(i+1)*GameScale))+HudX,WindowHeight-(97*GameScale)-((i+1)*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
+                        love.graphics.draw(HpImages['gold1'],((130*GameScale)+(66*(i+1)*GameScale))+HudX,WindowHeight-(82*GameScale)-((i+1)*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
                         love.graphics.setColor(1,1,1,1)
                     end
                 end
 
                 --Hearts jumping randomly
                 if HeartJumpCounter < GameCounter - 0.1*i and not hp.move then
-                    hp.yv = -20
+                    hp.yv = -21
                     hp.move = true
                     if i == #Health then
                         HeartJumpCounter = math.max(0.3*#Health,(love.math.random()+0.1)*12) + GameCounter
@@ -459,10 +459,33 @@ function love.draw()
             love.graphics.rectangle("fill", NameRect.x, NameRect.y, NameRect.w, NameRect.h, 25,25)
             love.graphics.setColor(1,1,1,1)
 
-            --Text
-            SimpleText(TextName,28,90*GameScale,WindowHeight-(380*GameScale))
+            --Phone call text
+            SimpleText(TextStats.name,30,240*GameScale,WindowHeight-(380*GameScale))
             for i,v in ipairs(CurrentText) do
-                SimpleText(v,32,60*GameScale,WindowHeight-(330*GameScale)+(i*GameScale*50))
+                SimpleText(v,28,210*GameScale,WindowHeight-(330*GameScale)+(i*GameScale*50))
+            end
+
+            if TextStats.img then --Portrait
+                --Get scale factor
+                local scale = math.min(WindowWidth/2560,WindowHeight/1440)
+                local drawW = 2560 * scale local drawH = 1440 * scale
+                local drawX = WindowWidth - drawW local drawY = WindowHeight - drawH
+                
+                --Perlin jitter
+                local perx = love.math.noise(GameCounter/3)
+                local pery = love.math.noise(GameCounter/3+1000)
+                local perr = love.math.noise(GameCounter/4+2000)
+
+                --Draw
+                love.graphics.setCanvas(PortraitCanvas)
+                love.graphics.clear()
+                love.graphics.setDefaultFilter("linear","linear",8)
+                love.graphics.draw(TextStats.img, perx, pery, perr*0.05, 1,1)
+                
+                --Blit
+                love.graphics.setCanvas(ScreenCanvas)
+                love.graphics.draw(PortraitCanvas,drawX,drawY-(20*GameScale),0,scale,scale)
+                love.graphics.setDefaultFilter("linear","nearest",4)
             end
         end
 
@@ -516,13 +539,13 @@ function love.draw()
             love.graphics.setColor(1,1,1,1)
 
             --show clipboard
-            SimpleText("clipboard:",16,10,WindowHeight-100)
+            SimpleText("Clipboard:",16,10,WindowHeight-100)
             SimpleText(EditorRem[1],16,10,WindowHeight-80)
             SimpleText(EditorRem[2],16,10,WindowHeight-60)
 
             --save
             if love.keyboard.isDown('s') then
-                if assert(SaveARL(LevelData,'lvl1.arl')) then
+                if assert(SaveARL(LevelData,LevelId..'.arl')) then
                     love.graphics.setColor(0,1,0,0.25)
                 else
                     love.graphics.setColor(1,0.1,0,0.3)
@@ -532,7 +555,7 @@ function love.draw()
                 love.resize() --reload the level
             end
 
-            --Draw text
+            --Draw block text
             local Xl,Yl = GetOnScreen()
             for i,x in ipairs(Xl) do
                 for o,y in ipairs(Yl) do
@@ -542,7 +565,7 @@ function love.draw()
                     y = y - (y%32)
                     local bl = LevelData[xt.."-"..yt]
                     local t = split(bl,"-")
-                    if bl ~= "0-0" then
+                    if bl ~= "0-0" and bl ~= nil then
                         --Show text
                         SimpleText(t[1],8,(x-CameraX)*GameScale,(y-CameraY)*GameScale)
                         SimpleText(t[2],8,(x-CameraX)*GameScale,10+(y-CameraY)*GameScale)
@@ -619,28 +642,33 @@ function love.draw()
             --Check if the level loading routine is done
             local info = love.thread.getChannel("lvlLoadRet"):pop()
             if info then
-                LevelData = info[1]
-                LevelWidth = info[3]
-                LevelHeight = info[4]
+                LevelData = info['data']
+                LevelWidth = info['width']
+                LevelHeight = info['height']
+                
+                --level parameters
+                GlobalGravity = info['gravity'] or 7.625
 
                 --Create LoadedTiles list
                 LoadedTiles = {}
-                for a,v in pairs(info[2]) do
-                    local i = love.graphics.newImage(v)
-                    LoadedTiles[a] = i
+                for loop=1,10 do
+                    for a,v in pairs(info['tiles']) do
+                        local i = love.graphics.newImage(v)
+                        LoadedTiles[a] = i
+                    end
                 end
 
                 --Spawn enemies
-                for i,v in pairs(info[5]) do
+                for i,v in pairs(info['enemies']) do
                     local e = Enemy(v[1],v[2],v[3])
                     table.insert(Enemies,e)
                 end
                 
                 --Spawn player
-                if #info[6]>0 then
-                    Pl = Player(info[6][1],info[6][2]+1)
+                if #info['spawnpoint']>0 then
+                    Pl = Player(info['spawnpoint'][1],info['spawnpoint'][2]+1)
                     
-                else
+                else --default spawn
                     Pl = Player(320,320)
                 end
                 CameraX = Pl.xpos-WindowWidth/2
@@ -832,9 +860,10 @@ function love.resize()
     WindowWidth, WindowHeight = love.graphics.getDimensions()
 
     --Remake screencanvas
-    ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight)
+    ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight,{msaa=4})
     HDMACanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
     HDMATempCanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
+    PortraitCanvas = love.graphics.newCanvas(2560,1440,{msaa=4})
 
     --From love2d wiki
     GameScale = WindowHeight/800

@@ -13,7 +13,7 @@ local plStats = {
     hoverMul = 0.00015, --^dt, yv mult when hovering
     dblJumpY = 3.5, --yv
     dblJumpX = 1.25, --xv increase when double jump
-    jCounterG = 0.25, --gravity multiplier when in jcounter
+    jCounterG = 0.3, --gravity multiplier when in jcounter
     wallSlide = 0.125, --^dt
     wallJumpY = -3.75, --yv
     wallJumpX = 2.75, --xv
@@ -777,12 +777,6 @@ function Player:update(dt)
         if not self.onGround and self.onWall~=0 and self.facing~=0 and self.totalEnergy > 1 then
             --limit fall speed
             self.yv = self.yv - 0.0025
-            if self.yv > 0 then
-                self.energyQueue = self.energyQueue - (6*dt)
-            else
-                self.energyQueue = self.energyQueue - (2*dt)
-            end
-
             if self.yv > 1.5 then
                 self.yv = self.yv * plStats.wallSlide^dt
             end
@@ -790,7 +784,15 @@ function Player:update(dt)
                 self.yv = self.yv - (self.yv-3)/180
             end
 
-            self.jCounter = 2
+            if self.yv > 0 then
+                self.energyQueue = self.energyQueue - (6*dt)
+            else
+                self.energyQueue = self.energyQueue - (2*dt)
+            end
+
+            if self.yv > 0 then
+                self.jCounter = 2
+            end
             self.wallClimb = true
             self.animation = 'wallslide'
             self.nextAni = 'none'
@@ -1144,7 +1146,7 @@ function Player:update(dt)
 
     --apply gravity
     if self.yv < 0 then
-        self.yv = self.yv + (self.gravity * dt * (GlobalGravity+1))
+        self.yv = self.yv + (self.gravity * dt * (GlobalGravity+1.125))
     else
         self.yv = self.yv + (self.gravity * dt * GlobalGravity)
     end

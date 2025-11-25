@@ -29,7 +29,7 @@ function InitialLoad()
     TitleImgAr = love.graphics.newImage("image/FMV/titlear.png")
 
     --Canvas
-    ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight)
+    ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight,{msaa=4})
     HDMACanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
     HDMATempCanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
     
@@ -127,7 +127,7 @@ function LoadLevel(level)
     HeartFlashAmt = 0 --Opacity of heart flashing
     HeartJumpCounter = -10000 --Timer for heart jumping (randomly)
     TotalHealth = 8 --Total health of the player (placeholder, updated immediately)
-    GlobalGravity = 7.5 --global gravity multiplier. this can change per level!
+    GlobalGravity = 7.625 --global gravity multiplier. this is the default, this can change per level!
     AutoSave = GameCounter + 10 --autosave timer
     LevelId = level --Set level id
 

@@ -55,8 +55,11 @@ function SaveARL(list,dest)
     table.insert(bitO, math.floor(LevelHeight / 256))
     table.insert(bitO, LevelHeight % 256)
 
-    -- Level number
-    table.insert(bitO, 1)
+    -- Gravity, 9
+    table.insert(bitO,230) --7.625 gravity = 187
+
+    -- Level number, 10
+    table.insert(bitO, 2)
 
     -- Build ID bytes
     for i = 1, #BuildId do
