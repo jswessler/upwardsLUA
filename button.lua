@@ -53,7 +53,7 @@ function GraphicsMenu()
     StateVar.substate = 'graphics'
     Buttons['Fullscreen'] = Button(10, 50, 300, 50, function() local x = 'Off' if love.window.getFullscreen() then x = 'On' end return "Fullscreen: "..x end, function() love.window.setFullscreen(not love.window.getFullscreen()) end, 0)
     Buttons['VSync'] = Button(10, 120, 300, 50, function() local x = 'Adaptive' if love.window.getVSync()==1 then x = 'Single' end return "Vsync: "..x end, function() love.window.setVSync(0 - love.window.getVSync()) end, 0.05)
-    Buttons['Renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Canvas' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer end, 0.1)
+    Buttons['Renderer'] = Button(10, 190, 300, 50, function() local x = 'Screen' if NewRenderer then x = 'Canvas' end return "Renderer: "..x end, function() NewRenderer = not NewRenderer love.resize() end , 0.1)
     Buttons['Back'] = Button(10, 330, 200, 50, "Back", OptionsMenu, 0.3)
 end
 

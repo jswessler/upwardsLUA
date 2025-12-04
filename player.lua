@@ -418,6 +418,12 @@ function Player:update(dt)
         self.squished[1] = 0
     end
 
+    --Push back in bounds of the level
+    if self.xpos > LevelWidth*32 then self.xpos = self.xpos - 32 end
+    if self.xpos < 0 then self.xpos = self.xpos + 32 end
+    if self.ypos > LevelHeight*32 then self.ypos = self.ypos - 32 end
+    if self.ypos < 0 then self.ypos = self.ypos + 32 end
+
     --Quarterstep Updating
     self.colliderCount = {bottom = 0, left = 0, right = 0, up = 0}
     for j=1,StepSize,1 do
@@ -816,6 +822,7 @@ function Player:update(dt)
             self.wallClimb = false
             self.abilities['dive'] = 2
             self.abilities['divejump'] = 2
+            self.abilities['spin'] = 1
             self.animation = 'jump' --change to walljump later
             self.lastDir[2] = self.lastDir[2]/4
         end

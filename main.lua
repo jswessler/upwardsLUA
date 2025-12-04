@@ -7,7 +7,7 @@
     - Bicubic/Perlin colored background
 ]]
 
-BuildId = "Alpha 1.3.4_01"
+BuildId = "Alpha 1.3.4_02"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -206,7 +206,7 @@ function love.draw()
     love.graphics.clear() --reset main canvas
 
     --Background color
-    love.graphics.setColor(0.1,0.1,0.1,1)
+    love.graphics.setColor(0.03,0.03,0.03,1)
     love.graphics.rectangle('fill',0,0,WindowWidth,WindowHeight)
     love.graphics.setColor(1,1,1,1)
 
@@ -267,6 +267,9 @@ function love.draw()
             end
         end
 
+        --Draw Bg
+        love.graphics.draw(BgCanvas,(LevelWidth-(CameraX*GameScale)-(LevelWidth)),LevelHeight-(CameraY*GameScale)-(LevelHeight),0,GameScale,GameScale)
+
         --Draw Player & update camera
         if StateVar.physics == 'on' then
             if DrawCounter % (HighGraphics and 1 or 3) == 0 then
@@ -279,6 +282,11 @@ function love.draw()
         --Draw enemies
         for i,v in ipairs(Enemies) do
             v:draw()
+        end
+
+        --Draw entities
+        for i,v in ipairs(Entities) do
+            v:draw(1)
         end
 
         --Draw Particles
@@ -315,9 +323,9 @@ function love.draw()
         end
 
         --Auto set step size if enabled
-        if DrawCounter % (HighGraphics and 5 or 20)== 0 and AutoStep then
+        if DrawCounter % (HighGraphics and 5 or 60)== 0 and AutoStep then
             local f = love.timer.getFPS()
-            StepSize = clamp(round((HighGraphics and 360 or 240)/f),2,16)
+            StepSize = clamp(round(300/f),2,16)
         end
 
         --HUD Below this (Nonscaled elements)
@@ -414,29 +422,32 @@ function love.draw()
 
             --Energy bar background
             love.graphics.setColor(0.8,0.8,0.8,0.6)
-            love.graphics.draw(BgRectCanvas,HudX,HudY)
+            love.graphics.draw(EBBCanvas,HudX,HudY)
 
             --Energy bar
             love.graphics.setCanvas(EnergyCanvas)
-            for j=0, 9, 1 do
-                for i=1, round(20*GameScale), HighGraphics and 1 or 2 do
-                    --Color math
-                    if 10*j+(i/(2*GameScale)) >= Pl.totalEnergy then --set color to dark gray if energy < position
-                        love.graphics.setColor(0.45,0.45,0.45,1)
-                        if 10*j+(i/(2*GameScale)) >= Pl.remEnergy then
-                            love.graphics.setColor(0.3,0.3,0.3,1)
+            if DrawCounter%(HighGraphics and 1 or 3)==0 then
+                love.graphics.clear()
+                for j=0, 9, 1 do
+                    for i=1, round(20*GameScale), 1 do
+                        --Color math
+                        if 10*j+(i/(2*GameScale)) >= Pl.totalEnergy then --set color to dark gray if energy < position
+                            love.graphics.setColor(0.45,0.45,0.45,1)
+                            if 10*j+(i/(2*GameScale)) >= Pl.remEnergy then
+                                love.graphics.setColor(0.3,0.3,0.3,1)
+                            end
+                        elseif Pl.totalEnergy < 30 then
+                            love.graphics.setColor(1-(Pl.totalEnergy/33.3333),0.1+(Pl.totalEnergy/33.3333),0.3,1)
+                        elseif Pl.energy[1] > 5 then --if the lower bar is nearly full, make the energy bar blue
+                            love.graphics.setColor(0.1,1.025-(Pl.energy[1]/200),-0.25+(Pl.energy[1]/20),1)
+                        else
+                            love.graphics.setColor(0.1,1,0.3,1)
                         end
-                    elseif Pl.totalEnergy < 30 then
-                        love.graphics.setColor(1-(Pl.totalEnergy/33.3333),0.1+(Pl.totalEnergy/33.3333),0.3,1)
-                    elseif Pl.energy[1] > 5 then --if the lower bar is nearly full, make the energy bar blue
-                        love.graphics.setColor(0.1,1.025-(Pl.energy[1]/200),-0.25+(Pl.energy[1]/20),1)
-                    else
-                        love.graphics.setColor(0.1,1,0.3,1)
-                    end
 
-                    --Colored rects
-                    local h = (i==1 or i==round(20*GameScale)) and 33 or 35
-                    love.graphics.rectangle('fill',(238*GameScale)-(20*GameScale)-i-(22*j*GameScale),(35-h)/2,HighGraphics and 1 or 2,h*GameScale)
+                        --Colored rects
+                        local h = (i==1 or i==round(20*GameScale)) and 33 or 35
+                        love.graphics.rectangle('fill',(238*GameScale)-(20*GameScale)-i-(22*j*GameScale),(35-h)/2,HighGraphics and 1 or 2,h*GameScale)
+                    end
                 end
             end
             love.graphics.setColor(1,1,1,1)
@@ -866,35 +877,39 @@ function love.resize()
     WindowWidth, WindowHeight = love.graphics.getDimensions()
 
     --Remake screencanvas
-    ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight,{msaa=4})
+    ScreenCanvas = love.graphics.newCanvas(WindowWidth,WindowHeight,{msaa=(HighGraphics and 4 or 2)})
+    BgCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32)
     HDMACanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
     HDMATempCanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
-    PortraitCanvas = love.graphics.newCanvas(2560,1440,{msaa=4})
+    PortraitCanvas = love.graphics.newCanvas(2560,1440,{msaa=(HighGraphics and 4 or 2)})
 
     --From love2d wiki
     GameScale = WindowHeight/800
     XPadding = (WindowWidth - (1280*GameScale))/2
     YPadding = (WindowHeight - (800*GameScale))/2
-
     if StateVar.genstate == 'game' then
 
         --Initialize Energy bar background area
-        BgRectCanvas = love.graphics.newCanvas(WindowWidth+100,WindowHeight,{msaa=4})
-        love.graphics.setCanvas(BgRectCanvas)
+        EBBCanvas = love.graphics.newCanvas(WindowWidth+100,WindowHeight,{msaa=(HighGraphics and 4 or 2)})
+        love.graphics.setCanvas(EBBCanvas)
         for i=-100,210,1 do
             local hei = math.min(40,(math.sqrt(210-i)*8.944)) --Slope down smoothly at the end of the bar
             love.graphics.rectangle('fill',WindowWidth-(50*GameScale)-i*GameScale,WindowHeight-(60*GameScale)-(i/13.333333*GameScale),1*GameScale,hei*GameScale)
         end
 
         --Energy bar Canvas
-        EnergyCanvas = love.graphics.newCanvas(238*GameScale,35*GameScale,{msaa=4})
+        EnergyCanvas = love.graphics.newCanvas(238*GameScale,35*GameScale,{msaa=(HighGraphics and 4 or 2)})
 
         --Initialize Level Canvas
         DirtyTiles = {}
-        TileCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32,{msaa=2})
+        TileCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32)
 
+         --draw gray inside the level bounds
+        love.graphics.setCanvas(BgCanvas)
+        love.graphics.clear(0.1,0.1,0.1,1)
+        
+        --Draw tiles
         love.graphics.setCanvas(TileCanvas)
-        love.graphics.clear()
         for x=0,LevelWidth,1 do
             for y=0,LevelHeight,1 do
                 local bl = LevelData[x.."-"..y]
