@@ -419,10 +419,10 @@ function Player:update(dt)
     end
 
     --Push back in bounds of the level
-    if self.xpos > LevelWidth*32 then self.xpos = self.xpos - 32 end
-    if self.xpos < 0 then self.xpos = self.xpos + 32 end
-    if self.ypos > LevelHeight*32 then self.ypos = self.ypos - 32 end
-    if self.ypos < 0 then self.ypos = self.ypos + 32 end
+    if self.xpos > LevelWidth*32 then self.xpos = self.xpos - 64 end
+    if self.xpos < 0 then self.xpos = self.xpos + 64 end
+    if self.ypos > LevelHeight*32 then self.ypos = self.ypos - 64 end
+    if self.ypos < 0 then self.ypos = self.ypos + 64 end
 
     --Quarterstep Updating
     self.colliderCount = {bottom = 0, left = 0, right = 0, up = 0}
@@ -501,7 +501,7 @@ function Player:update(dt)
     --If you're on the ground
     if self.colliderCount['bottom'] > 0 then
 
-        --Energy Calculations (1 is LTO, 2 is Li-Ion)
+        --Energy Calculations
         if self.energy[1] < 4 then
             self.eRegen[1] = self.energy[1]/20
         elseif self.energy[1] < 17.5 then
@@ -571,7 +571,7 @@ function Player:update(dt)
 
         --slowdown if you landed hard
         if self.animation == 'hardlanded' then
-            self.xv = self.xv * 0.0075^dt
+            self.xv = self.xv * 0.007^dt
         end
 
         self.yv = 0
@@ -608,7 +608,7 @@ function Player:update(dt)
         if self.colliderCount['up'] > 0 then
             self.yv = 0.1
             self.ypos = self.ypos + 1
-            self.jCounter = 4
+            self.jCounter = 2
         end
     end
 
@@ -672,10 +672,12 @@ function Player:update(dt)
             --Change YV
             self.yv = self.yv - plStats.singleJump
             if self.slide >= 190 then --jump higher while in slide, more towards the end of the window
-                self.yv = self.yv - 0.125 - (275-self.slide)^3 / 750000
+                self.yv = self.yv - 0.05 - math.max(0,(260-self.slide)^3 / 650000)
             end
-            if math.abs(self.lastDir[2]) > 0.075 and math.abs(self.xv) < 0.5 and math.sign(self.xv) == -self.facing and self.onWall == 0 then --jump higher when you counterstrafe properly
-                self.yv = self.yv - 0.675
+
+            --jump higher when you counterstrafe
+            if math.abs(self.lastDir[2]) > 0.075 and math.abs(self.xv) < 0.5 and math.sign(self.xv) == -self.facing and self.onWall == 0 then
+                self.yv = self.yv - 0.8
                 self.jCounter = 9 --double jcounter
                 self.energy[2] = math.min(75,self.energy[2] + 5) --refund 5 energy to 2
             end
@@ -1006,7 +1008,7 @@ function Player:update(dt)
     if self.onGround then    
 
         --Walk
-        if love.keyboard.isDown(KeyBinds['Spin']) then
+        if love.keyboard.isDown(KeyBinds['Dive']) then
             self.speedMult = 1.4
             --Walk left on ground
             if love.keyboard.isDown(KeyBinds['Left']) and self.onWall~=-1 then

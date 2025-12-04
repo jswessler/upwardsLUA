@@ -1,5 +1,11 @@
 Release Log:
 
+a1.3.5
+- Out of bounds area is now black (in-bounds area is on a seperate layer)
+- Performance improvements
+- Walking moved to dive control
+- Adjusted physics
+
 a1.3.4
 - Portrait scaled properly
 - Portrait now slides in/out and jumps

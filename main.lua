@@ -7,7 +7,7 @@
     - Bicubic/Perlin colored background
 ]]
 
-BuildId = "Alpha 1.3.4_03"
+BuildId = "Alpha 1.3.5"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -398,7 +398,7 @@ function love.draw()
                 if i == 1 and HeartFlashAmt > 0 then
                     local critimg = HpImages['crit']
                     love.graphics.setColor(1,1,1,HeartFlashAmt)
-                    love.graphics.draw(critimg,((120*GameScale)+(68*i*GameScale))+HudX,WindowHeight-(97*GameScale)-(i*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
+                    love.graphics.draw(critimg,((130*GameScale)+(66*i*GameScale))+HudX,WindowHeight-(82*GameScale)-(i*5.1*GameScale)+HudY-hp.yp,(-4.289/57.19),4*GameScale,4*GameScale)
                     love.graphics.setColor(1,1,1,1)
                 end
             end
