@@ -12,6 +12,8 @@ function InitialLoad()
 
     --Lists
     Buttons = {}
+
+    --Shader
     
     --Scaling
     GameScale = 1

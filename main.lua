@@ -3,12 +3,11 @@
 
 --[[ todo
 
-    a1.3.4
-    - Add portrait fade in/out
-    - Procedural Background
+    a1.3.5
+    - Bicubic/Perlin colored background
 ]]
 
-BuildId = "Alpha 1.3.4"
+BuildId = "Alpha 1.3.4_01"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -37,6 +36,7 @@ function love.load()
     require "call"
     require "startup"
     require "heart"
+    require "background"
 
     InitialLoad() --Initial Loading Routine
 
@@ -207,7 +207,7 @@ function love.draw()
 
     --Background color
     love.graphics.setColor(0.1,0.1,0.1,1)
-    love.graphics.rectangle("fill",0,0,WindowWidth,WindowHeight)
+    love.graphics.rectangle('fill',0,0,WindowWidth,WindowHeight)
     love.graphics.setColor(1,1,1,1)
 
     --Draw HDMA background
@@ -217,10 +217,10 @@ function love.draw()
     GameScale = WindowHeight/800
 
     --F2: Take Screenshot
-    if love.keyboard.isDown("f2") and not DebugPressed then
+    if love.keyboard.isDown('f2') and not DebugPressed then
         DebugPressed = true
-        love.graphics.captureScreenshot("Upwards-"..os.time()..".png")
-        FadingText = {155, "Screenshot Taken"}
+        love.graphics.captureScreenshot('Upwards-'..os.time()..'.png')
+        FadingText = {155, 'Screenshot Taken'}
     end
 
     --Things to draw when the game is running
@@ -265,11 +265,6 @@ function love.draw()
             for i=#Health,1,-1 do
                 dmgAmt = Health[i]:takeDmg(dmgAmt)
             end
-        end
-
-        --Draw Entities
-        for i,v in ipairs(Entities) do
-            v:draw(GameScale)
         end
 
         --Draw Player & update camera
@@ -590,7 +585,7 @@ function love.draw()
         --Debug text
         if DebugInfo then
             local stats = love.graphics.getStats()
-            SimpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." BL: "..math.floor(Pl.xpos/32).." / "..math.floor(Pl.ypos/32).." Ve: "..round(Pl.xv,2).." / "..round(Pl.yv,2),16,10*GameScale,40*GameScale)
+            SimpleText("XY: "..round(Pl.xpos).." / "..round(Pl.ypos).." BL: "..math.floor(Pl.xpos/32).." / "..math.floor(Pl.ypos/32).." Ve: "..round(Pl.xv,2).." / "..round(Pl.yv,2).." G: "..round(GlobalGravity,1),16,10*GameScale,40*GameScale)
             SimpleText(round(love.timer.getFPS(),1).." fps Ss: "..StepSize..(AutoStep and "A" or "").." Dr: "..WindowWidth.."x"..WindowHeight.." S: "..round(GameScale,2).." Z: "..round(Zoom,2).."/"..round(ZoomBase,2),16,10*GameScale,60*GameScale)
             SimpleText("PL: "..round(Pl.abilities['jump'],1).."/"..round(Pl.abilities['jumpext'],1).."/"..round(Pl.abilities['djump'],1).."/"..round(Pl.abilities['dive'],1).."/"..round(Pl.abilities['spinny'],2).." F: "..Pl.facing.." D: "..Pl.dFacing.." E: "..round(Pl.energy[1],1).."/"..round(Pl.energy[2],1).." RE: "..round(Pl.remEnergy,1).." O: "..Pl.onWall.." Jc: "..round(Pl.jCounter,2).." Ms: "..round(Pl.maxSpd,2),16,10*GameScale,80*GameScale)
             SimpleText("PLa: "..Pl.animation.." N: "..Pl.nextAni.." C: "..round(Pl.counter%60).." F: "..round(Pl.aniFrame,1).." T: "..round(Pl.aniTimer,1).."/"..round(Pl.aniiTimer,1),16,10*GameScale,100*GameScale)
