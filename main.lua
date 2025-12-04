@@ -7,7 +7,7 @@
     - Bicubic/Perlin colored background
 ]]
 
-BuildId = "Alpha 1.3.4_02"
+BuildId = "Alpha 1.3.4_03"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -489,11 +489,13 @@ function love.draw()
             --Draw
             love.graphics.setCanvas(PortraitCanvas)
             love.graphics.clear()
-            love.graphics.setDefaultFilter("linear","linear",8)
+            love.graphics.setDefaultFilter("linear","linear",4)
             if StateVar.state == 'play' then --fade out
                 love.graphics.setColor(1,1,1,1-math.min(1,0.5*(GameCounter-TextStats.timein)))
                 love.graphics.draw(TextStats.img, (perx*1) + ((math.min(1,math.sqrt(2)*(GameCounter-TextStats.timein)))*(10*GameScale))^3, (pery*1.125), (perr*0.01), 1,1)
-
+                if GameCounter-TextStats.timein > 1 then
+                    TextStats.img = nil
+                end
             elseif StateVar.state == 'phonecall' then --fade in
                 love.graphics.setColor(1,1,1,math.min(1,2.5*(GameCounter-TextStats.timein)))
                 love.graphics.draw(TextStats.img, (perx*1) + ((1-math.min(1,math.sqrt(2)*(GameCounter-TextStats.timein)))*(10*GameScale))^3, (pery*1.125), (perr*0.01), 1,1)
@@ -881,7 +883,7 @@ function love.resize()
     BgCanvas = love.graphics.newCanvas(LevelWidth*32,LevelHeight*32)
     HDMACanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
     HDMATempCanvas = love.graphics.newCanvas(WindowWidth/4,WindowHeight/4)
-    PortraitCanvas = love.graphics.newCanvas(2560,1440,{msaa=(HighGraphics and 4 or 2)})
+    PortraitCanvas = love.graphics.newCanvas(2560,1440)
 
     --From love2d wiki
     GameScale = WindowHeight/800
