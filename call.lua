@@ -19,19 +19,15 @@ function CallInit(call) --called when you first pick up a call
     end
     BoxRect = {x = 50*GameScale, y = WindowHeight-(300*GameScale), w = TBoxWidth, h = (250*GameScale)}
     NameRect = {x = 50*GameScale, y = WindowHeight-(400*GameScale), w = math.min(150*GameScale,TBoxWidth*GameScale), h = (75*GameScale)}
-    TextStats = {line=0,char=1,pos=false,imgn='',img=nil,imgpos={1000,0},wait=0,name=''}
+    TextStats = {line=0,char=1,pos=false,imgn='',img=nil,imgpos={1000,0},wait=0,name='',timein=GameCounter,jump=0}
+    --timein for fade in purposes
 end
 
 function CallUpdate(dt)
     --Text rectangle sizes
-    BoxRect = {x = 200*GameScale, y = WindowHeight-(300*GameScale), w = TBoxWidth, h = (250*GameScale)}
-    NameRect = {x = 200*GameScale, y = WindowHeight-(400*GameScale), w = math.min(150*GameScale,TBoxWidth*GameScale), h = (75*GameScale)}
-
-    --Handle portrait
-    if true then
-    end
+    BoxRect = {x = 40*GameScale, y = WindowHeight-(290*GameScale), w = TBoxWidth, h = (250*GameScale)}
+    NameRect = {x = 40*GameScale, y = WindowHeight-(390*GameScale), w = math.min(157.5*GameScale,TBoxWidth*GameScale), h = (70*GameScale)}
     
-    --Expand text box
     --Expand text box
     if TBoxWidth < WindowWidth-400 then
 
@@ -98,6 +94,7 @@ function CallUpdate(dt)
                         NextCall = 0
                         TBoxWidth = 0
                         StateVar.state = 'play'
+                        TextStats.timein = GameCounter
                         return
                     end
                 elseif i ~= "\\" then --normal text
@@ -119,109 +116,19 @@ function CallUpdate(dt)
                         TextStats.line = TextStats.line + 1
                         TextStats.char = TextStats.char + 2
                     elseif j == 'n' then
-                        if love.keyboard.isDown('return') or love.keyboard.isDown('z') then --new dialogue box
+                        if love.keyboard.isDown('return') or love.keyboard.isDown('z') or love.mouse.isDown(1) then --new dialogue box
                             CurrentText = {'','',''}
                             TextStats.line = 1
                             TextStats.char = TextStats.char + 4
                             TextStats.pos = false --get a new image 
                             TextStats.imgn = '' --reset image
+                            TextStats.jump = GameCounter --jump image
                         end
                     end
                 end
             end
         end
         TextStats.wait = TextStats.wait - dt --reduce wait timer
-    end
-
-end
-
-
-
-
-
-
-function CallUpdateOld(dt)
-    --Text rectangle sizes
-    BoxRect = {x = 50*GameScale, y = WindowHeight-(300*GameScale), w = TBoxWidth, h = (250*GameScale)}
-    NameRect = {x = 50*GameScale, y = WindowHeight-(400*GameScale), w = math.min(150*GameScale,TBoxWidth*GameScale), h = (75*GameScale)}
-
-    --Expand text box
-    if TBoxWidth < WindowWidth-100 then
-
-        --Fix for resizing window with text box open
-        if fullTextBox then
-            TBoxWidth = WindowWidth-100
-        --Otherwise expand textbox gradually
-        else
-            TBoxWidth = TBoxWidth + (6000*dt)
-        end
-    else
-        fullTextBox = true
-        TBoxWidth = WindowWidth-100
-        if waitCounter <= 0 then
-            --Reset waitCounter
-            if love.keyboard.isDown('x') or love.keyboard.isDown('tab') then
-                waitCounter = 0 --wait 0 frames
-            else
-                waitCounter = dt --wait 1 frame
-            end
-
-            --Draw text
-            if charCounter < #txt then
-                local i = txt[charCounter] --Important, apparently
-                if line == -1 then
-                    TextName = TextName..i
-                    if i == "\n" then
-                        line = 0
-                    end
-                    charCounter = charCounter + 1
-                else
-                    if i ~= "\\" then
-                        CurrentText[line+1] = CurrentText[line+1]..i
-                        charCounter = charCounter + 1
-
-                    --escape codes
-                    else
-                        j = txt[charCounter+1]
-                        if j == '.' then
-                            waitCounter = 0.25
-                            charCounter = charCounter + 2
-                        elseif j == ',' then
-                            waitCounter = 0.5
-                            charCounter = charCounter + 2
-                        elseif j == '|' then
-                            waitCounter = 1
-                            charCounter = charCounter + 2
-                        elseif j == 't' then
-                            line = line + 1
-                            charCounter = charCounter + 2
-                        elseif j == 'n' then
-                            if love.keyboard.isDown('return') or love.keyboard.isDown('z') then
-                                CurrentText = {'','',''}
-                                line = -1
-                                charCounter = charCounter + 2
-                            end
-                        end
-                    end
-                end
-
-            --Finish up
-            else                           
-                if love.keyboard.isDown('return') or love.keyboard.isDown('z') then
-                    CurrentText = {'','',''}
-                    fullTextBox = false
-                    txt = {}
-                    BoxRect = ''
-                    NameRect = ''
-                    NextCall = 0
-                    TBoxWidth = 0
-                    StateVar.state = 'play'
-                end
-            end
-        --Wait
-        else
-            waitCounter = waitCounter - dt
-        end
     end
 
 end

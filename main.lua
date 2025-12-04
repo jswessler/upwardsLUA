@@ -5,9 +5,10 @@
 
     a1.3.4
     - Add portrait fade in/out
+    - Procedural Background
 ]]
 
-BuildId = "Alpha 1.3.3"
+BuildId = "Alpha 1.3.4"
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -343,6 +344,9 @@ function love.draw()
 
             --Draw Phone
             love.graphics.draw(PhoneImg,PhoneX+HudX,PhoneY+HudY,0,GameScale*PhoneScale,GameScale*PhoneScale)
+            if TriggerPhone then
+                PhoneDraw()
+            end
             
             --Draw Hex
             love.graphics.setDefaultFilter("linear","linear",8)
@@ -460,33 +464,40 @@ function love.draw()
             love.graphics.setColor(1,1,1,1)
 
             --Phone call text
-            SimpleText(TextStats.name,30,240*GameScale,WindowHeight-(380*GameScale))
+            SimpleText(TextStats.name,30,115*GameScale,WindowHeight-(352.5*GameScale),'center')
             for i,v in ipairs(CurrentText) do
-                SimpleText(v,28,210*GameScale,WindowHeight-(330*GameScale)+(i*GameScale*50))
+                SimpleText(v,28,60*GameScale,WindowHeight-(320*GameScale)+(i*GameScale*50))
+            end
+        end
+        if TextStats and TextStats.img then --Portrait
+            --Get scale factor
+            local scale = WindowHeight/1440
+            local drawW = 2560 * scale
+            local drawX = WindowWidth - drawW local drawY = 0
+            
+            --Perlin jitter
+            local perx = love.math.noise(GameCounter/3)
+            local pery = love.math.noise(GameCounter/3+1000)
+            local perr = love.math.noise(GameCounter/4+2000)
+
+            --Draw
+            love.graphics.setCanvas(PortraitCanvas)
+            love.graphics.clear()
+            love.graphics.setDefaultFilter("linear","linear",8)
+            if StateVar.state == 'play' then --fade out
+                love.graphics.setColor(1,1,1,1-math.min(1,0.5*(GameCounter-TextStats.timein)))
+                love.graphics.draw(TextStats.img, (perx*1) + ((math.min(1,math.sqrt(2)*(GameCounter-TextStats.timein)))*(10*GameScale))^3, (pery*1.125), (perr*0.01), 1,1)
+
+            elseif StateVar.state == 'phonecall' then --fade in
+                love.graphics.setColor(1,1,1,math.min(1,2.5*(GameCounter-TextStats.timein)))
+                love.graphics.draw(TextStats.img, (perx*1) + ((1-math.min(1,math.sqrt(2)*(GameCounter-TextStats.timein)))*(10*GameScale))^3, (pery*1.125), (perr*0.01), 1,1)
             end
 
-            if TextStats.img then --Portrait
-                --Get scale factor
-                local scale = math.min(WindowWidth/2560,WindowHeight/1440)
-                local drawW = 2560 * scale local drawH = 1440 * scale
-                local drawX = WindowWidth - drawW local drawY = WindowHeight - drawH
-                
-                --Perlin jitter
-                local perx = love.math.noise(GameCounter/3)
-                local pery = love.math.noise(GameCounter/3+1000)
-                local perr = love.math.noise(GameCounter/4+2000)
-
-                --Draw
-                love.graphics.setCanvas(PortraitCanvas)
-                love.graphics.clear()
-                love.graphics.setDefaultFilter("linear","linear",8)
-                love.graphics.draw(TextStats.img, perx, pery, perr*0.05, 1,1)
-                
-                --Blit
-                love.graphics.setCanvas(ScreenCanvas)
-                love.graphics.draw(PortraitCanvas,drawX,drawY-(20*GameScale),0,scale,scale)
-                love.graphics.setDefaultFilter("linear","nearest",4)
-            end
+            love.graphics.setColor(1,1,1,1)
+            --Blit
+            love.graphics.setCanvas(ScreenCanvas)
+            love.graphics.draw(PortraitCanvas,drawX,drawY-(GameScale*math.max(0,0-(((GameCounter-TextStats.jump)*25)-3.88)^2+15)),0,scale,scale)
+            love.graphics.setDefaultFilter("linear","nearest",4)
         end
 
         --Level Editor

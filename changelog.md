@@ -1,5 +1,10 @@
 Release Log:
 
+a1.3.4
+- Portrait scaled properly
+- Portrait now slides in/out and jumps
+- Phone hitbox shown
+
 a1.3.3
 - Added dialog portraits & fixed the dialog system
 - Platforming changes, bug fixes

@@ -36,9 +36,6 @@ function PhoneAnimate(dt)
 
         --Collide
         if PointCollideRect(PhoneRect,MouseX,MouseY) then
-            love.graphics.setColor(1,1,1,0.5)
-            love.graphics.rectangle('fill',PhoneX,PhoneY,15*GameScale*PhoneScale,40*GameScale*PhoneScale)
-            love.graphics.setColor(1,1,1,1)
             if (love.mouse.isDown(1)) or love.keyboard.isDown(KeyBinds['Throw']) then
                 CallInit(NextCall)
             end
@@ -67,6 +64,14 @@ function PhoneAnimate(dt)
                 end
             end
         end
+    end
+end
+
+function PhoneDraw() --just handles the hover-over rectangle
+    if PointCollideRect(PhoneRect,MouseX,MouseY) then
+        love.graphics.setColor(1,0.5,0.5,0.6)
+        love.graphics.rectangle('fill',PhoneX,PhoneY,15*GameScale*PhoneScale,40*GameScale*PhoneScale)
+        love.graphics.setColor(1,1,1,1)
     end
 end
 
